@@ -17,21 +17,20 @@ class LogInViewModel {
 
     //add in things for a loading buffer, a account create success, and email verification
 
-    private fun createDBUser(uid: String, email: String, name: String,
+    private fun createDBUser(email: String, name: String,
                             height: Number, weight: Number, privacy: Boolean,
                             imperial: Boolean, password: String){
         db.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful){
                     val displayName = task.result?.user?.email?.split('@')?.get(0).toString()
-                    createUser(uid, email, name, height, weight, privacy, imperial, displayName)
+                    createUser(email, name, height, weight, privacy, imperial, displayName)
                 }
             }
     }
 
     private fun createUser(
         email: String,
-        password: String,
         name: String,
         height: Number,
         weight: Number,
