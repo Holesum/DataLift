@@ -22,38 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.example.datalift.ui.components.DataliftTextField
 import com.example.datalift.ui.theme.DataliftTheme
 
 fun accountCreationSwitch(){
     return
-}
-
-@Composable
-fun SignupFeatures(modifier: Modifier){
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Text(
-            text = "Sign Up",
-            modifier = modifier.padding(4.dp)
-        )
-        LoginTextField(
-            field = "Username",
-            modifier = modifier.padding(4.dp)
-        )
-        LoginTextField(
-            field = "Password",
-            modifier = modifier.padding(4.dp)
-        )
-        Button(onClick = { accountCreationSwitch()}){
-            Text("Sign Up")
-        }
-        Spacer(Modifier.padding(8.dp))
-        Button(onClick = { accountCreationSwitch()}){
-            Text("Login")
-        }
-    }
 }
 
 @Composable
@@ -69,11 +42,11 @@ fun LoginFeatures(
             text = "Login",
             modifier = modifier.padding(4.dp)
         )
-        LoginTextField(
+        DataliftTextField(
             field = "Username",
             modifier = modifier.padding(4.dp)
         )
-        LoginTextField(
+        DataliftTextField(
             field = "Password",
             modifier = modifier.padding(4.dp)
         )
@@ -85,18 +58,6 @@ fun LoginFeatures(
             Text("Account Creation")
         }
     }
-}
-
-@Composable
-fun LoginTextField(field: String, modifier: Modifier = Modifier){
-    var text by remember { mutableStateOf("") }
-
-    TextField(
-        value = text,
-        onValueChange = { updateText -> text = updateText},
-        label = { Text(text = field) },
-        modifier = modifier
-    )
 }
 
 @Composable
@@ -118,24 +79,6 @@ fun LoginScreen(
             navigateToAccountCreation = navigateToAccountCreation,
             modifier = modifier
         )
-    }
-}
-
-@Composable
-fun SignupScreen(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Text(
-            text = "DATALIFT",
-            fontFamily = FontFamily.Serif,
-            fontSize = 48.sp,
-            modifier = modifier.padding(16.dp)
-        )
-        SignupFeatures(modifier)
     }
 }
 
