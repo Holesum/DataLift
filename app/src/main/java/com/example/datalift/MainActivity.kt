@@ -16,7 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.datalift.screens.logIn.LoginScreen
-import com.example.datalift.screens.logIn.SignupScreen
+import com.example.datalift.screens.signUp.SignupScreen
+import com.example.datalift.screens.workout.WorkoutListScreen
 //import com.example.datalift.screens.logIn.loginScreen
 import com.example.datalift.ui.theme.DataliftTheme
 import kotlinx.serialization.Serializable
@@ -55,18 +56,20 @@ fun DataliftApp(){
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
-                composable(DataliftDestinations.SIGNUP) { SignupScreen() }
+                composable(DataliftDestinations.SIGNUP) {
+                    SignupScreen(
+                        navUp = { navController.navigateUp() },
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+                composable(DataliftDestinations.WORKOUTS) {
+                    WorkoutListScreen(
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name! I'm making changes!",
-        modifier = modifier
-    )
 }
 
 @Preview(showBackground = true)
