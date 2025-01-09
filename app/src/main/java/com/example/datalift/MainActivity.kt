@@ -12,10 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.datalift.ui.theme.DataliftTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.example.datalift.screens.logIn.LogInViewModel
+
+private lateinit var viewModel: LogInViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = LogInViewModel()
         enableEdgeToEdge()
         setContent {
             DataliftTheme {
@@ -24,6 +30,10 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+                    //function call to test create user
+                    //viewModel.createDBUser("test@example.com", "test name", 70, 150, true, true, "password")
+
+
                 }
             }
         }
