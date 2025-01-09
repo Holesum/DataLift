@@ -40,7 +40,7 @@ data class Muser(
             "weight" to this.weight,
             "privacy" to this.privacy,
             "imperial" to this.imperial,
-            "friend" to this.friends
+            "friends" to this.friends
         )
     }
 }
