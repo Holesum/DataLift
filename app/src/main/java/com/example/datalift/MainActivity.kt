@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                     )
                     //function call to test create user
                     //viewModel.createDBUser("test@example.com", "test name", 70, 150, true, true, "password")
+                    viewModel.loginUser("test@example.com", "password")
 
 
                 }
