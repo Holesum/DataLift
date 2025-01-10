@@ -49,18 +49,16 @@ fun DataliftApp(){
                         navigateToAccountCreation = {
                             navController.navigate(route = DataliftDestinations.SIGNUP)
                         },
-                        modifier = Modifier.padding(innerPadding)
                     )
                 }
                 composable(DataliftDestinations.SIGNUP) {
                     SignupScreen(
                         navUp = { navController.navigateUp() },
-                        modifier = Modifier.padding(innerPadding)
                     )
                 }
                 composable(DataliftDestinations.WORKOUTS) {
                     WorkoutListScreen(
-                        modifier = Modifier.padding(innerPadding)
+
                     )
                 }
             }
