@@ -1,32 +1,39 @@
 package com.example.datalift.model
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import java.time.LocalDate
 
 data class Muser(
-    private val uid: String,
-    private val uname: String,
-    private val email: String,
-    private val name: String,
-    private val height: Number,
-    private val weight: Number,
-    private val privacy: Boolean,
-    private val imperial: Boolean,
-    private val friends: List<String>
+    val uid: String,
+    val uname: String,
+    var email: String,
+    var gender: String,
+    var name: String,
+    val height: Number,
+    var weight: Number,
+    var privacy: Boolean,
+    var imperial: Boolean,
+    var dob: Timestamp,
+    var workouts: List<String>,
+    var friends: List<String>
 ) {
 
     companion object {
         fun fromDocument(document: DocumentSnapshot): Muser {
             return Muser(
-                uid = document.id,
+                uid = document.getString("uid") ?: "",
                 uname = document.getString("uname") ?: "",
                 email = document.getString("email") ?: "",
+                gender = document.getString("gender") ?: "",
                 name = document.getString("name") ?: "",
-                height = document.getString("height")?.toInt() ?: 0,
-                weight = document.getString("weight")?.toInt() ?: 0,
+                height = document.get("height") as? Number ?: 0,
+                weight = document.get("weight") as? Number ?: 0,
                 privacy = document.getBoolean("privacy") ?: false,
                 imperial = document.getBoolean("imperial") ?: false,
-                friends = document.get("friends") as? List<String> ?: emptyList()//fix warning
-
+                dob = document.getTimestamp("dob") ?: Timestamp.now(), //fix the date to work better
+                workouts = document.get("workouts") as List<String>,
+                friends = document.get("friends") as List<String>,
             )
         }
     }
@@ -36,10 +43,13 @@ data class Muser(
             "uname" to this.uname,
             "email" to this.email,
             "name" to this.name,
+            "gender" to this.gender,
             "height" to this.height,
             "weight" to this.weight,
             "privacy" to this.privacy,
             "imperial" to this.imperial,
+            "dob" to this.dob,
+            "workouts" to this.workouts,
             "friends" to this.friends
         )
     }
