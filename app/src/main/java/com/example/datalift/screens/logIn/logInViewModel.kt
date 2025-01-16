@@ -10,7 +10,11 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.type.Date
+import java.time.Instant
+import java.time.LocalDate
 
 class LogInViewModel : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
@@ -21,88 +25,7 @@ class LogInViewModel : ViewModel() {
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
 
-    //add in things for a loading buffer, a account create success, and email verification
-
-    /**
-     * Create user account with email and password
-     *
-     * @param email: email of user
-     * @param name: preferred name of user
-     * @param height: user height in inches
-     * @param weight: user initial weight in lbs
-     * @param privacy: boolean does user want their workouts to be public true=public
-     * @param imperial: boolean, does the user want weight measurements in imperial or metric
-     * @param password: Password associated with user account
-     *
-     * @return null
-     *
-     * @see FirebaseAuth.createUserWithEmailAndPassword
-     * @see createUser
-     */
-    fun createDBUser(email: String, name: String,
-                            height: Number, weight: Number, privacy: Boolean,
-                            imperial: Boolean, password: String) {
-        if (_loading.value == false) {
-            _loading.value = true
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val uname = task.result?.user?.email?.split('@')?.get(0).toString()
-                        createUser(email, name, height, weight, privacy, imperial, uname)
-                    } else {
-                        _errorMessage.value = "failed to create user"
-                    }
-                    _loading.value = false
-                }
-    }
-    }
-
-
-    /**
-     * Create a user document in the database rather than the authentication object that was added before
-     *
-     * @param email: email of user
-     * @param name: preferred name of user
-     * @param height: user height in inches
-     * @param weight: user initial weight in lbs
-     * @param privacy: boolean does user want their workouts to be public true=public
-     * @param imperial: boolean, does the user want weight measurements in imperial or metric
-     * @param uname: username of user, only ever one account with this username
-     *
-     * @see createDBUser
-     */
-    private fun createUser(
-        email: String,
-        name: String,
-        height: Number,
-        weight: Number,
-        privacy: Boolean,
-        imperial: Boolean,
-        uname: String
-    ){
-
-        val userId = auth.currentUser?.uid
-        val user = Muser(
-            uid = userId.toString(),
-            uname = uname,
-            email = email,
-            name = name,
-            height = height,
-            weight = weight,
-            privacy = privacy,
-            imperial = imperial,
-            friends = mutableListOf<String>()
-        ).toMap()
-
-        Log.d("Firebase", "$user")
-
-        FirebaseFirestore.getInstance().collection("Users")
-            .document(uname)
-            .set(user.toMap())
-            .addOnSuccessListener {Log.d("Firebase", "Create user success $uname")}
-            .addOnFailureListener{ exception ->
-                Log.d("Firebase", "Failed to create user ${exception.message}")}
-    }
+    //add in things for a loading buffer,
 
     /**
      * Login user with email and password
@@ -124,7 +47,7 @@ class LogInViewModel : ViewModel() {
                             .addOnSuccessListener { snapshot ->
                                 try {
                                     val user = Muser.fromDocument(snapshot.documents[0])
-                                    Log.d("Firebase", "User found: ${user.getName()}")
+                                    Log.d("Firebase", "User found: ${user.name}")
                                     /** here user is collected, use nav controller to move forward with this
                                      *
                                      */

@@ -1,6 +1,10 @@
 package com.example.datalift.model
 
+import com.google.firebase.firestore.DocumentSnapshot
+
 data class Mexercise(
-    private val name: String,
-    private val sets: List<Mset>
-)
+    var id: String = "",
+    var name:String = "",
+    var sets: List<Mset> = emptyList()
+) {
+}
