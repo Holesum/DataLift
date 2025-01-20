@@ -7,4 +7,14 @@ data class Mexercise(
     var name:String = "",
     var sets: List<Mset> = emptyList()
 ) {
+    fun getFormattedName(): String {
+        return "$name (${totalSets()} sets)"
+    }
+
+    fun totalSets(): Int {
+        return sets.size
+    }
+    fun isValid(): Boolean {
+        return name.isNotBlank() && totalSets() > 0
+    }
 }

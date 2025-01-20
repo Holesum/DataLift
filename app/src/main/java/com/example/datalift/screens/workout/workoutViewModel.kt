@@ -31,6 +31,15 @@ class WorkoutViewModel : ViewModel() {
     private val _exercises = MutableLiveData<List<ExerciseItem>>()
     val exercises: LiveData<List<ExerciseItem>> = _exercises
 
+    private val _workoutFetched = MutableLiveData<Boolean>(false)
+    val workoutFetched: LiveData<Boolean> = _workoutFetched
+
+    init{
+        if(_workoutFetched.value == false) {
+            getWorkouts()
+        }
+    }
+
     /**
      * Function to get search exercise in existing list of exercises
      */
@@ -131,8 +140,9 @@ class WorkoutViewModel : ViewModel() {
                         workoutList.add(workout)
                     }
                 }
-                Log.d("Firebase", "Workouts found: ${workoutList.size}")
+                Log.d("Firebase", "Workouts found: ${workoutList[0]}")
                 _workouts.value = workoutList
+                _workoutFetched.value = true
                 _loading.value = false
             }.addOnFailureListener { e ->
                 Log.d("Firebase", "Error getting workouts: ${e.message}")

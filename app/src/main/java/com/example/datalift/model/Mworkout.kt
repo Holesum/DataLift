@@ -6,6 +6,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 
 data class Mworkout(
@@ -15,5 +16,18 @@ data class Mworkout(
     var docID: String = "",
     var exercises: List<Mexercise> = emptyList()
 ) {
+    fun toLocalDateTime(): LocalDateTime {
+        return LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault())
+    }
 
+    // Get formatted date string
+    fun getFormattedDate(): String {
+        val localDateTime = toLocalDateTime()
+        return "${localDateTime.month} ${localDateTime.dayOfMonth}, ${localDateTime.year}"
+    }
+
+    // Check if the workout has exercises
+    fun hasExercises(): Boolean {
+        return exercises.isNotEmpty()
+    }
 }
