@@ -25,6 +25,12 @@ class LogInViewModel : ViewModel() {
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
 
+    private val _verSent = MutableLiveData(false)
+    val verSent: LiveData<Boolean> = _verSent
+
+    private val _passwordReset = MutableLiveData(false)
+    val passwordReset: LiveData<Boolean> = _passwordReset
+
     //add in things for a loading buffer,
 
     /**
@@ -41,24 +47,30 @@ class LogInViewModel : ViewModel() {
                     if (task.isSuccessful) {
                         var uid = auth.currentUser?.uid
                         Log.d("Firebase", "Login success: ${task.result}")
-                        FirebaseFirestore.getInstance().collection("Users")
-                            .whereEqualTo("uid", uid)
-                            .get()
-                            .addOnSuccessListener { snapshot ->
-                                try {
-                                    val user = Muser.fromDocument(snapshot.documents[0])
-                                    Log.d("Firebase", "User found: ${user.name}")
-                                    /** here user is collected, use nav controller to move forward with this
-                                     *
-                                     */
-                                } catch (e: Exception) {
-                                    Log.d("Firebase", "User not found: ${uid}")
+                        if (auth.currentUser?.isEmailVerified == true) {
+                            FirebaseFirestore.getInstance().collection("Users")
+                                .whereEqualTo("uid", uid)
+                                .get()
+                                .addOnSuccessListener { snapshot ->
+                                    try {
+                                        val user = Muser.fromDocument(snapshot.documents[0])
+                                        Log.d("Firebase", "User found: ${user.name}")
+                                        /** here user is collected, use nav controller to move forward with this
+                                         *
+                                         */
+                                    } catch (e: Exception) {
+                                        Log.d("Firebase", "User not found: ${uid}")
+                                    }
+                                }.addOnFailureListener { e ->
+                                    Log.d("Firebase", "reading failed: ${auth.currentUser?.uid}")
+                                    _errorMessage.value = "there is an issue logging you in"
+                                    _loading.value = false
                                 }
-                            }.addOnFailureListener { e ->
-                                Log.d("Firebase", "reading failed: ${auth.currentUser?.uid}")
-                                _errorMessage.value = "there is an issue logging you in"
-                                _loading.value = false
-                            }
+                        } else {
+                            _errorMessage.value = "Please verify your email before logging in."
+                            _loading.value = false
+                            Log.d("Firebase", "Login failed: Email not verified.")
+                        }
                     } else {
                         _errorMessage.value = "incorrect email or password"
                         _loading.value = false
@@ -69,5 +81,31 @@ class LogInViewModel : ViewModel() {
             _errorMessage.value = e.message
             Log.d("Firebase", "Login failed: ${e.message}")
         }
+    }
+
+    fun resendVerificationEmail() {
+        _verSent.value = false
+        val user = auth.currentUser
+        user?.sendEmailVerification()
+            ?.addOnCompleteListener {
+            _verSent.value = true
+                Log.d("Firebase", "Verification email sent.")
+        }
+            ?.addOnFailureListener{
+            _verSent.value = false
+                _errorMessage.value = "Failed to send verification email: ${it.message}"
+            }
+    }
+
+    private fun sendPasswordResetEmail(email: String) {
+        _passwordReset.value = false
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _passwordReset.value = true
+                } else {
+                    _passwordReset.value = false
+                }
+            }
     }
 }
