@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
+import com.example.datalift.model.userWeights
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.type.Date
@@ -95,6 +96,8 @@ class SignUpViewModel : ViewModel() {
     ){
 
         val userId = auth.currentUser?.uid
+        var weightList = mutableListOf<userWeights>()
+        weightList.add(userWeights(Timestamp.now(), weight.toDouble()))
         val user = Muser(
             uid = userId.toString(),
             uname = uname,
@@ -107,7 +110,8 @@ class SignUpViewModel : ViewModel() {
             imperial = imperial,
             dob = Timestamp(dob),
             workouts = mutableListOf<String>(),
-            friends = mutableListOf<String>()
+            friends = mutableListOf<String>(),
+            weights = weightList
         ).toMap()
 
         Log.d("Firebase", "$user")
