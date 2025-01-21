@@ -43,15 +43,22 @@ class SignUpViewModel : ViewModel() {
      * @see FirebaseAuth.createUserWithEmailAndPassword
      * @see createUser
      */
-    fun createDBUser(email: String, name: String, gender: String,
-                     height: Number, weight: Number, privacy: Boolean,
-                     imperial: Boolean, password: String, dob: Instant) {
+    fun createDBUser(email: String,
+                     name: String,
+                     gender: String,
+                     height: Number,
+                     weight: Number,
+                     privacy: Boolean,
+                     imperial: Boolean,
+                     password: String,
+                     dob: Instant) {
         if (_loading.value == false) {
             _loading.value = true
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val uname = task.result?.user?.email?.split('@')?.get(0).toString()
+                        sendEmailVerification()
                         createUser(email, name, gender, height, weight, privacy, imperial, uname, dob)
                     } else {
                         _errorMessage.value = "failed to create user"
@@ -111,6 +118,18 @@ class SignUpViewModel : ViewModel() {
             .addOnSuccessListener {Log.d("Firebase", "Create user success $uname")}
             .addOnFailureListener{ exception ->
                 Log.d("Firebase", "Failed to create user ${exception.message}")}
+    }
+
+    private fun sendEmailVerification() {
+        val user = auth.currentUser
+        user?.sendEmailVerification()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("Firebase", "Verification email sent.")
+            } else {
+                _errorMessage.value = "Failed to send verification email: ${task.exception?.message}"
+            }
+            _loading.value = false
+        }
     }
 
 }
