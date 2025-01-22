@@ -91,7 +91,8 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier) {
         label = { Text("Date of Birth") },
         placeholder = { Text("MM/DD/YYYY") },
         trailingIcon = {
-            Icon(Icons.Default.DateRange, contentDescription = "Select date")
+            Icon(Icons.Default.DateRange,
+                contentDescription = "Select date")
         },
         modifier = modifier
             .fillMaxWidth()
@@ -116,6 +117,48 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier) {
         )
     }
 }
+
+@Composable
+fun StatelessDatePickerFieldToModal(
+    date: Long?,
+    changeDate: (Long?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showModal by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = date?.let { convertMillisToDate(it) } ?: "",
+        onValueChange = { },
+        label = { Text("Date of Birth") },
+        placeholder = { Text("MM/DD/YYYY") },
+        trailingIcon = {
+            Icon(Icons.Default.DateRange,
+                contentDescription = "Select date")
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .pointerInput(date) {
+                awaitEachGesture {
+                    // Modifier.clickable doesn't work for text fields, so we use Modifier.pointerInput
+                    // in the Initial pass to observe events before the text field consumes them
+                    // in the Main pass.
+                    awaitFirstDown(pass = PointerEventPass.Initial)
+                    val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                    if (upEvent != null) {
+                        showModal = true
+                    }
+                }
+            }
+    )
+
+    if (showModal) {
+        DatePickerModal(
+            onDateSelected = changeDate,
+            onDismiss = { showModal = false }
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
