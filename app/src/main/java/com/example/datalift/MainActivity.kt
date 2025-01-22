@@ -10,9 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -21,7 +18,6 @@ import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
-import com.example.datalift.screens.signUp.SignupScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
 

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.datalift.ui.components.DataliftFormPrivateTextField
 import com.example.datalift.ui.components.DataliftFormTextField
-import com.example.datalift.ui.components.DataliftTextField
 import com.example.datalift.ui.theme.DataliftTheme
 
 fun accountCreationSwitch(){
