@@ -256,7 +256,7 @@ fun CredentialsScreen(
         StatelessDataliftFormTextField(
             field = "Email",
             text = signUpViewModel.email,
-            changeText = signUpViewModel.updatePassword,
+            changeText = signUpViewModel.updateEmail,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
