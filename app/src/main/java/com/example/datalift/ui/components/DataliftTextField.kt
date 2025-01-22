@@ -1,20 +1,24 @@
 package com.example.datalift.ui.components
 
-import android.app.Dialog
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -22,13 +26,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.datalift.R
 
 @Composable
@@ -47,8 +55,9 @@ fun DataliftTextField(
 }
 
 @Composable
-fun DataliftFormTextField(
+fun DataliftNumberTextField(
     field: String,
+    singleLine: Boolean = true,
     suffix: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -58,7 +67,52 @@ fun DataliftFormTextField(
         value = text,
         onValueChange = { updateText -> text = updateText},
         label = { Text(text = field) },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         suffix = { if(suffix != ""){ Text(suffix) } },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun DataliftFormTextField(
+    field: String,
+    singleLine: Boolean = true,
+    suffix: String = "",
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    modifier: Modifier = Modifier
+) {
+    var text by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = { updateText -> text = updateText},
+        label = { Text(text = field) },
+        singleLine = singleLine,
+        suffix = { if(suffix != ""){ Text(suffix) } },
+        keyboardOptions = keyboardOptions,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun StatelessDataliftFormTextField(
+    field: String,
+    text: String,
+    changeText: (String) -> Unit,
+    singleLine: Boolean = true,
+    suffix: String = "",
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    modifier: Modifier = Modifier
+) {
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = changeText,
+        label = { Text(text = field) },
+        singleLine = singleLine,
+        suffix = { if(suffix != ""){ Text(suffix) } },
+        keyboardOptions = keyboardOptions,
         modifier = modifier
     )
 }
@@ -89,6 +143,39 @@ fun DataliftFormPrivateTextField(
                 )
             }
         },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun StatelessDataliftFormPrivateTextField(
+    field: String,
+    text: String,
+    changeText: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var textVisible by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = changeText,
+        visualTransformation =
+            if(textVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        label = { Text(text = field) },
+        trailingIcon = {
+            val image = if(textVisible){
+                R.drawable.visibility
+            } else { R.drawable.visibility_off }
+
+            IconButton(onClick = {textVisible = !textVisible}) {
+                Icon(
+                    painter = painterResource(image),
+                    contentDescription = "View text field"
+                )
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         modifier = modifier
     )
 }
@@ -161,6 +248,155 @@ fun StatelessDataliftDialogTextField(
         content()
     }
 }
+
+@Composable
+fun RadioOptionFieldToModal(
+    field: String,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+){
+    val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
+    val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
+    var dialogVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = savedOption,
+        dialogVisible = dialogVisible,
+        setVisibile = { dialogVisible = true },
+        modifier = modifier
+    ) {
+        StatelessDataliftCDCardDialog(
+            height = 350.dp,
+            isVisible = dialogVisible,
+            onDismissRequest = {
+                dialogVisible = false
+                changeSelectedOption(savedOption)
+            },
+            onConfirmation = {
+                confirmSavedOption(selectedOption)
+                dialogVisible = false
+            }
+        ) {
+            Column(
+                modifier = Modifier.selectableGroup()
+            ){
+                Text(
+                    text = field,
+                    fontSize = 24.sp,
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 16.dp
+                        )
+                )
+                HorizontalDivider(
+                    modifier = Modifier.height(4.dp)
+                )
+                options.forEach() { text ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .height(56.dp)
+                            .selectable(
+                                selected = (text == selectedOption),
+                                onClick = { changeSelectedOption(text) },
+                                role = Role.RadioButton
+                            )
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption),
+                            onClick = null // null recommended for accessibility with screen readers
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SemiStatelessRadioOptionFieldToModal(
+    field: String,
+    selectedOption: String,
+    changeSelectedOption: (String) -> Unit,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+){
+//    val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
+
+    val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
+    var dialogVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = savedOption,
+        dialogVisible = dialogVisible,
+        setVisibile = { dialogVisible = true },
+        modifier = modifier
+    ) {
+        StatelessDataliftCDCardDialog(
+            height = 350.dp,
+            isVisible = dialogVisible,
+            onDismissRequest = {
+                dialogVisible = false
+                changeSelectedOption(savedOption)
+            },
+            onConfirmation = {
+                confirmSavedOption(selectedOption)
+                dialogVisible = false
+            }
+        ) {
+            Column(
+                modifier = Modifier.selectableGroup()
+            ){
+                Text(
+                    text = field,
+                    fontSize = 24.sp,
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 16.dp
+                        )
+                )
+                HorizontalDivider(
+                    modifier = Modifier.height(4.dp)
+                )
+                options.forEach() { text ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .height(56.dp)
+                            .selectable(
+                                selected = (text == selectedOption),
+                                onClick = { changeSelectedOption(text) },
+                                role = Role.RadioButton
+                            )
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption),
+                            onClick = null // null recommended for accessibility with screen readers
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 //@Composable
 //fun StatefulTextField(
