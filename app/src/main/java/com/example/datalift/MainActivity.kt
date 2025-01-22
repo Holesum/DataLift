@@ -10,10 +10,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.datalift.screens.logIn.LoginScreen
+import com.example.datalift.screens.signUp.CredentialsScreen
+import com.example.datalift.screens.signUp.NameScreen
+import com.example.datalift.screens.signUp.PersonalInformationScreen
 import com.example.datalift.screens.signUp.SignupScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
@@ -41,22 +48,48 @@ fun DataliftApp(){
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = DataliftDestinations.LOGIN,
+                startDestination = LoginRoute,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(DataliftDestinations.LOGIN) {
+                composable<LoginRoute> {
                     LoginScreen(
                         navigateToAccountCreation = {
-                            navController.navigate(route = DataliftDestinations.SIGNUP)
+                            navController.navigate(route = SignUpBaseRoute)
                         },
                     )
                 }
-                composable(DataliftDestinations.SIGNUP) {
-                    SignupScreen(
-                        navUp = { navController.navigateUp() },
-                    )
+
+                navigation<SignUpBaseRoute>(startDestination = NameRoute)
+                {
+                    composable<NameRoute> {
+                        NameScreen(
+                            navUp = { navController.navigateUp() },
+                            navNext = { navController.navigate(
+                                route = PersonalInformationRoute
+                            )}
+                        )
+                    }
+                    composable<PersonalInformationRoute> {
+                        PersonalInformationScreen(
+                            navUp = { navController.navigateUp() },
+                            navNext = { navController.navigate(
+                                route = CredentialsRoute
+                            )}
+                        )
+                    }
+                    composable<CredentialsRoute> {
+                        CredentialsScreen(
+                            navUp = { navController.navigateUp() },
+                            navNext = {
+                                navController.navigate(route = WorkoutRoute){
+                                    popUpTo(route = LoginRoute) { inclusive = true}
+                                }
+                            }
+                        )
+                    }
                 }
-                composable(DataliftDestinations.WORKOUTS) {
+
+                composable<WorkoutRoute> {
                     WorkoutListScreen(
 
                     )
