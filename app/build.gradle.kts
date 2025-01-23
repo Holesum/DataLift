@@ -64,8 +64,13 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
 
+    // Lifecycle
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+
     // Navigation
     implementation(libs.navigation.compose)
+    implementation(libs.navigation.fragment)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
