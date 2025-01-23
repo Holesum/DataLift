@@ -11,7 +11,6 @@ import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
 import com.example.datalift.screens.signUp.SignUpViewModel
 import kotlinx.serialization.Serializable
-import java.util.jar.Attributes.Name
 
 @Serializable object LoginRoute
 @Serializable object SignUpBaseRoute

@@ -16,12 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.datalift.ui.components.DataliftFormPrivateTextField
-import com.example.datalift.ui.components.DataliftFormTextField
 import com.example.datalift.ui.components.StatelessDataliftFormPrivateTextField
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.theme.DataliftTheme
-import kotlin.math.log
 
 fun accountCreationSwitch(){
     return

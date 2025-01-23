@@ -12,12 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.datalift.screens.logIn.LoginScreen
-import com.example.datalift.screens.signUp.CredentialsScreen
-import com.example.datalift.screens.signUp.NameScreen
-import com.example.datalift.screens.signUp.PersonalInformationScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
 
