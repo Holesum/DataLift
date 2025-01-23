@@ -1,6 +1,7 @@
 package com.example.datalift.screens.workout
 
 import android.util.Log
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
+import com.google.firebase.Timestamp
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 
 class WorkoutViewModel : ViewModel() {
@@ -19,29 +25,52 @@ class WorkoutViewModel : ViewModel() {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
-
-    private val _loading = MutableLiveData(false)
-    val loading: LiveData<Boolean> = _loading
-
-    private val _workouts = MutableLiveData<List<Mworkout>>()
-    val workouts: LiveData<List<Mworkout>> = _workouts
-
-    private val _workout = MutableLiveData<Mworkout>()
-    val workout: LiveData<Mworkout> = _workout
-
-    private val _exercises = MutableLiveData<List<ExerciseItem>>()
-    val exercises: LiveData<List<ExerciseItem>> = _exercises
-
-    private val _workoutFetched = MutableLiveData<Boolean>(false)
-    val workoutFetched: LiveData<Boolean> = _workoutFetched
-
     private val workoutRepo = workoutRepo()
 
-    init{
-        if(_workoutFetched.value == false) {
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> get() = _loading
+
+    // Workouts state
+    private val _workouts = MutableStateFlow<List<Mworkout>>(emptyList())
+    val workouts: StateFlow<List<Mworkout>> get() = _workouts
+
+    // Single workout state
+    private val _workout = MutableStateFlow<Mworkout?>(null)
+    val workout: StateFlow<Mworkout?> get() = _workout
+
+    // Exercises state
+    private val _exercises = MutableStateFlow<List<ExerciseItem>>(emptyList())
+    val exercises: StateFlow<List<ExerciseItem>> get() = _exercises
+
+    // Workout fetched state
+    private val _workoutFetched = MutableStateFlow(false)
+    val workoutFetched: StateFlow<Boolean> get() = _workoutFetched
+
+    init {
+        if (!_workoutFetched.value) {
             getWorkouts()
         }
     }
+
+
+    fun remove(item: Mworkout){
+        _workouts.value = _workouts.value.filter { it != item }
+
+    }
+
+    fun add(item: Mworkout){
+        _workouts.value += item
+    }
+
+
+    fun getWorkoutList() = List(size = 10) {
+        i -> Mworkout("Workout #$i",
+        date = Timestamp.now(),
+        "Back",
+        "temp$i",
+        emptyList())
+    }
+
 
     /**
      * Function to get search exercise in existing list of exercises

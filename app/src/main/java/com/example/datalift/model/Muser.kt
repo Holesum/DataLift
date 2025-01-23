@@ -16,9 +16,9 @@ data class Muser(
     var imperial: Boolean,
     var dob: Timestamp,
     var workouts: List<String>,
-    var friends: List<String>
+    var friends: List<String>,
+    var weights: List<userWeights>
 ) {
-
     companion object {
         fun fromDocument(document: DocumentSnapshot): Muser {
             return Muser(
@@ -34,6 +34,7 @@ data class Muser(
                 dob = document.getTimestamp("dob") ?: Timestamp.now(), //fix the date to work better
                 workouts = document.get("workouts") as List<String>,
                 friends = document.get("friends") as List<String>,
+                weights = document.get("weights") as List<userWeights>
             )
         }
     }
@@ -50,7 +51,8 @@ data class Muser(
             "imperial" to this.imperial,
             "dob" to this.dob,
             "workouts" to this.workouts,
-            "friends" to this.friends
+            "friends" to this.friends,
+            "weights" to this.weights
         )
     }
 }

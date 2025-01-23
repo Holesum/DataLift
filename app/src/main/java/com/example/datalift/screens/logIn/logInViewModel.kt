@@ -1,6 +1,9 @@
 package com.example.datalift.screens.logIn
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,6 +24,20 @@ class LogInViewModel : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+    var username by mutableStateOf("")
+        private set
+
+    var password by mutableStateOf("")
+        private set
+
+    val updateUsername: (String) -> Unit = { newUsername ->
+        username = newUsername
+    }
+
+    val updatePassword: (String) -> Unit = { newPassword ->
+        password = newPassword
+    }
 
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
