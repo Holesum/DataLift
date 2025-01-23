@@ -1,6 +1,9 @@
 package com.example.datalift.screens.logIn
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -15,6 +18,20 @@ class LogInViewModel() : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+    var username by mutableStateOf("")
+        private set
+
+    var password by mutableStateOf("")
+        private set
+
+    val updateUsername: (String) -> Unit = { newUsername ->
+        username = newUsername
+    }
+
+    val updatePassword: (String) -> Unit = { newPassword ->
+        password = newPassword
+    }
 
     //add in things for a loading buffer, a account create success, and email verification
 

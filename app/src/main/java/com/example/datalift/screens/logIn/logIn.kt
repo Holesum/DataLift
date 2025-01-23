@@ -15,9 +15,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.ui.components.DataliftFormPrivateTextField
 import com.example.datalift.ui.components.DataliftFormTextField
+import com.example.datalift.ui.components.StatelessDataliftFormPrivateTextField
+import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.theme.DataliftTheme
+import kotlin.math.log
 
 fun accountCreationSwitch(){
     return
@@ -25,6 +29,10 @@ fun accountCreationSwitch(){
 
 @Composable
 fun LoginFeatures(
+    username: String,
+    password: String,
+    changeUsername: (String) -> Unit,
+    changePassword: (String) -> Unit,
     navigateToAccountCreation: () -> Unit,
     modifier: Modifier,
 ){
@@ -37,12 +45,16 @@ fun LoginFeatures(
             text = "Login",
             modifier = modifier.padding(4.dp)
         )
-        DataliftFormTextField(
+        StatelessDataliftFormTextField(
             field = "Username",
+            text = username,
+            changeText = changeUsername,
             modifier = modifier.padding(4.dp)
         )
-        DataliftFormPrivateTextField(
+        StatelessDataliftFormPrivateTextField(
             field = "Password",
+            text = password,
+            changeText = changePassword,
             modifier = modifier.padding(4.dp)
         )
         Button(onClick = { accountCreationSwitch()}){
@@ -57,6 +69,7 @@ fun LoginFeatures(
 
 @Composable
 fun LoginScreen(
+    logInViewModel: LogInViewModel = viewModel(),
     navigateToAccountCreation: () -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -71,6 +84,10 @@ fun LoginScreen(
             modifier = modifier.padding(16.dp)
         )
         LoginFeatures(
+            username = logInViewModel.username,
+            password = logInViewModel.password,
+            changeUsername = logInViewModel.updateUsername,
+            changePassword = logInViewModel.updatePassword,
             navigateToAccountCreation = navigateToAccountCreation,
             modifier = modifier
         )
