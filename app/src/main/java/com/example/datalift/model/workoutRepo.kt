@@ -1,14 +1,12 @@
 package com.example.datalift.model
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+
 
 class workoutRepo {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var auth: FirebaseAuth = Firebase.auth
+
 
     /**
      * Function to get all workouts of user
@@ -124,4 +122,7 @@ class workoutRepo {
                 callback(exerciseList)
             }
     }
+
+
+
 }
