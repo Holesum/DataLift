@@ -55,35 +55,9 @@ fun DataliftApp(){
                     )
                 }
 
-                navigation<SignUpBaseRoute>(startDestination = NameRoute)
-                {
-                    composable<NameRoute> {
-                        NameScreen(
-                            navUp = { navController.navigateUp() },
-                            navNext = { navController.navigate(
-                                route = PersonalInformationRoute
-                            )}
-                        )
-                    }
-                    composable<PersonalInformationRoute> {
-                        PersonalInformationScreen(
-                            navUp = { navController.navigateUp() },
-                            navNext = { navController.navigate(
-                                route = CredentialsRoute
-                            )}
-                        )
-                    }
-                    composable<CredentialsRoute> {
-                        CredentialsScreen(
-                            navUp = { navController.navigateUp() },
-                            navNext = {
-                                navController.navigate(route = WorkoutRoute){
-                                    popUpTo(route = LoginRoute) { inclusive = true}
-                                }
-                            }
-                        )
-                    }
-                }
+                signUpGraph(
+                    navController = navController
+                )
 
                 composable<WorkoutRoute> {
                     WorkoutListScreen(

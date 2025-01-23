@@ -30,6 +30,7 @@ class SignUpViewModel() : ViewModel() {
     var gender by mutableStateOf("")
         private set
 
+
     val updateUsername: (String) -> Unit = { newUsername ->
         username = newUsername
     }
@@ -61,5 +62,5 @@ class SignUpViewModel() : ViewModel() {
     val updateDOB: (Long?) -> Unit = { newDOB ->
         dob = newDOB
     }
-
 }
+
