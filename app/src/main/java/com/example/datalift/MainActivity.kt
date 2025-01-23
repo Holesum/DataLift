@@ -17,6 +17,7 @@ import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
