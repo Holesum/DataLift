@@ -46,10 +46,19 @@ class WorkoutViewModel : ViewModel() {
     private val _workoutFetched = MutableStateFlow(false)
     val workoutFetched: StateFlow<Boolean> get() = _workoutFetched
 
+    //Exercise fetched state
+    private val _exerciseFetched = MutableStateFlow(false)
+    val exerciseFetched: StateFlow<Boolean> get() = _exerciseFetched
+
     init {
         if (!_workoutFetched.value) {
             getWorkouts()
+            _workoutFetched.value = true
         }
+    }
+
+    fun passWorkout(workout: Mworkout){
+        _workout.value = workout
     }
 
 
@@ -75,10 +84,11 @@ class WorkoutViewModel : ViewModel() {
     /**
      * Function to get search exercise in existing list of exercises
      */
-    fun getExercises(){
+    fun getExercises(query: String = ""){
         _loading.value = true
-        workoutRepo.getExercises { exerciseList ->
+        workoutRepo.getExercises(query) { exerciseList ->
             _exercises.value = exerciseList
+            Log.d("Firebase", "Exercises found: ${exerciseList.size}")
             _loading.value = false
         }
     }
@@ -88,7 +98,7 @@ class WorkoutViewModel : ViewModel() {
      * takes a completed MWorkout object from the UI and then sends it to the database
      */
    fun createNewWorkout(workout: Mworkout) {
-        if(_loading.value == false) {
+        if(!_loading.value) {
             _loading.value = true
             try{
                 workoutRepo.createNewWorkout(workout, uid)
