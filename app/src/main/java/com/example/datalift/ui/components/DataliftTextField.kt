@@ -332,6 +332,11 @@ fun SemiStatelessRadioOptionFieldToModal(
 //    val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
 
     val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
+
+    if(selectedOption != ""){
+        confirmSavedOption(selectedOption)
+    }
+
     var dialogVisible by remember { mutableStateOf(false) }
 
     StatelessDataliftDialogTextField(
