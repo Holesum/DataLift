@@ -136,9 +136,7 @@ fun NavGraphBuilder.signUpGraph(
                 signUpViewModel = signUpViewModel,
                 navUp = { navController.navigateUp() },
                 navNext = {
-                    navController.navigate(Screens.Workout.name){
-                        popUpTo(route = LoginRoute) { inclusive = true}
-                    }
+                    navController.navigate(Screens.LogIn.name)
                 }
             )
         }

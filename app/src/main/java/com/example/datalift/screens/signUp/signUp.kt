@@ -200,7 +200,7 @@ fun PersonalInformationScreen(
         StatelessDataliftFormTextField(
             field = "Weight (lb)",
             suffix = "lbs",
-            text = signUpViewModel.weight,
+            text = signUpViewModel.weight.toString(),
             changeText = signUpViewModel.updateWeight,
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
@@ -261,7 +261,8 @@ fun CredentialsScreen(
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        Button(onClick = {navNext()}) {
+        Button(onClick =
+        {navNext()}) {
             Text(text = "Create Account")
         }
     }

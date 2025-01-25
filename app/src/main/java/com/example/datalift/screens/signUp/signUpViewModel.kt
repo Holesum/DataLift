@@ -13,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
+import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userWeights
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +29,9 @@ class SignUpViewModel : ViewModel() {
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
+
+    private val _user = MutableStateFlow<Muser?>(null)
+    val user: StateFlow<Muser?> get() = _user
 
     var username by mutableStateOf("")
         private set
@@ -55,10 +59,12 @@ class SignUpViewModel : ViewModel() {
 
 
     val updateUsername: (String) -> Unit = { newUsername ->
+        _user.value = _user.value?.copy(uname = newUsername)
         username = newUsername
     }
 
     val updateEmail: (String) -> Unit = { newEmail ->
+        _user.value = _user.value?.copy(email = newEmail)
         email = newEmail
     }
 
@@ -67,22 +73,28 @@ class SignUpViewModel : ViewModel() {
     }
 
     val updateName: (String) -> Unit = { newName ->
+        _user.value = _user.value?.copy(name = newName)
         name = newName
     }
-
+//----------------------------------------------------------------
     val updateWeight: (String) -> Unit = { newWeight ->
+        _user.value = _user.value?.copy(weight = newWeight.toDouble())
         weight = newWeight
     }
 
     val updateHeight: (String) -> Unit = { newHeight ->
+        _user.value = _user.value?.copy(height = newHeight.toDouble())
         height = newHeight
     }
 
     val updateGender: (String) -> Unit = { newGender ->
+        _user.value = _user.value?.copy(gender = newGender)
         gender = newGender
     }
 
     val updateDOB: (Long?) -> Unit = { newDOB ->
+        Timestamp
+        _user.value = _user.value?.copy(dob = newDOB)
         dob = newDOB
     }
 

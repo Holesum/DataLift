@@ -107,6 +107,12 @@ fun WorkoutDetailsScreen(
             Text("Add Exercise")
         }
 
+        Button(
+            onClick = {workoutViewModel.createNewWorkout(workout)}
+        ) {
+            Text("Save Workout")
+        }
+
 
     }
 
@@ -331,15 +337,14 @@ fun WorkoutItem(
 
 @Composable
 fun WorkoutList(
-    list: StateFlow<List<Mworkout>>,
+    list: List<Mworkout>,
     removeWorkout: (Mworkout) -> Unit,
     modifier: Modifier = Modifier
 ){
-    val workoutList by list.collectAsState()
     LazyColumn(
         modifier = modifier
     ){
-        items(items = workoutList) { workout ->
+        items(items = list) { workout ->
             WorkoutItem(
                 workoutName = workout.name,
                 removeWorkout = { removeWorkout(workout) }
@@ -358,11 +363,12 @@ fun WorkoutListScreen(
     navUp: () -> Unit = {}
 
 ){
+    workoutViewModel.getWorkouts()
     var isDialogVisible by remember { mutableStateOf(false) }
     Box(modifier = modifier.padding(8.dp)){
         WorkoutList(
-            list = workoutViewModel.workouts,
-            removeWorkout = { workout -> workoutViewModel.remove(workout) },
+            list = workoutViewModel.workouts.collectAsState().value,
+            removeWorkout = { workout -> workoutViewModel.deleteWorkout(workout) },
             modifier = modifier.fillMaxSize()
         )
         IconButton(

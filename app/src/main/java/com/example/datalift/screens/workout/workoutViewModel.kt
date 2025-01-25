@@ -51,12 +51,12 @@ class WorkoutViewModel : ViewModel() {
     private val _exerciseFetched = MutableStateFlow(false)
     val exerciseFetched: StateFlow<Boolean> get() = _exerciseFetched
 
-    init {
+    /*init {
         if (!_workoutFetched.value) {
             getWorkouts()
             _workoutFetched.value = true
         }
-    }
+    }*/
 
     fun addSet(exercise: Mexercise, set: Mset) {
 
@@ -130,6 +130,7 @@ class WorkoutViewModel : ViewModel() {
      */
     fun deleteWorkout(workout: Mworkout) {
         _loading.value = true
+        _workouts.value -= workout
         workoutRepo.deleteWorkout(workout, uid)
         _loading.value = false
     }
