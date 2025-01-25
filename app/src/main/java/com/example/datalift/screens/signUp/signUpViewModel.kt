@@ -93,8 +93,8 @@ class SignUpViewModel : ViewModel() {
     }
 
     val updateDOB: (Long?) -> Unit = { newDOB ->
-        Timestamp
-        _user.value = _user.value?.copy(dob = newDOB)
+
+     //   _user.value = _user.value?.copy(dob = newDOB)
         dob = newDOB
     }
 
@@ -119,8 +119,8 @@ class SignUpViewModel : ViewModel() {
     fun createDBUser(email: String,
                      name: String,
                      gender: String,
-                     height: Number,
-                     weight: Number,
+                     height: Double,
+                     weight: Double,
                      privacy: Boolean,
                      imperial: Boolean,
                      password: String,
@@ -159,8 +159,8 @@ class SignUpViewModel : ViewModel() {
         email: String,
         name: String,
         gender: String,
-        height: Number,
-        weight: Number,
+        height: Double,
+        weight: Double,
         privacy: Boolean,
         imperial: Boolean,
         uname: String,
