@@ -35,6 +35,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,8 +51,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mexercise
+import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.navigation.Screens
+import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.StateFlow
@@ -64,23 +69,31 @@ fun WorkoutDetailsScreen(
 ) {
     var workout: Mworkout = Mworkout()
     var isExerciseDialogVisible by remember { mutableStateOf(false) }
+    var isAddSetVisible by remember { mutableStateOf(false) }
+    var selectedExercise by remember { mutableStateOf<Mexercise?>(null) }
     if(workoutViewModel.workout.collectAsState().value != null) {
         workout = workoutViewModel.workout.collectAsState().value!!
     }
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.9f),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
         Text(text = "Date: ${workout.getFormattedDate()}")
         Text(text = "Muscle Group: ${workout.muscleGroup}")
 
         // List exercises associated with the workout
-        LazyColumn(modifier = Modifier.fillMaxHeight(0.8f)) {
+        LazyColumn() {
             items(workout.exercises) { exercise ->
                 Column {
                     Text(text = exercise.name)
-                    LazyColumn {
-                        items(exercise.sets) { set ->
-                            Text(text = set.getFormattedSet())
-                        }
+                    exercise.sets.forEach { set ->
+                        Text(text = set.getFormattedSet())
+                    }
+                    Button(
+                        onClick = {
+                            selectedExercise = exercise
+                            isAddSetVisible = true}
+                    ) {
+                        Text("Add Set")
                     }
                 }
             }
@@ -93,6 +106,8 @@ fun WorkoutDetailsScreen(
         ) {
             Text("Add Exercise")
         }
+
+
     }
 
     // Show dialog to search and add exercise
@@ -104,6 +119,43 @@ fun WorkoutDetailsScreen(
                 isExerciseDialogVisible = false
             }
         )
+    }
+    if (isAddSetVisible){
+        AddSetDialog(
+            workoutViewModel = workoutViewModel,
+            onDismiss = { isAddSetVisible = false },
+            onAddSet = { newSet ->
+                selectedExercise?.sets = selectedExercise?.sets?.plus(newSet)!!
+                isAddSetVisible = false }
+        )
+    }
+}
+
+@Composable
+fun AddSetDialog(
+    onDismiss: () -> Unit,
+    onAddSet: (Mset) -> Unit,
+    workoutViewModel: WorkoutViewModel
+){
+    var weight by remember { mutableDoubleStateOf(0.0) }
+    var reps by remember { mutableLongStateOf(0) }
+    Column {
+        StatelessDataliftFormTextField(
+            field = "Weight",
+            text = weight.toString(),
+            changeText = { weight = it.toDouble() },
+            modifier = Modifier.fillMaxWidth(0.75f)
+        )
+        StatelessDataliftFormTextField(
+            field = "Reps",
+            text = reps.toString(),
+            changeText = { reps = it.toLong() },
+            modifier = Modifier.fillMaxWidth(0.75f)
+        )
+        Button(
+            onClick = { onAddSet(Mset(reps, weight)) }) {
+            Text("Confirm Set")
+        }
     }
 }
 

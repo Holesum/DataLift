@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import com.example.datalift.model.Mset
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,6 +56,10 @@ class WorkoutViewModel : ViewModel() {
             getWorkouts()
             _workoutFetched.value = true
         }
+    }
+
+    fun addSet(exercise: Mexercise, set: Mset) {
+
     }
 
     fun passWorkout(workout: Mworkout){
