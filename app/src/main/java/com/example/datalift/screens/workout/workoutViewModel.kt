@@ -51,6 +51,9 @@ class WorkoutViewModel : ViewModel() {
     private val _exerciseFetched = MutableStateFlow(false)
     val exerciseFetched: StateFlow<Boolean> get() = _exerciseFetched
 
+    private val _workoutsFetched = MutableStateFlow(false)
+    val workoutsFetched: StateFlow<Boolean> get() = _workoutsFetched
+
     /*init {
         if (!_workoutFetched.value) {
             getWorkouts()
@@ -64,12 +67,6 @@ class WorkoutViewModel : ViewModel() {
 
     fun passWorkout(workout: Mworkout){
         _workout.value = workout
-    }
-
-
-    fun remove(item: Mworkout){
-        _workouts.value = _workouts.value.filter { it != item }
-
     }
 
     fun add(item: Mworkout){
@@ -139,6 +136,7 @@ class WorkoutViewModel : ViewModel() {
      * Function to get workout list from database for specific user
      */
     fun getWorkouts() {
+        _workoutsFetched.value = true
         _loading.value = true
         workoutRepo.getWorkouts(uid) { workoutList ->
             _workouts.value = workoutList

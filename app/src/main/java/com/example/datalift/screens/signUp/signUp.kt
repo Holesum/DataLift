@@ -261,10 +261,12 @@ fun CredentialsScreen(
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        Button(onClick =
-        {navNext()}) {
-            Text(text = "Create Account")
-        }
+        Button(onClick = {
+            signUpViewModel.createDBUser();
+            if(signUpViewModel.accountCreated.value){
+                navNext()
+            }
+        }) { Text(text = "Create Account") }
     }
 }
 

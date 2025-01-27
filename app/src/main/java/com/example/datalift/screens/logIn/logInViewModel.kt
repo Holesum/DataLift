@@ -45,8 +45,14 @@ class LogInViewModel : ViewModel() {
     private val _verSent = MutableLiveData(false)
     val verSent: LiveData<Boolean> = _verSent
 
+    private val _verPopup = MutableLiveData(false)
+    val verPopup: LiveData<Boolean> = _verPopup
+
     private val _passwordReset = MutableLiveData(false)
     val passwordReset: LiveData<Boolean> = _passwordReset
+
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn
 
     //add in things for a loading buffer,
 
@@ -74,9 +80,9 @@ class LogInViewModel : ViewModel() {
                                         try {
                                             val user = Muser.fromDocument(snapshot)
                                             Log.d("Firebase", "User found: ${user.name}")
-                                            /** here user is collected, use nav controller to move forward with this
-                                             *
-                                             */
+                                            _loggedIn.value = true
+                                            _verPopup.value = false
+                                            _loading.value = false
                                         } catch (e: Exception) {
                                             Log.d("Firebase", "User not found: ${uid}")
                                         }
@@ -87,6 +93,7 @@ class LogInViewModel : ViewModel() {
                                     }
                             }
                         } else {
+                            _verPopup.value = true
                             _errorMessage.value = "Please verify your email before logging in."
                             _loading.value = false
                             Log.d("Firebase", "Login failed: Email not verified.")
@@ -127,5 +134,9 @@ class LogInViewModel : ViewModel() {
                     _passwordReset.value = false
                 }
             }
+    }
+
+    fun userLogged(){
+        _loggedIn.value = false
     }
 }

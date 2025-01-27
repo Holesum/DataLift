@@ -5,19 +5,19 @@ import com.google.firebase.firestore.DocumentSnapshot
 import java.time.LocalDate
 
 data class Muser(
-    val uid: String,
-    val uname: String,
-    var email: String,
-    var gender: String,
-    var name: String,
-    val height: Double,
-    var weight: Double,
-    var privacy: Boolean,
-    var imperial: Boolean,
-    var dob: Timestamp,
-    var workouts: List<String>,
-    var friends: List<String>,
-    var weights: List<userWeights>
+    val uid: String = "",
+    val uname: String = "",
+    var email: String = "",
+    var gender: String = "",
+    var name: String = "",
+    val height: Double = 0.0,
+    var weight: Double = 0.0,
+    var privacy: Boolean = true,
+    var imperial: Boolean = true,
+    var dob: Timestamp = Timestamp.now(),
+    var workouts: List<String> = emptyList(),
+    var friends: List<String> = emptyList(),
+    var weights: List<userWeights> = emptyList()
 ) {
     companion object {
         fun fromDocument(document: DocumentSnapshot): Muser {
@@ -32,8 +32,8 @@ data class Muser(
                 privacy = document.getBoolean("privacy") ?: false,
                 imperial = document.getBoolean("imperial") ?: false,
                 dob = document.getTimestamp("dob") ?: Timestamp.now(), //fix the date to work better
-                workouts = document.get("workouts") as List<String>,
-                friends = document.get("friends") as List<String>,
+                workouts = (document.get("workouts") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                friends = (document.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 weights = document.get("weights") as List<userWeights>
             )
         }

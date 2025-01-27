@@ -71,9 +71,11 @@ fun WorkoutDetailsScreen(
     var isExerciseDialogVisible by remember { mutableStateOf(false) }
     var isAddSetVisible by remember { mutableStateOf(false) }
     var selectedExercise by remember { mutableStateOf<Mexercise?>(null) }
+    var isWorkoutAdded by remember { mutableStateOf(false) }
     if(workoutViewModel.workout.collectAsState().value != null) {
         workout = workoutViewModel.workout.collectAsState().value!!
     }
+
     Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.9f),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
@@ -108,7 +110,7 @@ fun WorkoutDetailsScreen(
         }
 
         Button(
-            onClick = {workoutViewModel.createNewWorkout(workout)}
+            onClick = {workoutViewModel.createNewWorkout(workout); isWorkoutAdded = true}
         ) {
             Text("Save Workout")
         }
@@ -134,6 +136,9 @@ fun WorkoutDetailsScreen(
                 selectedExercise?.sets = selectedExercise?.sets?.plus(newSet)!!
                 isAddSetVisible = false }
         )
+    }
+    if(isWorkoutAdded){
+        navNext()
     }
 }
 
@@ -364,6 +369,7 @@ fun WorkoutListScreen(
 
 ){
     workoutViewModel.getWorkouts()
+
     var isDialogVisible by remember { mutableStateOf(false) }
     Box(modifier = modifier.padding(8.dp)){
         WorkoutList(
@@ -396,6 +402,7 @@ fun WorkoutListScreen(
                 workoutViewModel.passWorkout(newWorkout)
                 isDialogVisible = false // Close the dialog after saving
                 navNext() // Navigate to the workout details screen
+                Log.d("Firebase", "navigating to workout details")
             }
         )
     }

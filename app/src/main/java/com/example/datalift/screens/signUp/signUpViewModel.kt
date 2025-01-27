@@ -30,8 +30,11 @@ class SignUpViewModel : ViewModel() {
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
 
-    private val _user = MutableStateFlow<Muser?>(null)
+    private val _user = MutableStateFlow<Muser?>(Muser())
     val user: StateFlow<Muser?> get() = _user
+
+    private val _accountCreated = MutableStateFlow(false)
+    val accountCreated: StateFlow<Boolean> get() = _accountCreated
 
     var username by mutableStateOf("")
         private set
@@ -65,10 +68,12 @@ class SignUpViewModel : ViewModel() {
 
     val updateEmail: (String) -> Unit = { newEmail ->
         _user.value = _user.value?.copy(email = newEmail)
+        Log.d("Firebase", "Email: ${_user.value?.email}")
         email = newEmail
     }
 
     val updatePassword: (String) -> Unit = { newPassword ->
+        Log.d("Firebase", "Password: $newPassword")
         password = newPassword
     }
 
@@ -116,7 +121,7 @@ class SignUpViewModel : ViewModel() {
      * @see FirebaseAuth.createUserWithEmailAndPassword
      * @see createUser
      */
-    fun createDBUser(email: String,
+    fun createDBUser(/**email: String,
                      name: String,
                      gender: String,
                      height: Double,
@@ -124,15 +129,17 @@ class SignUpViewModel : ViewModel() {
                      privacy: Boolean,
                      imperial: Boolean,
                      password: String,
-                     dob: Instant) {
+                     dob: Timestamp**/
+    ) {
         if (!_loading.value) {
             _loading.value = true
-            auth.createUserWithEmailAndPassword(email, password)
+            auth.createUserWithEmailAndPassword(user.value?.email!!, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val uname = task.result?.user?.email?.split('@')?.get(0).toString()
+                        //val uname = task.result?.user?.email?.split('@')?.get(0).toString()
+                        _accountCreated.value = true
+                        createUser()
                         sendEmailVerification()
-                        createUser(email, name, gender, height, weight, privacy, imperial, uname, dob)
                     } else {
                         _errorMessage.value = "failed to create user"
                     }
@@ -156,7 +163,7 @@ class SignUpViewModel : ViewModel() {
      * @see createDBUser
      */
     private fun createUser(
-        email: String,
+        /**email: String,
         name: String,
         gender: String,
         height: Double,
@@ -164,13 +171,13 @@ class SignUpViewModel : ViewModel() {
         privacy: Boolean,
         imperial: Boolean,
         uname: String,
-        dob: Instant
+        dob: Instant**/
     ){
 
         val userId = auth.currentUser?.uid
-        var weightList = mutableListOf<userWeights>()
+        val weightList = mutableListOf<userWeights>()
         weightList.add(userWeights(Timestamp.now(), weight.toDouble()))
-        val user = Muser(
+        /**val user = Muser(
             uid = userId.toString(),
             uname = uname,
             email = email,
@@ -184,14 +191,17 @@ class SignUpViewModel : ViewModel() {
             workouts = mutableListOf<String>(),
             friends = mutableListOf<String>(),
             weights = weightList
-        ).toMap()
-
+        ).toMap()**/
+        _user.value = user.value?.copy(uid = userId.toString())
+        _user.value = user.value?.copy(weights = weightList)
         Log.d("Firebase", "$user")
 
         FirebaseFirestore.getInstance().collection("Users")
             .document(userId.toString())
-            .set(user.toMap())
-            .addOnSuccessListener {Log.d("Firebase", "Create user success $uname")}
+            .set(user.value!!)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Create user success $user.uname")
+            }
             .addOnFailureListener{ exception ->
                 Log.d("Firebase", "Failed to create user ${exception.message}")}
     }
