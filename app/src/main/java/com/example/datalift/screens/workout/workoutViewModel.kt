@@ -132,6 +132,9 @@ class WorkoutViewModel : ViewModel() {
                 set.setORM()
             }
         }
+        for(exercise in workout.exercises){
+            exercise.setAvgORM()
+        }
         return workout
     }
 
