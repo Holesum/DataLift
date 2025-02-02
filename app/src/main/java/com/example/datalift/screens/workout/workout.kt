@@ -4,19 +4,23 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -59,116 +63,6 @@ import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.StateFlow
 
-
-@Composable
-fun WorkoutDetailsScreen(
-    workoutViewModel: WorkoutViewModel = viewModel(),
-    modifier: Modifier = Modifier,
-    navUp: () -> Unit = {},
-    navNext: () -> Unit = {}
-) {
-    var workout: Mworkout = Mworkout()
-    var isExerciseDialogVisible by remember { mutableStateOf(false) }
-    var isAddSetVisible by remember { mutableStateOf(false) }
-    var selectedExercise by remember { mutableStateOf<Mexercise?>(null) }
-    var isWorkoutAdded by remember { mutableStateOf(false) }
-    if(workoutViewModel.workout.collectAsState().value != null) {
-        workout = workoutViewModel.workout.collectAsState().value!!
-    }
-
-    Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.9f),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
-        Text(text = "Date: ${workout.getFormattedDate()}")
-        Text(text = "Muscle Group: ${workout.muscleGroup}")
-
-        // List exercises associated with the workout
-        LazyColumn() {
-            items(workout.exercises) { exercise ->
-                Column {
-                    Text(text = exercise.name)
-                    exercise.sets.forEach { set ->
-                        Text(text = set.getFormattedSet())
-                    }
-                    Button(
-                        onClick = {
-                            selectedExercise = exercise
-                            isAddSetVisible = true}
-                    ) {
-                        Text("Add Set")
-                    }
-                }
-            }
-        }
-
-        // Button to open the exercise dialog
-        Button(
-            onClick = { isExerciseDialogVisible = true },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Add Exercise")
-        }
-
-        Button(
-            onClick = {workoutViewModel.createNewWorkout(workout); isWorkoutAdded = true}
-        ) {
-            Text("Save Workout")
-        }
-
-
-    }
-
-    // Show dialog to search and add exercise
-    if (isExerciseDialogVisible) {
-        SearchExerciseDialog(
-            onDismiss = { isExerciseDialogVisible = false },
-            onSelectExercise = { exercise ->
-                workout.exercises += exercise
-                isExerciseDialogVisible = false
-            }
-        )
-    }
-    if (isAddSetVisible){
-        AddSetDialog(
-            workoutViewModel = workoutViewModel,
-            onDismiss = { isAddSetVisible = false },
-            onAddSet = { newSet ->
-                selectedExercise?.sets = selectedExercise?.sets?.plus(newSet)!!
-                isAddSetVisible = false }
-        )
-    }
-    if(isWorkoutAdded){
-        navNext()
-    }
-}
-
-@Composable
-fun AddSetDialog(
-    onDismiss: () -> Unit,
-    onAddSet: (Mset) -> Unit,
-    workoutViewModel: WorkoutViewModel
-){
-    var weight by remember { mutableDoubleStateOf(0.0) }
-    var reps by remember { mutableLongStateOf(0) }
-    Column {
-        StatelessDataliftFormTextField(
-            field = "Weight",
-            text = weight.toString(),
-            changeText = { weight = it.toDouble() },
-            modifier = Modifier.fillMaxWidth(0.75f)
-        )
-        StatelessDataliftFormTextField(
-            field = "Reps",
-            text = reps.toString(),
-            changeText = { reps = it.toLong() },
-            modifier = Modifier.fillMaxWidth(0.75f)
-        )
-        Button(
-            onClick = { onAddSet(Mset(reps, weight)) }) {
-            Text("Confirm Set")
-        }
-    }
-}
 
 @Composable
 fun SearchExerciseDialog(
@@ -326,16 +220,21 @@ fun WorkoutDialog(
 
 @Composable
 fun WorkoutItem(
-    workoutName: String,
+    workout: Mworkout,
     removeWorkout: () -> Unit,
 ){
     Row {
         Text(
-            text = workoutName,
+            text = workout.name,
             modifier = Modifier.weight(1f)
         )
         IconButton(onClick = { removeWorkout() }) {
             Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
+        }
+    }
+    Column(modifier = Modifier.border(1.dp, Color.Black), horizontalAlignment = Alignment.CenterHorizontally) {
+        workout.exercises.forEach { exercise ->
+            Text(text = exercise.getFormattedName())
         }
     }
 }
@@ -351,9 +250,10 @@ fun WorkoutList(
     ){
         items(items = list) { workout ->
             WorkoutItem(
-                workoutName = workout.name,
+                workout = workout,
                 removeWorkout = { removeWorkout(workout) }
             )
+            Spacer(modifier = Modifier.padding(20.dp))
         }
     }
 }
@@ -385,7 +285,9 @@ fun WorkoutListScreen(
                 .align(Alignment.BottomEnd)
                 .background(Color.Blue)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Workout")
+
+            Icon(Icons.Default.Add, contentDescription = "Add Workout", tint = Color.Black)
+
         }
         WorkoutDialog(
             isVisible = isDialogVisible,

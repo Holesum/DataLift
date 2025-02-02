@@ -121,6 +121,10 @@ class SignUpViewModel : ViewModel() {
      * @see FirebaseAuth.createUserWithEmailAndPassword
      * @see createUser
      */
+    fun naving() {
+        _accountCreated.value = false
+    }
+
     fun createDBUser(/**email: String,
                      name: String,
                      gender: String,

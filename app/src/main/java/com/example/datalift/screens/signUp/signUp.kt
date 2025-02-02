@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -227,6 +228,7 @@ fun CredentialsScreen(
     navNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var signedUp = signUpViewModel.accountCreated.collectAsState().value
     Column(
         modifier = modifier
     ) {
@@ -263,10 +265,11 @@ fun CredentialsScreen(
         )
         Button(onClick = {
             signUpViewModel.createDBUser();
-            if(signUpViewModel.accountCreated.value){
-                navNext()
-            }
         }) { Text(text = "Create Account") }
+    }
+    if(signedUp) {
+        signUpViewModel.naving()
+        navNext()
     }
 }
 

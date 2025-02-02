@@ -103,7 +103,7 @@ class WorkoutViewModel : ViewModel() {
         if(!_loading.value) {
             _loading.value = true
             try{
-                workoutRepo.createNewWorkout(workout, uid)
+                workoutRepo.createNewWorkout(oRM(workout), uid)
                 _loading.value = false
 
             } catch (e: Exception) {
@@ -113,13 +113,26 @@ class WorkoutViewModel : ViewModel() {
         }
     }
 
+
     /**
      * Function to edit an existing workout
      */
     fun editWorkout(workout: Mworkout) {
         _loading.value = true
-        workoutRepo.editWorkout(workout, uid)
+        workoutRepo.editWorkout(oRM(workout), uid)
         _loading.value = false
+    }
+
+    /**
+     * Function to provide ORM analysis for each set in workout
+     */
+    private fun oRM(workout: Mworkout) : Mworkout {
+        for(exercise in workout.exercises){
+            for(set in exercise.sets){
+                set.setORM()
+            }
+        }
+        return workout
     }
 
     /**
