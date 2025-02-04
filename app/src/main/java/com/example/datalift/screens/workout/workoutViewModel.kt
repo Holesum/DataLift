@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import com.example.datalift.model.Mset
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,16 +47,26 @@ class WorkoutViewModel : ViewModel() {
     private val _workoutFetched = MutableStateFlow(false)
     val workoutFetched: StateFlow<Boolean> get() = _workoutFetched
 
-    init {
+    //Exercise fetched state
+    private val _exerciseFetched = MutableStateFlow(false)
+    val exerciseFetched: StateFlow<Boolean> get() = _exerciseFetched
+
+    private val _workoutsFetched = MutableStateFlow(false)
+    val workoutsFetched: StateFlow<Boolean> get() = _workoutsFetched
+
+    /*init {
         if (!_workoutFetched.value) {
             getWorkouts()
+            _workoutFetched.value = true
         }
+    }*/
+
+    fun addSet(exercise: Mexercise, set: Mset) {
+
     }
 
-
-    fun remove(item: Mworkout){
-        _workouts.value = _workouts.value.filter { it != item }
-
+    fun passWorkout(workout: Mworkout){
+        _workout.value = workout
     }
 
     fun add(item: Mworkout){
@@ -75,10 +86,11 @@ class WorkoutViewModel : ViewModel() {
     /**
      * Function to get search exercise in existing list of exercises
      */
-    fun getExercises(){
+    fun getExercises(query: String = ""){
         _loading.value = true
-        workoutRepo.getExercises { exerciseList ->
+        workoutRepo.getExercises(query) { exerciseList ->
             _exercises.value = exerciseList
+            Log.d("Firebase", "Exercises found: ${exerciseList.size}")
             _loading.value = false
         }
     }
@@ -88,10 +100,10 @@ class WorkoutViewModel : ViewModel() {
      * takes a completed MWorkout object from the UI and then sends it to the database
      */
    fun createNewWorkout(workout: Mworkout) {
-        if(_loading.value == false) {
+        if(!_loading.value) {
             _loading.value = true
             try{
-                workoutRepo.createNewWorkout(workout, uid)
+                workoutRepo.createNewWorkout(oRM(workout), uid)
                 _loading.value = false
 
             } catch (e: Exception) {
@@ -101,13 +113,29 @@ class WorkoutViewModel : ViewModel() {
         }
     }
 
+
     /**
      * Function to edit an existing workout
      */
     fun editWorkout(workout: Mworkout) {
         _loading.value = true
-        workoutRepo.editWorkout(workout, uid)
+        workoutRepo.editWorkout(oRM(workout), uid)
         _loading.value = false
+    }
+
+    /**
+     * Function to provide ORM analysis for each set in workout
+     */
+    private fun oRM(workout: Mworkout) : Mworkout {
+        for(exercise in workout.exercises){
+            for(set in exercise.sets){
+                set.setORM()
+            }
+        }
+        for(exercise in workout.exercises){
+            exercise.setAvgORM()
+        }
+        return workout
     }
 
     /**
@@ -115,6 +143,7 @@ class WorkoutViewModel : ViewModel() {
      */
     fun deleteWorkout(workout: Mworkout) {
         _loading.value = true
+        _workouts.value -= workout
         workoutRepo.deleteWorkout(workout, uid)
         _loading.value = false
     }
@@ -123,6 +152,7 @@ class WorkoutViewModel : ViewModel() {
      * Function to get workout list from database for specific user
      */
     fun getWorkouts() {
+        _workoutsFetched.value = true
         _loading.value = true
         workoutRepo.getWorkouts(uid) { workoutList ->
             _workouts.value = workoutList
