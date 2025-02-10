@@ -27,10 +27,6 @@ import com.example.datalift.ui.components.StatelessDataliftFormPrivateTextField
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.theme.DataliftTheme
 
-fun accountCreationSwitch(){
-    return
-}
-
 @Composable
 fun LoginFeatures(
     username: String,

@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.R
-import com.example.datalift.screens.logIn.accountCreationSwitch
 import com.example.datalift.ui.components.DataliftFormPrivateTextField
 import com.example.datalift.ui.components.DataliftFormTextField
 import com.example.datalift.ui.components.DataliftNumberTextField
@@ -93,7 +92,7 @@ fun SignupFeatures(
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        Button(onClick = { accountCreationSwitch() }){
+        Button(onClick = { }){
             Text("Sign Up")
         }
 
