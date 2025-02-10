@@ -26,4 +26,23 @@ class analysisRepo {
             callback(emptyList()) // Call the callback with an empty list on error
             }
     }
+
+    fun getAnalyzedExercises(uid: String, callback: (List<MexerAnalysis>) -> Unit){
+        db.collection("Users")
+            .document(uid)
+            .collection("AnalyzedExercises")
+            .get()
+            .addOnSuccessListener { snapShot ->
+                val analysisList = mutableListOf<MexerAnalysis>()
+                for(document in snapShot.documents){
+                    val analysis = document.toObject(MexerAnalysis::class.java)
+                    if(analysis != null){
+                        analysisList.add(analysis)
+                    }
+                }
+            }.addOnFailureListener{
+                Log.d("Firebase", "Error getting analysis returning empty list")
+                callback(emptyList()) // Call the callback with an empty list on error
+            }
+    }
 }
