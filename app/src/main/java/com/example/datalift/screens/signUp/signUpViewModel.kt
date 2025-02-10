@@ -153,7 +153,39 @@ class SignUpViewModel : ViewModel() {
     }
 
     fun accountInformationValidated(): Boolean {
-        return true
+        passwordInvalid = !passwordIsValid()
+        usernameInvalid = !usernameIsValid()
+        emailInvalid = !emailIsValid()
+
+        if(passwordInvalid || usernameInvalid || emailInvalid) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    fun passwordIsValid(): Boolean {
+        if(password.isNotBlank()){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun usernameIsValid(): Boolean{
+        if(username.isNotBlank()){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun emailIsValid(): Boolean{
+        if(email.isNotBlank()){
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        } else {
+            return false
+        }
     }
 
     // a account create success, and email verification

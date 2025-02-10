@@ -274,6 +274,20 @@ fun CredentialsScreen(
             field = "Username",
             text = signUpViewModel.username,
             changeText = signUpViewModel.updateUsername,
+            isError = signUpViewModel.usernameInvalid,
+            trailingIcon = {
+                if(signUpViewModel.usernameInvalid){
+                    Icon(
+                        painter =  painterResource(R.drawable.error),
+                        contentDescription = null,
+                    )
+                }
+            },
+            supportingText = {
+                if(signUpViewModel.usernameInvalid) {
+                    Text("Username needs to be an un-empty field")
+                }
+            },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
@@ -281,6 +295,12 @@ fun CredentialsScreen(
             field = "Password",
             text = signUpViewModel.password,
             changeText = signUpViewModel.updatePassword,
+            isError = signUpViewModel.passwordInvalid,
+            supportingText = {
+                if(signUpViewModel.usernameInvalid) {
+                    Text("Password needs to be an un-empty field")
+                }
+            },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
@@ -288,6 +308,20 @@ fun CredentialsScreen(
             field = "Email",
             text = signUpViewModel.email,
             changeText = signUpViewModel.updateEmail,
+            isError = signUpViewModel.emailInvalid,
+            trailingIcon = {
+                if(signUpViewModel.emailInvalid){
+                    Icon(
+                        painter =  painterResource(R.drawable.error),
+                        contentDescription = null,
+                    )
+                }
+            },
+            supportingText = {
+                if(signUpViewModel.emailInvalid) {
+                    Text("Email needs to be an valid")
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
