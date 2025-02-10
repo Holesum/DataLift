@@ -96,12 +96,41 @@ fun DataliftFormTextField(
 }
 
 @Composable
+fun StatelessDataliftNumberTextField(
+    field: String,
+    text: String,
+    changeText: (String) -> Unit,
+    singleLine: Boolean = true,
+    suffix: String = "",
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = changeText,
+        label = { Text(text = field) },
+        singleLine = singleLine,
+        isError = isError,
+        supportingText = supportingText,
+        suffix = { if(suffix != ""){ Text(suffix) } },
+        trailingIcon = trailingIcon,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = modifier
+    )
+}
+
+@Composable
 fun StatelessDataliftFormTextField(
     field: String,
     text: String,
     changeText: (String) -> Unit,
     singleLine: Boolean = true,
     suffix: String = "",
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier
 ) {
@@ -111,7 +140,10 @@ fun StatelessDataliftFormTextField(
         onValueChange = changeText,
         label = { Text(text = field) },
         singleLine = singleLine,
+        isError = isError,
+        supportingText = supportingText,
         suffix = { if(suffix != ""){ Text(suffix) } },
+        trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
         modifier = modifier
     )
@@ -220,6 +252,8 @@ fun StatelessDataliftDialogTextField(
     text: String,
     dialogVisible: Boolean,
     setVisibile: () -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ){
@@ -230,6 +264,8 @@ fun StatelessDataliftDialogTextField(
         trailingIcon = {
             Icon(Icons.Default.ArrowDropDown,contentDescription = null)
         },
+        isError = isError,
+        supportingText = supportingText,
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(text){
@@ -326,6 +362,8 @@ fun SemiStatelessRadioOptionFieldToModal(
     field: String,
     selectedOption: String,
     changeSelectedOption: (String) -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
     options: List<String> = emptyList(),
     modifier: Modifier = Modifier
 ){
@@ -343,6 +381,8 @@ fun SemiStatelessRadioOptionFieldToModal(
         field = field,
         text = savedOption,
         dialogVisible = dialogVisible,
+        isError = isError,
+        supportingText = supportingText,
         setVisibile = { dialogVisible = true },
         modifier = modifier
     ) {
