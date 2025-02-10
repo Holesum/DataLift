@@ -184,6 +184,8 @@ fun DataliftFormPrivateTextField(
 fun StatelessDataliftFormPrivateTextField(
     field: String,
     text: String,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
     changeText: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -207,6 +209,8 @@ fun StatelessDataliftFormPrivateTextField(
                 )
             }
         },
+        supportingText = supportingText,
+        isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         modifier = modifier
     )
@@ -391,10 +395,10 @@ fun SemiStatelessRadioOptionFieldToModal(
             isVisible = dialogVisible,
             onDismissRequest = {
                 dialogVisible = false
-                changeSelectedOption(savedOption)
+                confirmSavedOption(selectedOption)
             },
             onConfirmation = {
-                confirmSavedOption(selectedOption)
+                changeSelectedOption(savedOption)
                 dialogVisible = false
             }
         ) {
@@ -419,7 +423,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                             .height(56.dp)
                             .selectable(
                                 selected = (text == selectedOption),
-                                onClick = { changeSelectedOption(text) },
+                                onClick = { confirmSavedOption(text) },
                                 role = Role.RadioButton
                             )
                             .padding(horizontal = 16.dp),
