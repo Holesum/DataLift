@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -200,7 +201,7 @@ fun PersonalInformationScreen(
         StatelessDataliftFormTextField(
             field = "Weight (lb)",
             suffix = "lbs",
-            text = signUpViewModel.weight,
+            text = signUpViewModel.weight.toString(),
             changeText = signUpViewModel.updateWeight,
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
@@ -227,6 +228,7 @@ fun CredentialsScreen(
     navNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var signedUp = signUpViewModel.accountCreated.collectAsState().value
     Column(
         modifier = modifier
     ) {
@@ -261,9 +263,13 @@ fun CredentialsScreen(
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        Button(onClick = {navNext()}) {
-            Text(text = "Create Account")
-        }
+        Button(onClick = {
+            signUpViewModel.createDBUser();
+        }) { Text(text = "Create Account") }
+    }
+    if(signedUp) {
+        signUpViewModel.naving()
+        navNext()
     }
 }
 

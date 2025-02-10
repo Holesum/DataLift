@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.datalift"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.datalift"
@@ -77,4 +77,8 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Vico
+    implementation(libs.vico.compose)
+    implementation(libs.vico.views)
 }
