@@ -13,13 +13,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.type.Date
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.time.Instant
-import java.time.LocalDate
 
 class LogInViewModel : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
