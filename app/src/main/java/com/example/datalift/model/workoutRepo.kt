@@ -111,14 +111,32 @@ class workoutRepo {
             }
     }
 
-    fun getExercises(callback: (List<ExerciseItem>) -> Unit){
+    fun getExercises(query: String = "", callback: (List<ExerciseItem>) -> Unit){
+        if (query.isBlank()) {
+            // If the query is empty or just whitespace, don't make a Firebase call
+            callback(emptyList())
+            return
+        }
+
         val exerciseList = mutableListOf<ExerciseItem>()
-        db.collection("ExerciseList").get()
-            .addOnSuccessListener { snapShot ->
-                for (document in snapShot.documents) {
+
+        db.collection("ExerciseList")
+            .whereGreaterThanOrEqualTo("Title", query)
+            .whereLessThanOrEqualTo("Title", query + "\uf8ff")
+            .limit(10)
+            .addSnapshotListener { snapShot, exception ->
+                if (exception != null) {
+                    // Handle the error (e.g., log or show a message to the user)
+                    Log.e("FirestoreError", "Error fetching exercises", exception)
+                    callback(emptyList()) // Return an empty list if there's an error
+                    return@addSnapshotListener
+                }
+                snapShot?.documents?.forEach { document ->
                     val exercise = ExerciseItem.fromDocument(document)
                     exerciseList.add(exercise)
                 }
+
+                // Return the fetched exercises to the callback
                 callback(exerciseList)
             }
     }
