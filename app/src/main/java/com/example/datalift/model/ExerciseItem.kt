@@ -3,12 +3,12 @@ package com.example.datalift.model
 import com.google.firebase.firestore.DocumentSnapshot
 
 data class ExerciseItem(
-    val title: String,
-    val type: String,
-    val description: String,
-    val bodyPart: String,
-    val equipment: String,
-    val level: String,
+    val title: String = "",
+    val type: String = "",
+    val description: String = "",
+    val bodyPart: String = "",
+    val equipment: String = "",
+    val level: String = "",
 ) {
     companion object{
         fun fromDocument(document: DocumentSnapshot): ExerciseItem {

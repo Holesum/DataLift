@@ -13,11 +13,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.type.Date
-import java.time.Instant
-import java.time.LocalDate
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class LogInViewModel : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
@@ -25,28 +23,57 @@ class LogInViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    var username by mutableStateOf("")
-        private set
+    private val _actionMessage = MutableStateFlow<String?>(null)
+    val actionMessage: StateFlow<String?> = _actionMessage
 
-    var password by mutableStateOf("")
-        private set
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     val updateUsername: (String) -> Unit = { newUsername ->
-        username = newUsername
+        _uiState.update { currentState ->
+            currentState.copy(
+                username = newUsername,
+                hasErrors = false,
+                canLogin = canLogIn(newUsername,currentState.password)
+            )
+        }
     }
 
     val updatePassword: (String) -> Unit = { newPassword ->
-        password = newPassword
+        _uiState.update { currentState ->
+            currentState.copy(
+                password = newPassword,
+                hasErrors = false,
+                canLogin = canLogIn(currentState.username,newPassword)
+            )
+        }
     }
 
-    private val _loading = MutableLiveData(false)
-    val loading: LiveData<Boolean> = _loading
+    fun canLogIn(username: String, password: String) : Boolean {
+        return username.isNotBlank() && password.isNotBlank()
+    }
 
     private val _verSent = MutableLiveData(false)
     val verSent: LiveData<Boolean> = _verSent
 
+    private val _verPopup = MutableLiveData(false)
+    val verPopup: LiveData<Boolean> = _verPopup
+
     private val _passwordReset = MutableLiveData(false)
     val passwordReset: LiveData<Boolean> = _passwordReset
+
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn
+
+    var snackbarDisplayed by mutableStateOf(false)
+
+    fun displaySnackbar(){
+        snackbarDisplayed = true
+    }
+
+    fun closeSnackbar(){
+        snackbarDisplayed = false
+    }
 
     //add in things for a loading buffer,
 
@@ -58,44 +85,58 @@ class LogInViewModel : ViewModel() {
      */
     fun loginUser(email: String, password: String){
         try {
-            _loading.value = true
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         var uid = auth.currentUser?.uid
                         Log.d("Firebase", "Login success: ${task.result}")
                         if (auth.currentUser?.isEmailVerified == true) {
-                            FirebaseFirestore.getInstance().collection("Users")
-                                .whereEqualTo("uid", uid)
-                                .get()
-                                .addOnSuccessListener { snapshot ->
-                                    try {
-                                        val user = Muser.fromDocument(snapshot.documents[0])
-                                        Log.d("Firebase", "User found: ${user.name}")
-                                        /** here user is collected, use nav controller to move forward with this
-                                         *
-                                         */
-                                    } catch (e: Exception) {
-                                        Log.d("Firebase", "User not found: ${uid}")
+                            Log.d("Firebase", "curr user ${auth.currentUser?.uid}")
+                            if (uid != null) {
+                                FirebaseFirestore.getInstance().collection("Users")
+                                    .document(uid)
+                                    .get()
+                                    .addOnSuccessListener { snapshot ->
+                                        try {
+                                            val user = Muser.fromDocument(snapshot)
+                                            Log.d("Firebase", "User found: ${user.name}")
+                                            _loggedIn.value = true
+                                            _verPopup.value = false
+                                        } catch (e: Exception) {
+                                            Log.d("Firebase", "User not found: ${uid}")
+                                        }
+                                    }.addOnFailureListener { e ->
+                                        Log.d("Firebase", "reading failed: ${e.message}")
+                                        _errorMessage.value = e.message
+                                        _actionMessage.value = null
+                                        displaySnackbar()
+                                        _uiState.update {newState -> newState.copy(hasErrors = true)}
                                     }
-                                }.addOnFailureListener { e ->
-                                    Log.d("Firebase", "reading failed: ${auth.currentUser?.uid}")
-                                    _errorMessage.value = "there is an issue logging you in"
-                                    _loading.value = false
-                                }
+                            }
                         } else {
                             _errorMessage.value = "Please verify your email before logging in."
-                            _loading.value = false
+                            _actionMessage.value = "Resend"
+                            displaySnackbar()
+
+                            _uiState.update {newState -> newState.copy(hasErrors = true)}
+
                             Log.d("Firebase", "Login failed: Email not verified.")
                         }
                     } else {
-                        _errorMessage.value = "incorrect email or password"
-                        _loading.value = false
+                        _uiState.update {newState ->
+                            newState.copy(
+                                errorMessage = "Incorrect email or password",
+                                hasErrors = true
+                            )
+                        }
+
                         Log.d("Firebase", "Login failed: incorrect email or password")
                     }
                 }
         } catch (e: Exception) {
             _errorMessage.value = e.message
+            _actionMessage.value = null
+            displaySnackbar()
             Log.d("Firebase", "Login failed: ${e.message}")
         }
     }
@@ -125,4 +166,16 @@ class LogInViewModel : ViewModel() {
                 }
             }
     }
+
+    fun userLogged(){
+        _loggedIn.value = false
+    }
 }
+
+data class LoginUiState(
+    val username: String = "",
+    val password: String = "",
+    val errorMessage: String = "",
+    val hasErrors: Boolean = false,
+    val canLogin: Boolean = false,
+)

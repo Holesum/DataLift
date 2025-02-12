@@ -13,6 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.datalift.navigation.AppNavigation
+import com.example.datalift.navigation.LoginRoute
+import com.example.datalift.navigation.SignUpBaseRoute
+import com.example.datalift.navigation.WorkoutRoute
+import com.example.datalift.navigation.signUpGraph
 import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
@@ -31,38 +36,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DataliftApp(){
     DataliftTheme {
-        val navController = rememberNavController()
-//        NavHost(
-//            navController = navController,
-//            startDestination = Login
-//        ) {
-//            composable<Login> { LoginScreen() }
-//        }
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = LoginRoute,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable<LoginRoute> {
-                    LoginScreen(
-                        navigateToAccountCreation = {
-                            navController.navigate(route = SignUpBaseRoute)
-                        },
-                    )
-                }
-
-                signUpGraph(
-                    navController = navController
-                )
-
-                composable<WorkoutRoute> {
-                    WorkoutListScreen(
-
-                    )
-                }
-            }
-        }
+        AppNavigation()
     }
 }
 
