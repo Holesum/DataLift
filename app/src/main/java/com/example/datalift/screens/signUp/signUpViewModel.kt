@@ -13,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
+import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userWeights
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +29,12 @@ class SignUpViewModel : ViewModel() {
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
+
+    private val _user = MutableStateFlow<Muser?>(Muser())
+    val user: StateFlow<Muser?> get() = _user
+
+    private val _accountCreated = MutableStateFlow(false)
+    val accountCreated: StateFlow<Boolean> get() = _accountCreated
 
     var username by mutableStateOf("")
         private set
@@ -55,34 +62,44 @@ class SignUpViewModel : ViewModel() {
 
 
     val updateUsername: (String) -> Unit = { newUsername ->
+        _user.value = _user.value?.copy(uname = newUsername)
         username = newUsername
     }
 
     val updateEmail: (String) -> Unit = { newEmail ->
+        _user.value = _user.value?.copy(email = newEmail)
+        Log.d("Firebase", "Email: ${_user.value?.email}")
         email = newEmail
     }
 
     val updatePassword: (String) -> Unit = { newPassword ->
+        Log.d("Firebase", "Password: $newPassword")
         password = newPassword
     }
 
     val updateName: (String) -> Unit = { newName ->
+        _user.value = _user.value?.copy(name = newName)
         name = newName
     }
-
+//----------------------------------------------------------------
     val updateWeight: (String) -> Unit = { newWeight ->
+        _user.value = _user.value?.copy(weight = newWeight.toDouble())
         weight = newWeight
     }
 
     val updateHeight: (String) -> Unit = { newHeight ->
+        _user.value = _user.value?.copy(height = newHeight.toDouble())
         height = newHeight
     }
 
     val updateGender: (String) -> Unit = { newGender ->
+        _user.value = _user.value?.copy(gender = newGender)
         gender = newGender
     }
 
     val updateDOB: (Long?) -> Unit = { newDOB ->
+
+     //   _user.value = _user.value?.copy(dob = newDOB)
         dob = newDOB
     }
 
@@ -104,23 +121,29 @@ class SignUpViewModel : ViewModel() {
      * @see FirebaseAuth.createUserWithEmailAndPassword
      * @see createUser
      */
-    fun createDBUser(email: String,
+    fun naving() {
+        _accountCreated.value = false
+    }
+
+    fun createDBUser(/**email: String,
                      name: String,
                      gender: String,
-                     height: Number,
-                     weight: Number,
+                     height: Double,
+                     weight: Double,
                      privacy: Boolean,
                      imperial: Boolean,
                      password: String,
-                     dob: Instant) {
+                     dob: Timestamp**/
+    ) {
         if (!_loading.value) {
             _loading.value = true
-            auth.createUserWithEmailAndPassword(email, password)
+            auth.createUserWithEmailAndPassword(user.value?.email!!, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val uname = task.result?.user?.email?.split('@')?.get(0).toString()
+                        //val uname = task.result?.user?.email?.split('@')?.get(0).toString()
+                        _accountCreated.value = true
+                        createUser()
                         sendEmailVerification()
-                        createUser(email, name, gender, height, weight, privacy, imperial, uname, dob)
                     } else {
                         _errorMessage.value = "failed to create user"
                     }
@@ -144,21 +167,21 @@ class SignUpViewModel : ViewModel() {
      * @see createDBUser
      */
     private fun createUser(
-        email: String,
+        /**email: String,
         name: String,
         gender: String,
-        height: Number,
-        weight: Number,
+        height: Double,
+        weight: Double,
         privacy: Boolean,
         imperial: Boolean,
         uname: String,
-        dob: Instant
+        dob: Instant**/
     ){
 
         val userId = auth.currentUser?.uid
-        var weightList = mutableListOf<userWeights>()
+        val weightList = mutableListOf<userWeights>()
         weightList.add(userWeights(Timestamp.now(), weight.toDouble()))
-        val user = Muser(
+        /**val user = Muser(
             uid = userId.toString(),
             uname = uname,
             email = email,
@@ -172,14 +195,17 @@ class SignUpViewModel : ViewModel() {
             workouts = mutableListOf<String>(),
             friends = mutableListOf<String>(),
             weights = weightList
-        ).toMap()
-
+        ).toMap()**/
+        _user.value = user.value?.copy(uid = userId.toString())
+        _user.value = user.value?.copy(weights = weightList)
         Log.d("Firebase", "$user")
 
         FirebaseFirestore.getInstance().collection("Users")
             .document(userId.toString())
-            .set(user.toMap())
-            .addOnSuccessListener {Log.d("Firebase", "Create user success $uname")}
+            .set(user.value!!)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Create user success $user.uname")
+            }
             .addOnFailureListener{ exception ->
                 Log.d("Firebase", "Failed to create user ${exception.message}")}
     }

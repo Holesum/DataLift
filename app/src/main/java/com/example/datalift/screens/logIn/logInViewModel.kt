@@ -45,8 +45,14 @@ class LogInViewModel : ViewModel() {
     private val _verSent = MutableLiveData(false)
     val verSent: LiveData<Boolean> = _verSent
 
+    private val _verPopup = MutableLiveData(false)
+    val verPopup: LiveData<Boolean> = _verPopup
+
     private val _passwordReset = MutableLiveData(false)
     val passwordReset: LiveData<Boolean> = _passwordReset
+
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn
 
     //add in things for a loading buffer,
 
@@ -65,25 +71,29 @@ class LogInViewModel : ViewModel() {
                         var uid = auth.currentUser?.uid
                         Log.d("Firebase", "Login success: ${task.result}")
                         if (auth.currentUser?.isEmailVerified == true) {
-                            FirebaseFirestore.getInstance().collection("Users")
-                                .whereEqualTo("uid", uid)
-                                .get()
-                                .addOnSuccessListener { snapshot ->
-                                    try {
-                                        val user = Muser.fromDocument(snapshot.documents[0])
-                                        Log.d("Firebase", "User found: ${user.name}")
-                                        /** here user is collected, use nav controller to move forward with this
-                                         *
-                                         */
-                                    } catch (e: Exception) {
-                                        Log.d("Firebase", "User not found: ${uid}")
+                            Log.d("Firebase", "curr user ${auth.currentUser?.uid}")
+                            if (uid != null) {
+                                FirebaseFirestore.getInstance().collection("Users")
+                                    .document(uid)
+                                    .get()
+                                    .addOnSuccessListener { snapshot ->
+                                        try {
+                                            val user = Muser.fromDocument(snapshot)
+                                            Log.d("Firebase", "User found: ${user.name}")
+                                            _loggedIn.value = true
+                                            _verPopup.value = false
+                                            _loading.value = false
+                                        } catch (e: Exception) {
+                                            Log.d("Firebase", "User not found: ${uid}")
+                                        }
+                                    }.addOnFailureListener { e ->
+                                        Log.d("Firebase", "reading failed: ${e.message}")
+                                        _errorMessage.value = e.message
+                                        _loading.value = false
                                     }
-                                }.addOnFailureListener { e ->
-                                    Log.d("Firebase", "reading failed: ${auth.currentUser?.uid}")
-                                    _errorMessage.value = "there is an issue logging you in"
-                                    _loading.value = false
-                                }
+                            }
                         } else {
+                            _verPopup.value = true
                             _errorMessage.value = "Please verify your email before logging in."
                             _loading.value = false
                             Log.d("Firebase", "Login failed: Email not verified.")
@@ -124,5 +134,9 @@ class LogInViewModel : ViewModel() {
                     _passwordReset.value = false
                 }
             }
+    }
+
+    fun userLogged(){
+        _loggedIn.value = false
     }
 }
