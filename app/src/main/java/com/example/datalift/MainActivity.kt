@@ -14,10 +14,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.datalift.navigation.AppNavigation
-import com.example.datalift.navigation.LoginRoute
-import com.example.datalift.navigation.SignUpBaseRoute
-import com.example.datalift.navigation.WorkoutRoute
-import com.example.datalift.navigation.signUpGraph
 import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.ui.theme.DataliftTheme
