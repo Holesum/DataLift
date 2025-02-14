@@ -1,8 +1,15 @@
 package com.example.datalift.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,57 +42,73 @@ import kotlinx.serialization.Serializable
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val snackbarHostState = remember { SnackbarHostState() }
 //        NavHost(
 //            navController = navController,
 //            startDestination = Login
 //        ) {
 //            composable<Login> { LoginScreen() }
 //        }
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screens.LogIn.name,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-
-            composable(route = Screens.LogIn.name){
-                LoginScreen(
-                    navigateToAccountCreation = {
-                        navController.navigate(route = SignUpBaseRoute)
-                    },
-                    navigateToWorkoutList = {
-                        navController.navigate(route = WorkoutRoute)
-                    }
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            snackbarHost = {
+                SnackbarHost(
+                    snackbarHostState,
+                    modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
                 )
             }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = Screens.LogIn.name,
+                modifier = Modifier.padding(innerPadding)
+            ) {
 
-            signUpGraph(
-                navController = navController
-            )
+                composable(route = Screens.LogIn.name){
+                    LoginScreen(
+                        navigateToAccountCreation = {
+                            navController.navigate(route = SignUpBaseRoute)
+                        },
+                        navigateToWorkoutList = {
+                            navController.navigate(route = WorkoutRoute)
+                        },
+                        onShowSnackbar = { message, action ->
+                            snackbarHostState.showSnackbar(
+                                message = message,
+                                actionLabel = action,
+                                duration = SnackbarDuration.Short,
+                            ) == SnackbarResult.ActionPerformed
+                        }
+                    )
+                }
 
-            workoutGraph(
-                navController = navController
-            )
-
-            /*composable(route = Screens.Workout.name) {
-                val workoutViewModel: WorkoutViewModel = viewModel()
-                WorkoutListScreen(
-                    navController = navController,
-                    workoutViewModel = workoutViewModel
+                signUpGraph(
+                    navController = navController
                 )
+
+                workoutGraph(
+                    navController = navController
+                )
+
+                /*composable(route = Screens.Workout.name) {
+                    val workoutViewModel: WorkoutViewModel = viewModel()
+                    WorkoutListScreen(
+                        navController = navController,
+                        workoutViewModel = workoutViewModel
+                    )
+                }
+
+                composable(route = Screens.WorkoutDetails.name) {
+                    WorkoutDetailsScreen(
+                        workoutViewModel = viewModel()
+                    )
+
+                }*/
+
+
             }
-
-            composable(route = Screens.WorkoutDetails.name) {
-                WorkoutDetailsScreen(
-                    workoutViewModel = viewModel()
-                )
-
-            }*/
-
-
         }
     }
-}
 
 
 fun NavGraphBuilder.signUpGraph(
@@ -136,7 +159,7 @@ fun NavGraphBuilder.signUpGraph(
                 signUpViewModel = signUpViewModel,
                 navUp = { navController.navigateUp() },
                 navNext = {
-                    navController.navigate(Screens.LogIn.name)
+                    navController.navigate(route = Screens.LogIn.name)
                 }
             )
         }

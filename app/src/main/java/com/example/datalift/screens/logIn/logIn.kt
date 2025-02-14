@@ -1,54 +1,55 @@
 package com.example.datalift.screens.logIn
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.ui.components.StatelessDataliftFormPrivateTextField
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
-import com.example.datalift.ui.theme.DataliftTheme
-
-fun accountCreationSwitch(){
-    return
-}
 
 @Composable
 fun LoginFeatures(
-    username: String,
-    password: String,
+    loginUiState: LoginUiState,
     changeUsername: (String) -> Unit,
     changePassword: (String) -> Unit,
     navigateToAccountCreation: () -> Unit,
     navigateToWorkoutList: () -> Unit,
     loginUser: (String, String) -> Unit,
-    isLoading: Boolean,
     errorMessage: String?,
+    actionMessage: String?,
     loggedin: Boolean,
-    undoLogin: () -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarDisplayed: Boolean,
+    closeSnackbar: () -> Unit,
     reSendVerificationEmail: () -> Unit,
-    verPopup: Boolean,
     modifier: Modifier,
 ){
-    var sendVer by remember { mutableStateOf(false) }
+    LaunchedEffect(snackbarDisplayed) {
+        if(snackbarDisplayed){
+            val snackbarMessage = if(errorMessage != null){ errorMessage } else ""
+            val snackbarResult = onShowSnackbar(snackbarMessage, actionMessage)
+            if(snackbarResult){
+                reSendVerificationEmail()
+                closeSnackbar()
+            } else {
+                closeSnackbar()
+            }
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -61,36 +62,41 @@ fun LoginFeatures(
         )
         StatelessDataliftFormTextField(
             field = "Username",
-            text = username,
+            text = loginUiState.username,
             changeText = changeUsername,
+            isError = loginUiState.hasErrors,
             modifier = modifier.padding(4.dp)
         )
         StatelessDataliftFormPrivateTextField(
             field = "Password",
-            text = password,
+            text = loginUiState.password,
             changeText = changePassword,
+            isError = loginUiState.hasErrors,
+            supportingText = {
+                if(loginUiState.hasErrors) {
+                    Text(loginUiState.errorMessage)
+                }
+            },
             modifier = modifier.padding(4.dp)
         )
-        Button(onClick = { loginUser(username, password); if(loggedin){navigateToWorkoutList()} else {sendVer = true} }, enabled = !isLoading){
-            Text(if (isLoading) "Loading..." else "Login")
+        Button(
+            onClick = {
+                loginUser(loginUiState.username, loginUiState.password)
+                if(loggedin){
+                    navigateToWorkoutList()
+                } else {
+
+                }
+            },
+            enabled = loginUiState.canLogin
+        ){
+            Text("Login")
         }
         Spacer(Modifier.padding(8.dp))
         Button(onClick = { navigateToAccountCreation()}){
             Text("Account Creation")
         }
         Spacer(Modifier.padding(8.dp))
-        if(sendVer && verPopup) {
-            Button(onClick = {reSendVerificationEmail()}){
-                Text("Resend Verification Email")
-            }
-        }
-        errorMessage?.let {
-            Text(text = it, color = Color.Red, modifier = Modifier.padding(8.dp))
-        }
-        if(loggedin){
-            undoLogin()
-            navigateToWorkoutList()
-        }
     }
 }
 
@@ -99,8 +105,10 @@ fun LoginScreen(
     logInViewModel: LogInViewModel = viewModel(),
     navigateToAccountCreation: () -> Unit,
     navigateToWorkoutList: () -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier
 ){
+    val loginUiState by logInViewModel.uiState.collectAsStateWithLifecycle()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
@@ -111,40 +119,21 @@ fun LoginScreen(
             fontSize = 48.sp,
             modifier = modifier.padding(16.dp)
         )
-        logInViewModel.loading.value?.let {
-            LoginFeatures(
-                username = logInViewModel.username,
-                password = logInViewModel.password,
-                changeUsername = logInViewModel.updateUsername,
-                changePassword = logInViewModel.updatePassword,
-                navigateToAccountCreation = navigateToAccountCreation,
-                navigateToWorkoutList = navigateToWorkoutList,
-                loginUser = logInViewModel::loginUser,  // Pass the login method
-                isLoading = it, // Pass the loading state
-                errorMessage = logInViewModel.errorMessage.collectAsState().value, // Pass error message
-                loggedin = logInViewModel.loggedIn.collectAsState().value,
-                undoLogin = logInViewModel::userLogged,
-                reSendVerificationEmail = { logInViewModel.resendVerificationEmail() },
-                verPopup = logInViewModel.verPopup.value!!,
-                modifier = modifier
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview(){
-    DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            LoginScreen(
-                navigateToAccountCreation = {},
-                navigateToWorkoutList = {},
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-
+        LoginFeatures(
+            loginUiState = loginUiState,
+            changeUsername = logInViewModel.updateUsername,
+            changePassword = logInViewModel.updatePassword,
+            navigateToAccountCreation = navigateToAccountCreation,
+            navigateToWorkoutList = navigateToWorkoutList,
+            loginUser = logInViewModel::loginUser,  // Pass the login method
+            errorMessage = logInViewModel.errorMessage.collectAsState().value, // Pass error message
+            actionMessage = logInViewModel.actionMessage.collectAsState().value,
+            loggedin = logInViewModel.loggedIn.collectAsState().value,
+            onShowSnackbar = onShowSnackbar,
+            snackbarDisplayed = logInViewModel.snackbarDisplayed,
+            closeSnackbar = logInViewModel::closeSnackbar,
+            reSendVerificationEmail = { logInViewModel.resendVerificationEmail() },
+            modifier = modifier
+        )
     }
 }

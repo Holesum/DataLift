@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -13,13 +11,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.datalift.model.Muser
-import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userWeights
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.type.Date
-import java.time.Instant
-import java.time.LocalDate
 
 class SignUpViewModel : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
@@ -60,6 +54,16 @@ class SignUpViewModel : ViewModel() {
     var gender by mutableStateOf("")
         private set
 
+    var nameInvalid by mutableStateOf(false)
+    var genderInvalid by mutableStateOf(false)
+    var weightInvalid by mutableStateOf(false)
+    var heightInvalid by mutableStateOf(false)
+    var usernameInvalid by mutableStateOf(false)
+    var passwordInvalid by mutableStateOf(false)
+    var emailInvalid by mutableStateOf(false)
+
+    private val heightRegex = Regex("^[0-9]*$")
+    private val weightRegex = Regex("^[0-9]*[.]?[0-9]?$")
 
     val updateUsername: (String) -> Unit = { newUsername ->
         _user.value = _user.value?.copy(uname = newUsername)
@@ -83,13 +87,21 @@ class SignUpViewModel : ViewModel() {
     }
 //----------------------------------------------------------------
     val updateWeight: (String) -> Unit = { newWeight ->
-        _user.value = _user.value?.copy(weight = newWeight.toDouble())
-        weight = newWeight
+        if(newWeight.matches(weightRegex)){
+            if(newWeight.isNotEmpty()) {
+                _user.value = _user.value?.copy(weight = newWeight.toDouble())
+            }
+            weight = newWeight
+        }
     }
 
     val updateHeight: (String) -> Unit = { newHeight ->
-        _user.value = _user.value?.copy(height = newHeight.toDouble())
-        height = newHeight
+        if(newHeight.isEmpty() || newHeight.matches(heightRegex)){
+            if(newHeight.isNotEmpty()){
+                _user.value = _user.value?.copy(height = newHeight.toDouble())
+            }
+            height = newHeight
+        }
     }
 
     val updateGender: (String) -> Unit = { newGender ->
@@ -101,6 +113,79 @@ class SignUpViewModel : ViewModel() {
 
      //   _user.value = _user.value?.copy(dob = newDOB)
         dob = newDOB
+    }
+
+    fun nameValidated() : Boolean{
+        if(name.isNotBlank()){
+            nameInvalid = false
+            return true
+        } else {
+            nameInvalid = true
+            return false
+        }
+    }
+
+    fun personalCredentialsValidated(): Boolean {
+        var ret = true
+
+        if(gender == ""){
+            ret = false
+            genderInvalid = true
+        } else {
+            genderInvalid = false
+        }
+
+        if(weight == ""){
+            ret = false
+            weightInvalid = true
+        } else {
+            weightInvalid = false
+        }
+
+        if(height == ""){
+            ret = false
+            heightInvalid = true
+        } else {
+            heightInvalid = false
+        }
+
+        return ret
+    }
+
+    fun accountInformationValidated(): Boolean {
+        passwordInvalid = !passwordIsValid()
+        usernameInvalid = !usernameIsValid()
+        emailInvalid = !emailIsValid()
+
+        if(passwordInvalid || usernameInvalid || emailInvalid) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    fun passwordIsValid(): Boolean {
+        if(password.isNotBlank()){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun usernameIsValid(): Boolean{
+        if(username.isNotBlank()){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun emailIsValid(): Boolean{
+        if(email.isNotBlank()){
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        } else {
+            return false
+        }
     }
 
     // a account create success, and email verification

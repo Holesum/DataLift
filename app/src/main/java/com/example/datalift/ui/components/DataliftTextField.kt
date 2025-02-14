@@ -96,12 +96,41 @@ fun DataliftFormTextField(
 }
 
 @Composable
+fun StatelessDataliftNumberTextField(
+    field: String,
+    text: String,
+    changeText: (String) -> Unit,
+    singleLine: Boolean = true,
+    suffix: String = "",
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = changeText,
+        label = { Text(text = field) },
+        singleLine = singleLine,
+        isError = isError,
+        supportingText = supportingText,
+        suffix = { if(suffix != ""){ Text(suffix) } },
+        trailingIcon = trailingIcon,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = modifier
+    )
+}
+
+@Composable
 fun StatelessDataliftFormTextField(
     field: String,
     text: String,
     changeText: (String) -> Unit,
     singleLine: Boolean = true,
     suffix: String = "",
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier
 ) {
@@ -111,7 +140,10 @@ fun StatelessDataliftFormTextField(
         onValueChange = changeText,
         label = { Text(text = field) },
         singleLine = singleLine,
+        isError = isError,
+        supportingText = supportingText,
         suffix = { if(suffix != ""){ Text(suffix) } },
+        trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
         modifier = modifier
     )
@@ -152,6 +184,8 @@ fun DataliftFormPrivateTextField(
 fun StatelessDataliftFormPrivateTextField(
     field: String,
     text: String,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
     changeText: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -175,6 +209,8 @@ fun StatelessDataliftFormPrivateTextField(
                 )
             }
         },
+        supportingText = supportingText,
+        isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         modifier = modifier
     )
@@ -220,6 +256,8 @@ fun StatelessDataliftDialogTextField(
     text: String,
     dialogVisible: Boolean,
     setVisibile: () -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ){
@@ -230,6 +268,8 @@ fun StatelessDataliftDialogTextField(
         trailingIcon = {
             Icon(Icons.Default.ArrowDropDown,contentDescription = null)
         },
+        isError = isError,
+        supportingText = supportingText,
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(text){
@@ -326,18 +366,27 @@ fun SemiStatelessRadioOptionFieldToModal(
     field: String,
     selectedOption: String,
     changeSelectedOption: (String) -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
     options: List<String> = emptyList(),
     modifier: Modifier = Modifier
 ){
 //    val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
 
     val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
+
+    if(selectedOption != ""){
+        confirmSavedOption(selectedOption)
+    }
+
     var dialogVisible by remember { mutableStateOf(false) }
 
     StatelessDataliftDialogTextField(
         field = field,
         text = savedOption,
         dialogVisible = dialogVisible,
+        isError = isError,
+        supportingText = supportingText,
         setVisibile = { dialogVisible = true },
         modifier = modifier
     ) {
@@ -346,10 +395,10 @@ fun SemiStatelessRadioOptionFieldToModal(
             isVisible = dialogVisible,
             onDismissRequest = {
                 dialogVisible = false
-                changeSelectedOption(savedOption)
+                confirmSavedOption(selectedOption)
             },
             onConfirmation = {
-                confirmSavedOption(selectedOption)
+                changeSelectedOption(savedOption)
                 dialogVisible = false
             }
         ) {
@@ -374,7 +423,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                             .height(56.dp)
                             .selectable(
                                 selected = (text == selectedOption),
-                                onClick = { changeSelectedOption(text) },
+                                onClick = { confirmSavedOption(text) },
                                 role = Role.RadioButton
                             )
                             .padding(horizontal = 16.dp),

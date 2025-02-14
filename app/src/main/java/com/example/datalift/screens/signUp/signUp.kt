@@ -12,19 +12,17 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.datalift.screens.logIn.accountCreationSwitch
+import com.example.datalift.R
 import com.example.datalift.ui.components.DataliftFormPrivateTextField
 import com.example.datalift.ui.components.DataliftFormTextField
 import com.example.datalift.ui.components.DataliftNumberTextField
@@ -33,8 +31,7 @@ import com.example.datalift.ui.components.RadioOptionFieldToModal
 import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
 import com.example.datalift.ui.components.StatelessDataliftFormPrivateTextField
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
-import com.example.datalift.ui.components.StatelessDatePickerFieldToModal
-import com.example.datalift.ui.theme.DataliftTheme
+import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 
 @Composable
 fun SignupFeatures(
@@ -95,7 +92,7 @@ fun SignupFeatures(
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        Button(onClick = { accountCreationSwitch() }){
+        Button(onClick = { }){
             Text("Sign Up")
         }
 
@@ -108,7 +105,6 @@ fun SignupFeatures(
 
 @Composable
 fun SignupScreen(
-    signUpViewModel: SignUpViewModel = viewModel(),
     navUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -152,11 +148,30 @@ fun NameScreen(
             field = "Name",
             text = signUpViewModel.name,
             changeText = signUpViewModel.updateName,
+            supportingText = {
+                if(signUpViewModel.nameInvalid) {
+                    Text("Name need to be atleast 1 character")
+                }
+            },
+            trailingIcon = {
+                if(signUpViewModel.nameInvalid){
+                    Icon(
+                        painter =  painterResource(R.drawable.error),
+                        contentDescription = null,
+                    )
+                }
+            },
+            isError = signUpViewModel.nameInvalid,
+
             modifier = Modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
 
-        Button(onClick = {navNext()}) {
+        Button(onClick = {
+            if(signUpViewModel.nameValidated()){
+                navNext()
+            }
+        }) {
             Text(text = "Next")
         }
     }
@@ -185,37 +200,52 @@ fun PersonalInformationScreen(
             field = "Gender",
             selectedOption = signUpViewModel.gender,
             changeSelectedOption = signUpViewModel.updateGender,
+            isError = signUpViewModel.genderInvalid,
+            supportingText = {
+                if(signUpViewModel.genderInvalid) {
+                    Text("Need to choose a selection")
+                }
+            },
             options = listOf("Male","Female","Prefer not to say"),
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
-        StatelessDataliftFormTextField(
+        StatelessDataliftNumberTextField(
             field = "Height (inches)",
             suffix = "in.",
             text = signUpViewModel.height,
             changeText = signUpViewModel.updateHeight,
+            isError = signUpViewModel.heightInvalid,
+            supportingText = {
+                if(signUpViewModel.heightInvalid) {
+                    Text("Height needs to be an un-empty field")
+                }
+            },
             modifier = Modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
 
-        StatelessDataliftFormTextField(
+        StatelessDataliftNumberTextField(
             field = "Weight (lb)",
             suffix = "lbs",
-            text = signUpViewModel.weight.toString(),
+            text = signUpViewModel.weight,
             changeText = signUpViewModel.updateWeight,
+            isError = signUpViewModel.weightInvalid,
+            supportingText = {
+                if(signUpViewModel.weightInvalid) {
+                    Text("Weight needs to be an un-empty field")
+                }
+            },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
 
-        StatelessDatePickerFieldToModal(
-            date = signUpViewModel.dob,
-            changeDate = signUpViewModel.updateDOB,
-            modifier = modifier.padding(4.dp)
-                .fillMaxWidth(0.75f)
-
-        )
-
-        Button(onClick = {navNext()}) {
+        Button(onClick = {
+                if(signUpViewModel.personalCredentialsValidated()){
+                    navNext()
+                }
+            }
+        ) {
             Text(text = "Next")
         }
     }
@@ -228,7 +258,6 @@ fun CredentialsScreen(
     navNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var signedUp = signUpViewModel.accountCreated.collectAsState().value
     Column(
         modifier = modifier
     ) {
@@ -245,6 +274,20 @@ fun CredentialsScreen(
             field = "Username",
             text = signUpViewModel.username,
             changeText = signUpViewModel.updateUsername,
+            isError = signUpViewModel.usernameInvalid,
+            trailingIcon = {
+                if(signUpViewModel.usernameInvalid){
+                    Icon(
+                        painter =  painterResource(R.drawable.error),
+                        contentDescription = null,
+                    )
+                }
+            },
+            supportingText = {
+                if(signUpViewModel.usernameInvalid) {
+                    Text("Username needs to be an un-empty field")
+                }
+            },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
@@ -252,6 +295,12 @@ fun CredentialsScreen(
             field = "Password",
             text = signUpViewModel.password,
             changeText = signUpViewModel.updatePassword,
+            isError = signUpViewModel.passwordInvalid,
+            supportingText = {
+                if(signUpViewModel.usernameInvalid) {
+                    Text("Password needs to be an un-empty field")
+                }
+            },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
@@ -259,94 +308,35 @@ fun CredentialsScreen(
             field = "Email",
             text = signUpViewModel.email,
             changeText = signUpViewModel.updateEmail,
+            isError = signUpViewModel.emailInvalid,
+            trailingIcon = {
+                if(signUpViewModel.emailInvalid){
+                    Icon(
+                        painter =  painterResource(R.drawable.error),
+                        contentDescription = null,
+                    )
+                }
+            },
+            supportingText = {
+                if(signUpViewModel.emailInvalid) {
+                    Text("Email needs to be an valid")
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
         )
         Button(onClick = {
-            signUpViewModel.createDBUser();
+            if(signUpViewModel.accountInformationValidated()){
+                signUpViewModel.createDBUser()
+                val signedUp = signUpViewModel.accountCreated.value
+                if(signedUp) {
+                    signUpViewModel.naving()
+                    navNext()
+                }
+            }
+
         }) { Text(text = "Create Account") }
     }
-    if(signedUp) {
-        signUpViewModel.naving()
-        navNext()
-    }
-}
 
-@Preview(
-    showBackground = true,
-    group = "Baseline"
-)
-@Composable
-fun SignUpPreview(){
-    DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            SignupScreen(
-                navUp = {},
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    name = "Name Screen",
-    group = "Name Screen"
-)
-@Composable
-fun NameScreenPreview(){
-    DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            NameScreen(
-                navUp = {},
-                navNext = {},
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    name = "Personal Information Screen",
-    group = "PI Screen"
-)
-@Composable
-fun PersonalInformationPreview(){
-    DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            PersonalInformationScreen(
-                navUp = {},
-                navNext = {},
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    name = "Credential Screen",
-    group = "Credential Screen"
-)
-@Composable
-fun CredentialsPreview(){
-    DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            CredentialsScreen(
-                navUp = {},
-                navNext = {},
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
 }
