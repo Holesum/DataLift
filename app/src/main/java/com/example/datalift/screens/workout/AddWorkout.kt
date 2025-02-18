@@ -33,6 +33,7 @@ import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 
+
 @Composable
 fun WorkoutDetailsScreen(
     workoutViewModel: WorkoutViewModel = viewModel(),
@@ -55,34 +56,37 @@ fun WorkoutDetailsScreen(
         modifier = Modifier.fillMaxHeight().fillMaxWidth(1F),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
-        Text(text = "Date: ${workout.getFormattedDate()}")
-        Text(text = "Muscle Group: ${workout.muscleGroup}")
+        if(!isAddSetVisible) {
+            Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Date: ${workout.getFormattedDate()}")
+            Text(text = "Muscle Group: ${workout.muscleGroup}")
 
-        // List exercises associated with the workout
-        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-            items(workout.exercises) { exercise ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = exercise.name)
-                    exercise.sets.forEach { set ->
-                        Text(text = set.getFormattedSet())
-                    }
-                    Button(
-                        onClick = {
-                            selectedExercise = exercise
-                            isAddSetVisible = true}
-                    ) {
-                        Text("Add Set")
+            // List exercises associated with the workout
+            LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
+                items(workout.exercises) { exercise ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = exercise.name)
+                        exercise.sets.forEach { set ->
+                            Text(text = set.getFormattedSet())
+                        }
+                        Button(
+                            onClick = {
+                                selectedExercise = exercise
+                                isAddSetVisible = true
+                            }
+                        ) {
+                            Text("Add Set")
+                        }
                     }
                 }
             }
-        }
-        // Button to open the exercise dialog
-        Button(
-            onClick = { isExerciseDialogVisible = true },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Add Exercise")
+            // Button to open the exercise dialog
+            Button(
+                onClick = { isExerciseDialogVisible = true },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("Add Exercise")
+            }
         }
         if (isAddSetVisible){
             AddSetDialog(
@@ -97,14 +101,16 @@ fun WorkoutDetailsScreen(
         } else {
             saveWorkout = true
         }
-        Spacer(modifier = Modifier.weight(1F))
+        if(!isAddSetVisible) {
+            Spacer(modifier = Modifier.weight(1F))
 
-        if(saveWorkout) {
-            Button(
-                onClick = { workoutViewModel.createNewWorkout(workout); isWorkoutAdded = true },
-                modifier = Modifier
-            ) {
-                Text("Save Workout")
+            if (saveWorkout) {
+                Button(
+                    onClick = { workoutViewModel.createNewWorkout(workout); isWorkoutAdded = true },
+                    modifier = Modifier
+                ) {
+                    Text("Save Workout")
+                }
             }
         }
 
@@ -137,57 +143,88 @@ fun AddSetDialog(
 ){
     var weight by remember { mutableDoubleStateOf(0.0) }
     var reps by remember { mutableLongStateOf(0) }
-    Column {
-        StatelessDataliftFormTextField(
-            field = "Weight",
-            text = weight.toString(),
-            changeText = { weight = it.toDouble() },
-            modifier = Modifier.fillMaxWidth(0.75f)
-        )
-        StatelessDataliftFormTextField(
-            field = "Reps",
-            text = reps.toString(),
-            changeText = { reps = if(it.isNotBlank()){
-                it.toLong()
-            } else {
-                0
-            } },
-            modifier = Modifier.fillMaxWidth(0.75f)
-        )
-        Button(
-            onClick = { onAddSet(Mset(reps, weight)) }) {
-            Text("Confirm Set")
+    Column(modifier = modifier.fillMaxHeight(1F).fillMaxWidth(1F),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(modifier = Modifier.fillMaxWidth(0.5F)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row {
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null,
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null
+                        )
+                    }
+                }
+                Row {
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.weight_plate),
+                            contentDescription = null
+                        )
+                    }
+                }
+            }
         }
-        Row {
-            IconButton(
-                onClick = {}
-            ){
-                Image(painter = painterResource(R.drawable.weight_plate),
-                    contentDescription = null)
-            }
-            IconButton(
-                onClick = {}
-            ){
-                Image(painter = painterResource(R.drawable.weight_plate),
-                    contentDescription = null,)
-            }
-            IconButton(
-                onClick = {}
-            ){
-                Image(painter = painterResource(R.drawable.weight_plate),
-                    contentDescription = null)
-            }
-            IconButton(
-                onClick = {}
-            ){
-                Image(painter = painterResource(R.drawable.weight_plate),
-                    contentDescription = null)
-            }
-            IconButton(
-                onClick = {}
-            ){
-                Image(painter = painterResource(R.drawable.weight_plate),
-                    contentDescription = null)
+        Column(modifier = Modifier.fillMaxHeight(1F)) {
+            StatelessDataliftFormTextField(
+                field = "Weight",
+                text = weight.toString(),
+                changeText = { weight = it.toDouble() },
+                modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
+            )
+            StatelessDataliftFormTextField(
+                field = "Reps",
+                text = reps.toString(),
+                changeText = {
+                    reps = if (it.isNotBlank()) {
+                        it.toLong()
+                    } else {
+                        0
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
+            )
+            Button(
+                onClick = { onAddSet(Mset(reps, weight)) },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("Confirm Set")
             }
         }
     }

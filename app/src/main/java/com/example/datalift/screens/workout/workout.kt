@@ -261,7 +261,6 @@ fun WorkoutList(
 
 @Composable
 fun WorkoutListScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel = viewModel(),
     navNext: () -> Unit = {},

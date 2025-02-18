@@ -184,7 +184,6 @@ fun NavGraphBuilder.workoutGraph(
 
             WorkoutListScreen(
                 workoutViewModel = workoutViewModel,
-                navController = navController,
                 navUp = { navController.navigateUp() },
                 navNext = { navController.navigate(Screens.WorkoutDetails.name) }
             )

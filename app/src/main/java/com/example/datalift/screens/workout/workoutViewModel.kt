@@ -88,7 +88,7 @@ class WorkoutViewModel : ViewModel() {
      */
     fun getExercises(query: String = ""){
         _loading.value = true
-        workoutRepo.getExercises(query) { exerciseList ->
+        workoutRepo.getExercises(query.lowercase()) { exerciseList ->
             _exercises.value = exerciseList
             Log.d("Firebase", "Exercises found: ${exerciseList.size}")
             _loading.value = false

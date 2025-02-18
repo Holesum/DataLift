@@ -11,7 +11,7 @@ data class Mset(
 ) {
 
     fun getFormattedSet(): String {
-        return "$rep reps at ${weight}kg"
+        return "$rep reps at ${weight}lbs"
     }
 
     fun isValid(): Boolean {
