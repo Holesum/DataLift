@@ -1,5 +1,6 @@
 package com.example.datalift.screens.analysis
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -10,6 +11,11 @@ import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+
+@Composable
+fun AnalysisScreen(){
+    Text("Analysis Screen")
+}
 
 @Composable
 private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer, modifier: Modifier) {
