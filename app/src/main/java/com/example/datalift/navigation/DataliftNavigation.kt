@@ -1,27 +1,13 @@
 package com.example.datalift.navigation
 
-import android.util.Log
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.runtime.Composable
+
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import androidx.navigation.compose.rememberNavController
 import com.example.datalift.screens.analysis.AnalysisScreen
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
@@ -44,82 +30,6 @@ import kotlinx.serialization.Serializable
 @Serializable object WorkoutBaseRoute
 @Serializable object WorkoutListRoute
 @Serializable object AnalysisRoute
-
-
-
-//@Composable
-//fun AppNavigation() {
-//    val navController = rememberNavController()
-//    val snackbarHostState = remember { SnackbarHostState() }
-////        NavHost(
-////            navController = navController,
-////            startDestination = Login
-////        ) {
-////            composable<Login> { LoginScreen() }
-////        }
-//        Scaffold(
-//            modifier = Modifier.fillMaxSize(),
-//            snackbarHost = {
-//                SnackbarHost(
-//                    snackbarHostState,
-//                    modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
-//                )
-//            }
-//        ) { innerPadding ->
-//            NavHost(
-//                navController = navController,
-//                startDestination = LoginRoute,
-//                modifier = Modifier.padding(innerPadding)
-//            ) {
-//
-//                composable<LoginRoute>{
-//                    LoginScreen(
-//                        navigateToAccountCreation = {
-//                            navController.navigate(route = SignUpBaseRoute)
-//                        },
-//                        navigateToWorkoutList = {
-//                            navController.navigate(route = WorkoutBaseRoute)
-//                        },
-//                        onShowSnackbar = { message, action ->
-//                            snackbarHostState.showSnackbar(
-//                                message = message,
-//                                actionLabel = action,
-//                                duration = SnackbarDuration.Short,
-//                            ) == SnackbarResult.ActionPerformed
-//                        }
-//                    )
-//                }
-//
-//                signUpGraph(
-//                    navController = navController
-//                )
-//
-//                workoutGraph(
-//                    navController = navController
-//                )
-//
-//                feedSection()
-//
-//
-//                /*composable(route = Screens.Workout.name) {
-//                    val workoutViewModel: WorkoutViewModel = viewModel()
-//                    WorkoutListScreen(
-//                        navController = navController,
-//                        workoutViewModel = workoutViewModel
-//                    )
-//                }
-//
-//                composable(route = Screens.WorkoutDetails.name) {
-//                    WorkoutDetailsScreen(
-//                        workoutViewModel = viewModel()
-//                    )
-//
-//                }*/
-//
-//
-//        }
-//    }
-//}
 
 fun NavGraphBuilder.loginScreen(
     navController: NavController,

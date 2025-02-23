@@ -1,6 +1,5 @@
 package com.example.datalift.ui.components
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem

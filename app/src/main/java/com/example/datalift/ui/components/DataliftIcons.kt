@@ -1,6 +1,5 @@
 package com.example.datalift.ui.components
 
-import android.widget.Magnifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
