@@ -27,8 +27,9 @@ fun LoginFeatures(
     changeUsername: (String) -> Unit,
     changePassword: (String) -> Unit,
     navigateToAccountCreation: () -> Unit,
-    navigateToWorkoutList: () -> Unit,
+    navigateToHome: () -> Unit,
     loginUser: (String, String) -> Unit,
+    signinUser: () -> Unit,
     errorMessage: String?,
     actionMessage: String?,
     loggedin: Boolean,
@@ -40,7 +41,7 @@ fun LoginFeatures(
 ){
     LaunchedEffect(snackbarDisplayed) {
         if(snackbarDisplayed){
-            val snackbarMessage = if(errorMessage != null){ errorMessage } else ""
+            val snackbarMessage = errorMessage ?: ""
             val snackbarResult = onShowSnackbar(snackbarMessage, actionMessage)
             if(snackbarResult){
                 reSendVerificationEmail()
@@ -83,9 +84,8 @@ fun LoginFeatures(
             onClick = {
                 loginUser(loginUiState.username, loginUiState.password)
                 if(loggedin){
-                    navigateToWorkoutList()
-                } else {
-
+                    signinUser()
+                    navigateToHome()
                 }
             },
             enabled = loginUiState.canLogin
@@ -104,7 +104,8 @@ fun LoginFeatures(
 fun LoginScreen(
     logInViewModel: LogInViewModel = viewModel(),
     navigateToAccountCreation: () -> Unit,
-    navigateToWorkoutList: () -> Unit,
+    signinUser: () -> Unit,
+    navigateToHome: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier
 ){
@@ -124,8 +125,9 @@ fun LoginScreen(
             changeUsername = logInViewModel.updateUsername,
             changePassword = logInViewModel.updatePassword,
             navigateToAccountCreation = navigateToAccountCreation,
-            navigateToWorkoutList = navigateToWorkoutList,
+            navigateToHome = navigateToHome,
             loginUser = logInViewModel::loginUser,  // Pass the login method
+            signinUser = signinUser,
             errorMessage = logInViewModel.errorMessage.collectAsState().value, // Pass error message
             actionMessage = logInViewModel.actionMessage.collectAsState().value,
             loggedin = logInViewModel.loggedIn.collectAsState().value,

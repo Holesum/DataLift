@@ -1,5 +1,6 @@
 package com.example.datalift.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.datalift.screens.analysis.AnalysisScreen
+import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
@@ -31,85 +35,115 @@ import com.example.datalift.screens.workout.WorkoutViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable object LoginRoute
+@Serializable object FeedBaseRoute
+@Serializable object FeedRoute
 @Serializable object SignUpBaseRoute
 @Serializable object NameRoute
 @Serializable object PersonalInformationRoute
 @Serializable object CredentialsRoute
-@Serializable object WorkoutRoute
+@Serializable object WorkoutBaseRoute
 @Serializable object WorkoutListRoute
+@Serializable object AnalysisRoute
 
 
-@Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-    val snackbarHostState = remember { SnackbarHostState() }
-//        NavHost(
-//            navController = navController,
-//            startDestination = Login
-//        ) {
-//            composable<Login> { LoginScreen() }
+
+//@Composable
+//fun AppNavigation() {
+//    val navController = rememberNavController()
+//    val snackbarHostState = remember { SnackbarHostState() }
+////        NavHost(
+////            navController = navController,
+////            startDestination = Login
+////        ) {
+////            composable<Login> { LoginScreen() }
+////        }
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize(),
+//            snackbarHost = {
+//                SnackbarHost(
+//                    snackbarHostState,
+//                    modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+//                )
+//            }
+//        ) { innerPadding ->
+//            NavHost(
+//                navController = navController,
+//                startDestination = LoginRoute,
+//                modifier = Modifier.padding(innerPadding)
+//            ) {
+//
+//                composable<LoginRoute>{
+//                    LoginScreen(
+//                        navigateToAccountCreation = {
+//                            navController.navigate(route = SignUpBaseRoute)
+//                        },
+//                        navigateToWorkoutList = {
+//                            navController.navigate(route = WorkoutBaseRoute)
+//                        },
+//                        onShowSnackbar = { message, action ->
+//                            snackbarHostState.showSnackbar(
+//                                message = message,
+//                                actionLabel = action,
+//                                duration = SnackbarDuration.Short,
+//                            ) == SnackbarResult.ActionPerformed
+//                        }
+//                    )
+//                }
+//
+//                signUpGraph(
+//                    navController = navController
+//                )
+//
+//                workoutGraph(
+//                    navController = navController
+//                )
+//
+//                feedSection()
+//
+//
+//                /*composable(route = Screens.Workout.name) {
+//                    val workoutViewModel: WorkoutViewModel = viewModel()
+//                    WorkoutListScreen(
+//                        navController = navController,
+//                        workoutViewModel = workoutViewModel
+//                    )
+//                }
+//
+//                composable(route = Screens.WorkoutDetails.name) {
+//                    WorkoutDetailsScreen(
+//                        workoutViewModel = viewModel()
+//                    )
+//
+//                }*/
+//
+//
 //        }
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            snackbarHost = {
-                SnackbarHost(
-                    snackbarHostState,
-                    modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
-                )
-            }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Screens.LogIn.name,
-                modifier = Modifier.padding(innerPadding)
-            ) {
+//    }
+//}
 
-                composable(route = Screens.LogIn.name){
-                    LoginScreen(
-                        navigateToAccountCreation = {
-                            navController.navigate(route = SignUpBaseRoute)
-                        },
-                        navigateToWorkoutList = {
-                            navController.navigate(route = WorkoutRoute)
-                        },
-                        onShowSnackbar = { message, action ->
-                            snackbarHostState.showSnackbar(
-                                message = message,
-                                actionLabel = action,
-                                duration = SnackbarDuration.Short,
-                            ) == SnackbarResult.ActionPerformed
-                        }
-                    )
+fun NavGraphBuilder.loginScreen(
+    navController: NavController,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
+    loginUser: () -> Unit,
+) {
+    composable<LoginRoute>{
+        LoginScreen(
+            navigateToAccountCreation = {
+                navController.navigate(route = SignUpBaseRoute)
+            },
+            navigateToHome = {
+                navController.navigate(route = FeedBaseRoute){
+                    popUpTo<LoginRoute>{
+                        inclusive = true
+                    }
+                    launchSingleTop = true
                 }
-
-                signUpGraph(
-                    navController = navController
-                )
-
-                workoutGraph(
-                    navController = navController
-                )
-
-                /*composable(route = Screens.Workout.name) {
-                    val workoutViewModel: WorkoutViewModel = viewModel()
-                    WorkoutListScreen(
-                        navController = navController,
-                        workoutViewModel = workoutViewModel
-                    )
-                }
-
-                composable(route = Screens.WorkoutDetails.name) {
-                    WorkoutDetailsScreen(
-                        workoutViewModel = viewModel()
-                    )
-
-                }*/
-
-
-            }
-        }
+            },
+            onShowSnackbar = onShowSnackbar,
+            signinUser = loginUser
+        )
     }
-
+}
 
 fun NavGraphBuilder.signUpGraph(
     navController: NavController
@@ -166,16 +200,19 @@ fun NavGraphBuilder.signUpGraph(
     }
 }
 
+fun NavController.navigateToWorkout(navOptions: NavOptions) =
+    navigate(route = WorkoutListRoute, navOptions)
+
 fun NavGraphBuilder.workoutGraph(
     navController: NavController
 ) {
-    navigation<WorkoutRoute>(
+    navigation<WorkoutBaseRoute>(
         startDestination = WorkoutListRoute
     )
     {
         composable<WorkoutListRoute> { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(route = WorkoutRoute)
+                navController.getBackStackEntry(route = WorkoutBaseRoute)
             }
 
 
@@ -192,7 +229,7 @@ fun NavGraphBuilder.workoutGraph(
 
         composable(route = Screens.WorkoutDetails.name) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(route = WorkoutRoute)
+                navController.getBackStackEntry(route = WorkoutBaseRoute)
             }
 
 
@@ -202,10 +239,28 @@ fun NavGraphBuilder.workoutGraph(
                 navUp = { navController.navigateUp() },
                         navNext = { navController.navigate(route = WorkoutListRoute) },
             )
-            }
         }
     }
+}
 
+fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(route = FeedRoute, navOptions)
+
+fun NavGraphBuilder.feedSection(){
+    navigation<FeedBaseRoute>(startDestination = FeedRoute){
+        composable<FeedRoute>(){
+            FeedScreen()
+        }
+    }
+}
+
+fun NavController.navigateToAnalysis(navOptions: NavOptions) =
+    navigate(route = AnalysisRoute, navOptions)
+
+fun NavGraphBuilder.analysisScreen(){
+    composable<AnalysisRoute>{
+        AnalysisScreen()
+    }
+}
 
 
 //object DataliftDestinations {
