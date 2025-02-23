@@ -12,7 +12,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
-class analysisViewModel {
+class analysisViewModel : ViewModel()  {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
     private val analysisRepo = analysisRepo()
