@@ -81,4 +81,7 @@ dependencies {
     // Vico
     implementation(libs.vico.compose)
     implementation(libs.vico.views)
+
+    //Autofill
+    implementation(libs.androidx.autofill)
 }
