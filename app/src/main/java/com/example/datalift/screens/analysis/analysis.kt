@@ -64,7 +64,7 @@ internal fun AnalysisScreen(
         }
         when(uiState) {
             AnalysisUiState.Loading -> item {
-
+                Text("Loading")
             }
             AnalysisUiState.Error -> TODO()
             is AnalysisUiState.Success -> {

@@ -29,31 +29,31 @@ class analysisViewModel(
     private val uid: String = auth.currentUser?.uid.toString()
     private val analysisRepo = analysisRepo()
 
-    private val _uiState = MutableStateFlow<AnalysisUiState>(AnalysisUiState.Loading)
-    val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()
-
-    init {
-        getWorkoutProgressions()
-        getExerciseAnalysis()
-        fetchData()
-
-    }
-
-    private fun fetchData(){
-        viewModelScope.launch {
-            getWorkoutProgressions()
-            val workoutProgression = _workoutProgressions.value
-            val exerciseAnalysis = getExerciseAnalysis()
-            _uiState.value = AnalysisUiState.Success(
-                workoutProgression = _workoutProgressions.value,
-                exerciseAnalysis = _exerciseAnalysis.value,
-            )
-        }
-    }
+//    private val _uiState = MutableStateFlow<AnalysisUiState>(AnalysisUiState.Loading)
+//    val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()
+//
+//    init {
+//        getWorkoutProgressions()
+//        getExerciseAnalysis()
+//        fetchData()
+//
+//    }
+//
+//    private fun fetchData(){
+//        viewModelScope.launch {
+//            getWorkoutProgressions()
+//            val workoutProgression = _workoutProgressions.value
+//            val exerciseAnalysis = getExerciseAnalysis()
+//            _uiState.value = AnalysisUiState.Success(
+//                workoutProgression = _workoutProgressions.value,
+//                exerciseAnalysis = _exerciseAnalysis.value,
+//            )
+//        }
+//    }
 
     // Overall Workouts
     // Gets everyworkout completed in 30-90 amount of days
-    fun getWorkoutProgressions() {
+    fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>> {
 //        _loading.value = true
         analysisRepo.getWorkoutProgression(uid) { progressionList ->
 
@@ -66,7 +66,7 @@ class analysisViewModel(
         Log.d("Firebase", "Finished Running Progression")
 //        _loading.value = false
         Log.d("Debug", "Post-crash")
-//        return _workoutProgressions
+        return _workoutProgressions
     }
 
     //
@@ -81,16 +81,6 @@ class analysisViewModel(
 //        _loading.value = false
         return _exerciseAnalysis
     }
-
-//    val uiState: StateFlow<AnalysisUiState> = combine(
-//        getWorkoutProgressions(),
-//        getExerciseAnalysis(),
-//        AnalysisUiState::Success,
-//    ).stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.WhileSubscribed(5_000),
-//        initialValue = AnalysisUiState.Loading,
-//    )
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
@@ -115,6 +105,16 @@ class analysisViewModel(
 
     private val _bodyParts = MutableStateFlow<List<String>>(emptyList()) //List of all body parts
     val bodyParts: StateFlow<List<String>> get() = _bodyParts
+
+    val uiState: StateFlow<AnalysisUiState> = combine(
+        getWorkoutProgressions(),
+        getExerciseAnalysis(),
+        AnalysisUiState::Success,
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AnalysisUiState.Loading,
+    )
 
     private fun getBodyParts() {
         for(analysis in _exerciseAnalysis.value){
