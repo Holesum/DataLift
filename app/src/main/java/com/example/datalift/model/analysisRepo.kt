@@ -7,11 +7,13 @@ class analysisRepo {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     fun getWorkoutProgression(uid: String, callback: (List<Manalysis>) -> Unit){
+        Log.d("Firebase", "Running Progression")
         db.collection("Users")
             .document(uid)
-            .collection("WorkoutProgressions")
+            .collection("Workouts")
             .get()
             .addOnSuccessListener { snapShot ->
+                Log.d("Firebase", "Workout progression not working")
                 val progressionList = mutableListOf<Manalysis>()
                 for(document in snapShot.documents){
                     val progression = document.toObject(Manalysis::class.java)
