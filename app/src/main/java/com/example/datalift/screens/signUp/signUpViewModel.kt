@@ -165,7 +165,7 @@ class SignUpViewModel : ViewModel() {
     }
 
     fun passwordIsValid(): Boolean {
-        if(password.isNotBlank()){
+        if(password.isNotBlank() && password.length >= 6){
             return true
         } else {
             return false
@@ -219,6 +219,7 @@ class SignUpViewModel : ViewModel() {
                      imperial: Boolean,
                      password: String,
                      dob: Timestamp**/
+                     callback: () -> Unit
     ) {
         if (!_loading.value) {
             _loading.value = true
@@ -229,6 +230,7 @@ class SignUpViewModel : ViewModel() {
                         _accountCreated.value = true
                         createUser()
                         sendEmailVerification()
+                        callback()
                     } else {
                         _errorMessage.value = "failed to create user"
                     }

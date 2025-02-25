@@ -1,5 +1,6 @@
 package com.example.datalift.screens.signUp
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -297,8 +298,8 @@ fun CredentialsScreen(
             changeText = signUpViewModel.updatePassword,
             isError = signUpViewModel.passwordInvalid,
             supportingText = {
-                if(signUpViewModel.usernameInvalid) {
-                    Text("Password needs to be an un-empty field")
+                if(signUpViewModel.passwordInvalid) {
+                    Text("Password needs to be atleast 6 characters")
                 }
             },
             modifier = modifier.padding(4.dp)
@@ -328,11 +329,13 @@ fun CredentialsScreen(
         )
         Button(onClick = {
             if(signUpViewModel.accountInformationValidated()){
-                signUpViewModel.createDBUser()
-                val signedUp = signUpViewModel.accountCreated.value
-                if(signedUp) {
-                    signUpViewModel.naving()
-                    navNext()
+                signUpViewModel.createDBUser{
+                    val signedUp = signUpViewModel.accountCreated.value
+                    if(signedUp) {
+                        Log.d("Navigation", "We have a Nav Error")
+                        signUpViewModel.naving()
+                        navNext()
+                    }
                 }
             }
 
