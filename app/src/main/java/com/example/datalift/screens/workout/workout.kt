@@ -89,8 +89,7 @@ fun SearchExerciseDialog(
             ) {
                 OutlinedTextField(
                     value = query,
-                    onValueChange = { query = it;
-                                    },
+                    onValueChange = { query = it },
                     label = { Text("Search Exercise") },
                     modifier = Modifier.fillMaxWidth()
                 )
