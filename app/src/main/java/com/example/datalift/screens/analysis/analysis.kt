@@ -1,6 +1,5 @@
 package com.example.datalift.screens.analysis
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Surface
@@ -14,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.datalift.model.Manalysis
 import com.example.datalift.ui.theme.DataliftTheme
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -46,7 +44,6 @@ fun AnalysisScreen(
     AnalysisScreen(
         uiState = uiState,
         tempFlag = tempFlag,
-        placeholder = {},
         modifier = Modifier
     )
 }
@@ -56,7 +53,6 @@ fun AnalysisScreen(
 internal fun AnalysisScreen(
     uiState: AnalysisUiState,
     tempFlag: Boolean,  // We're keeping tempFlag to study performance with large # of data
-    placeholder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val modelProducer = remember { CartesianChartModelProducer() }
@@ -132,7 +128,6 @@ fun AnalysisScreenPreview(){
                     exerciseAnalysis = emptyList()
                 ),
                 tempFlag = true,
-                placeholder = {},
             )
         }
     }
