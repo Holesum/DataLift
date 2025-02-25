@@ -104,27 +104,27 @@ fun SignupFeatures(
     }
 }
 
-@Composable
-fun SignupScreen(
-    navUp: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Text(
-            text = "DATALIFT",
-            fontFamily = FontFamily.Serif,
-            fontSize = 48.sp,
-            modifier = modifier.padding(16.dp)
-        )
-        SignupFeatures(
-            navUp = navUp,
-            modifier = modifier
-        )
-    }
-}
+//@Composable
+//fun SignupScreen(
+//    navUp: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        modifier = modifier.fillMaxSize()
+//    ) {
+//        Text(
+//            text = "DATALIFT",
+//            fontFamily = FontFamily.Serif,
+//            fontSize = 48.sp,
+//            modifier = modifier.padding(16.dp)
+//        )
+//        SignupFeatures(
+//            navUp = navUp,
+//            modifier = modifier
+//        )
+//    }
+//}
 
 @Composable
 fun NameScreen(

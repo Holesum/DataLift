@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -325,7 +324,7 @@ class analysisViewModel(
                             // Update workout progressions
                             workoutProgressions[workout.id]?.let {
                                 it["totalProgression"] = (it["totalProgression"] as Double) + progressionMultiplier
-                                it["exerciseCount"] = (it["exerciseCount"] as Int + 1).toInt()
+                                it["exerciseCount"] = (it["exerciseCount"] as Int + 1)
                             }
                         }
                     }

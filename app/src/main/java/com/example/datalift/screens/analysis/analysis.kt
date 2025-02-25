@@ -1,7 +1,5 @@
 package com.example.datalift.screens.analysis
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -158,8 +156,8 @@ internal fun AnalysisScreen(
         onDismiss = {
             updateDisplays(false,false)
         },
-        onSelectExercise = { exercise ->
-            setExercise(exercise.name)
+        onSelectExercise = { selectedExercise ->
+            setExercise(selectedExercise.name)
             updateDisplays(false,true)
         }
     )

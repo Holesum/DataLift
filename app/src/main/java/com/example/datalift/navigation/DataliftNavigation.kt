@@ -1,7 +1,6 @@
 package com.example.datalift.navigation
 
 
-import android.util.Log
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
