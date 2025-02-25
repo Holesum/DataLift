@@ -373,7 +373,7 @@ fun ExcerciseCard(
                         .padding(start = 8.dp)
                         .align(Alignment.CenterVertically)
                 )
-                IconButton(onClick = { }) {
+                IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         imageVector =
                             if(expanded) { Icons.Default.KeyboardArrowDown } else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
