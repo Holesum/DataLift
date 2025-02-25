@@ -84,4 +84,8 @@ dependencies {
 
     //Autofill
     implementation(libs.androidx.autofill)
+
+    //Volley
+    implementation("com.android.volley:volley:1.2.1")
+
 }

@@ -3,9 +3,17 @@ package com.example.datalift.screens.analysis
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Manalysis
 import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.analysisRepo
+import com.example.datalift.model.workoutRepo
+import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +25,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import org.json.JSONObject
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
@@ -27,7 +36,57 @@ class analysisViewModel(
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
     private val analysisRepo = analysisRepo()
+    private val workoutRepo = workoutRepo()
+
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    //Exercise List stuffs
+    private val _exercises = MutableStateFlow<List<ExerciseItem>>(emptyList())
+    val exercises: StateFlow<List<ExerciseItem>> get() = _exercises
+
+    private val _exerciseFetched = MutableStateFlow(false)
+    val exerciseFetched: StateFlow<Boolean> get() = _exerciseFetched
+
+    private val _exercise = MutableStateFlow<String>("")
+    val exercise: StateFlow<String> get() = _exercise
+
+    private val _apiResponse = MutableStateFlow<String>("")
+    val apiResponse: StateFlow<String> get() = _apiResponse
+
+    /**
+     * Function to get search exercise in existing list of exercises
+     */
+    fun getExercises(query: String = ""){
+        workoutRepo.getExercises(query.lowercase()) { exerciseList ->
+            _exercises.value = exerciseList
+            Log.d("Firebase", "Exercises found: ${exerciseList.size}")
+        }
+    }
+
+    fun setExercise(exercise: String){
+        _exercise.value = exercise
+    }
+
+    //Volley API Call
+    private val requestQueue = Volley.newRequestQueue(FirebaseApp.getInstance().applicationContext)
+
+    fun fetchExternalData() {
+        val url = "https://akrishnadas1.pythonanywhere.com/getrec?exercise=${_exercise.value}" // Replace with your URL
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET, url, null,
+            { response: JSONObject ->
+                Log.d("Volley", "Response: $response.")
+                _apiResponse.value = response.optString("output")
+                // Handle the response
+                // For example, parse the response and update UI state
+            },
+            { error: VolleyError ->
+                Log.e("Volley", "Error: ${error.message}")
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
+    }
 
 //    private val _uiState = MutableStateFlow<AnalysisUiState>(AnalysisUiState.Loading)
 //    val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()

@@ -97,6 +97,10 @@ fun LoginFeatures(
             Text("Account Creation")
         }
         Spacer(Modifier.padding(8.dp))
+        if(loggedin){
+            signinUser()
+            navigateToHome()
+        }
     }
 }
 
