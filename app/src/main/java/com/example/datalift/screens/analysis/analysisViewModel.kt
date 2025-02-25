@@ -23,8 +23,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import org.json.JSONObject
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -55,6 +57,26 @@ class analysisViewModel(
 
     private val _apiResponseInput = MutableStateFlow<String>("")
     val apiResponseInput: StateFlow<String> get() = _apiResponseInput
+
+    private val _searchExerciseUiState = MutableStateFlow(SearchExerciseUiState())
+    val searchExerciseUiState: StateFlow<SearchExerciseUiState> = _searchExerciseUiState.asStateFlow()
+
+    fun updateQuery(newQuery: String){
+        _searchExerciseUiState.update { currentState ->
+            currentState.copy(
+                query = newQuery
+            )
+        }
+    }
+
+    fun updateDisplays(dialogDisplayed: Boolean, recommendationDisplayed: Boolean? = null){
+        _searchExerciseUiState.update { currentState ->
+            currentState.copy(
+                dialogDisplayed = dialogDisplayed,
+                recommendationDisplayed = recommendationDisplayed ?: currentState.recommendationDisplayed
+            )
+        }
+    }
 
     /**
      * Function to get search exercise in existing list of exercises
@@ -331,14 +353,16 @@ class analysisViewModel(
                 Log.d("WorkoutAnalyzer", "Error fetching workouts: ${e.message}")
             }
     }
-
-
-
 }
 
 //private fun analysisUiState() : Flow<AnalysisUiState> {
 //
 //}
+data class SearchExerciseUiState(
+    val query: String = "",
+    val dialogDisplayed: Boolean = false,
+    val recommendationDisplayed: Boolean = false
+)
 
 sealed interface AnalysisUiState{
     data object Loading : AnalysisUiState
