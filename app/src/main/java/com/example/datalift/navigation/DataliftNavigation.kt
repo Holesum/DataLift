@@ -1,6 +1,7 @@
 package com.example.datalift.navigation
 
 
+import android.util.Log
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -109,7 +110,12 @@ fun NavGraphBuilder.signUpGraph(
                 signUpViewModel = signUpViewModel,
                 navUp = { navController.navigateUp() },
                 navNext = {
-                    navController.navigate(route = Screens.LogIn.name)
+                    navController.navigate(route = LoginRoute){
+                        popUpTo<LoginRoute>{
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
