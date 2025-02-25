@@ -10,7 +10,7 @@ class analysisRepo {
         Log.d("Firebase", "Running Progression")
         db.collection("Users")
             .document(uid)
-            .collection("Workouts")
+            .collection("WorkoutProgressions")
             .get()
             .addOnSuccessListener { snapShot ->
                 Log.d("Firebase", "Workout progression not working")
