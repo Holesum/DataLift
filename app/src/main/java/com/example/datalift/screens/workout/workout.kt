@@ -22,18 +22,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +63,7 @@ import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.navigation.Screens
+import com.example.datalift.ui.components.DataliftIcons
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
@@ -240,8 +246,52 @@ fun WorkoutItem(
 }
 
 @Composable
+fun WorkoutItemCard(
+    workout: Mworkout,
+    onWorkoutClick: (String) -> Unit,
+    removeWorkout: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = { onWorkoutClick(workout.docID) },
+        modifier = modifier.padding(5.dp)
+    ) {
+        Column {
+            Row {
+                Text(
+                    text = workout.name,
+                    modifier = Modifier.weight(1f)
+                        .align(Alignment.CenterVertically)
+                )
+                IconButton(onClick = { removeWorkout() }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WorkoutItemCardPreview(){
+    DataliftTheme {
+        Surface {
+            WorkoutItemCard(
+                workout = Mworkout(
+                    name = "Test",
+                    exercises = TestExerciseList()
+                ),
+                onWorkoutClick = {},
+                removeWorkout = {},
+            )
+        }
+    }
+}
+
+@Composable
 fun WorkoutList(
     list: List<Mworkout>,
+    onWorkoutClick: (String) -> Unit,
     removeWorkout: (Mworkout) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -249,8 +299,9 @@ fun WorkoutList(
         modifier = modifier
     ){
         items(items = list) { workout ->
-            WorkoutItem(
+            WorkoutItemCard(
                 workout = workout,
+                onWorkoutClick = onWorkoutClick,
                 removeWorkout = { removeWorkout(workout) }
             )
             Spacer(modifier = Modifier.padding(20.dp))
@@ -263,6 +314,7 @@ fun WorkoutList(
 fun WorkoutListScreen(
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel = viewModel(),
+    onWorkoutClick: (String) -> Unit,
     navNext: () -> Unit = {},
     navUp: () -> Unit = {}
 
@@ -273,6 +325,7 @@ fun WorkoutListScreen(
     Box(modifier = modifier.padding(8.dp)){
         WorkoutList(
             list = workoutViewModel.workouts.collectAsState().value,
+            onWorkoutClick = onWorkoutClick,
             removeWorkout = { workout -> workoutViewModel.deleteWorkout(workout) },
             modifier = modifier.fillMaxSize()
         )
@@ -285,7 +338,11 @@ fun WorkoutListScreen(
                 .background(Color.Blue)
         ) {
 
-            Icon(Icons.Default.Add, contentDescription = "Add Workout", tint = Color.Black)
+            Icon(
+                imageVector = DataliftIcons.Add,
+                contentDescription = "Add Workout",
+                tint = Color.Black
+            )
 
         }
         WorkoutDialog(
@@ -307,6 +364,67 @@ fun WorkoutListScreen(
             }
         )
     }
+}
+
+@Composable
+fun WorkoutScreen(
+    mworkout: Mworkout?,
+    navUp: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    mworkout?.let {
+        Column(modifier = modifier) {
+            Row {
+                IconButton(onClick = navUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back"
+                    )
+                }
+                Text(
+                    text = mworkout.name,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            HorizontalDivider(thickness = 2.dp)
+            mworkout.exercises.forEach { exercise ->
+                Text(text = exercise.getFormattedName())
+            }
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun WorkoutScreenPreview(){
+    DataliftTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            WorkoutScreen(
+                mworkout = Mworkout(
+                    name = "Test Workout",
+                    exercises = TestExerciseList()
+                ),
+                navUp = {}
+            )
+        }
+    }
+}
+
+
+
+
+fun TestExerciseList() : List<Mexercise> {
+    return listOf(
+        Mexercise(
+            id = "1",
+            name = "Lift McDonald's"
+        ),
+        Mexercise(
+            id = "2",
+            name = "Lift Broke People"
+        ),
+    )
 }
 
 /*

@@ -149,6 +149,22 @@ fun NavGraphBuilder.workoutGraph(
             )
         }
 
+        composable<WorkoutDetail> { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = WorkoutBaseRoute)
+            }
+            val workoutDetail: WorkoutDetail = backStackEntry.toRoute()
+
+            val workoutViewModel: WorkoutViewModel = viewModel(parentEntry)
+            workoutViewModel.getWorkout(workoutDetail.id)
+            val workout = workoutViewModel.workout.collectAsStateWithLifecycle().value
+            WorkoutScreen(
+                mworkout = workout,
+                navUp = { navController.navigateUp() }
+            )
+        }
+
+
 
         composable(route = Screens.WorkoutDetails.name) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
