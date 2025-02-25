@@ -20,8 +20,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.model.Mexercise
+import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.components.DataliftIcons
 import com.example.datalift.ui.theme.DataliftTheme
@@ -245,6 +249,7 @@ fun WorkoutItemCard(
                 Text(
                     text = workout.name,
                     modifier = Modifier.weight(1f)
+                        .padding(start = 8.dp)
                         .align(Alignment.CenterVertically)
                 )
                 IconButton(onClick = { removeWorkout() }) {
@@ -351,6 +356,73 @@ fun WorkoutListScreen(
 }
 
 @Composable
+fun ExcerciseCard(
+    exercise: Mexercise,
+    modifier: Modifier = Modifier
+){
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        onClick = { expanded = !expanded },
+        modifier = modifier.padding(5.dp)
+    ) {
+        Column {
+            Row {
+                Text(
+                    text = exercise.getFormattedName(),
+                    modifier = Modifier.weight(1f)
+                        .padding(start = 8.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector =
+                            if(expanded) { Icons.Default.KeyboardArrowDown } else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Expand/Dismiss Workout"
+                    )
+                }
+            }
+            if(expanded){
+                Column {
+                    exercise.sets.forEach { set ->
+                        Row {
+                            Spacer(modifier = Modifier.padding(15.dp))
+                            Text(text = set.getFormattedSet())
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ExerciseCardPreview(){
+    DataliftTheme {
+        Surface {
+            ExcerciseCard(
+                exercise =  Mexercise(
+                    id = "1",
+                    name = "Lift McDonald's",
+                    sets = listOf(
+                        Mset(
+                            rep = 5,
+                            weight = 30.0
+                        ),
+                        Mset(
+                            rep = 8,
+                            weight = 30.0
+                        )
+                    )
+                )
+            )
+        }
+    }
+}
+
+@Composable
 fun WorkoutScreen(
     mworkout: Mworkout?,
     navUp: () -> Unit,
@@ -358,6 +430,7 @@ fun WorkoutScreen(
 ){
     mworkout?.let {
         Column(modifier = modifier) {
+
             Row {
                 IconButton(onClick = navUp) {
                     Icon(
@@ -371,19 +444,10 @@ fun WorkoutScreen(
                 )
             }
             HorizontalDivider(thickness = 2.dp)
-            mworkout.exercises.forEach { exercise ->
-                Row {
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    Text(text = exercise.getFormattedName())
+            LazyColumn {
+                items(mworkout.exercises) { exercise ->
+                    ExcerciseCard(exercise)
                 }
-                Spacer(modifier = Modifier.padding(5.dp))
-                exercise.sets.forEach { set ->
-                    Row {
-                        Spacer(modifier = Modifier.padding(15.dp))
-                        Text(text = set.getFormattedSet())
-                    }
-                }
-                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
     }
@@ -413,11 +477,27 @@ fun TestExerciseList() : List<Mexercise> {
     return listOf(
         Mexercise(
             id = "1",
-            name = "Lift McDonald's"
+            name = "Lift McDonald's",
+            sets = listOf(
+                Mset(
+                    rep = 5,
+                    weight = 30.0
+                ),
+                Mset(
+                    rep = 8,
+                    weight = 30.0
+                )
+            )
         ),
         Mexercise(
             id = "2",
-            name = "Lift Broke People"
+            name = "Lift Broke People",
+            sets = listOf(
+                Mset(
+                    rep = 5,
+                    weight = 110.0
+                ),
+            )
         ),
     )
 }
