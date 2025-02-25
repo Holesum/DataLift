@@ -372,7 +372,18 @@ fun WorkoutScreen(
             }
             HorizontalDivider(thickness = 2.dp)
             mworkout.exercises.forEach { exercise ->
-                Text(text = exercise.getFormattedName())
+                Row {
+                    Spacer(modifier = Modifier.padding(5.dp))
+                    Text(text = exercise.getFormattedName())
+                }
+                Spacer(modifier = Modifier.padding(5.dp))
+                exercise.sets.forEach { set ->
+                    Row {
+                        Spacer(modifier = Modifier.padding(15.dp))
+                        Text(text = set.getFormattedSet())
+                    }
+                }
+                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
     }

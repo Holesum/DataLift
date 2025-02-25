@@ -50,8 +50,11 @@ class analysisViewModel(
     private val _exercise = MutableStateFlow<String>("")
     val exercise: StateFlow<String> get() = _exercise
 
-    private val _apiResponse = MutableStateFlow<String>("")
-    val apiResponse: StateFlow<String> get() = _apiResponse
+    private val _apiResponseName = MutableStateFlow<String>("")
+    val apiResponseName: StateFlow<String> get() = _apiResponseName
+
+    private val _apiResponseInput = MutableStateFlow<String>("")
+    val apiResponseInput: StateFlow<String> get() = _apiResponseInput
 
     /**
      * Function to get search exercise in existing list of exercises
@@ -76,7 +79,8 @@ class analysisViewModel(
             Request.Method.GET, url, null,
             { response: JSONObject ->
                 Log.d("Volley", "Response: $response.")
-                _apiResponse.value = response.optString("output")
+                _apiResponseName.value = response.optString("name")
+                _apiResponseInput.value = response.optString("input")
                 // Handle the response
                 // For example, parse the response and update UI state
             },

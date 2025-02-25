@@ -84,7 +84,10 @@ fun AnalysisScreen(
 
         if(searched.value){
             analysisViewModel.fetchExternalData()
-            Text(text = "You're recommended workout is: ${analysisViewModel.apiResponse.collectAsState().value}")
+            Column {
+                Text(text = "The exercise you are getting recommendations for is: ${analysisViewModel.exercise.collectAsState().value}")
+                Text(text = "You're recommended workout is: ${analysisViewModel.apiResponseName.collectAsState().value}")
+            }
         }
 
         Spacer(modifier = Modifier.weight(0.5F))
