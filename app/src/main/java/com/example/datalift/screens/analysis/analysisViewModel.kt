@@ -11,17 +11,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Calendar
 import java.util.Date
-import kotlin.math.log
 
 class analysisViewModel(
 //    private val analysisRepo: analysisRepo,
@@ -126,6 +124,12 @@ class analysisViewModel(
     val muscleGroup: StateFlow<String> get() = _muscleGroup
 
     val muscleGroups: List<String> = listOf("Push", "Pull", "Legs", "Chest", "Shoulder", "Arms", "Core", "Full Body")
+
+    private val _bodyPart = MutableStateFlow("") //If user wants to see specific body part workouts
+    val bodyPart: StateFlow<String> get() = _bodyPart
+
+    private val _bodyParts = MutableStateFlow<List<String>>(emptyList())
+    val bodyParts: StateFlow<List<String>> get() = _bodyParts
 
 
 
