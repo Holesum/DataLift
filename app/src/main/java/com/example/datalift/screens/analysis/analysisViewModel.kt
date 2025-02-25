@@ -79,7 +79,10 @@ class analysisViewModel(
             Request.Method.GET, url, null,
             { response: JSONObject ->
                 Log.d("Volley", "Response: $response.")
-                _apiResponseName.value = response.optString("name")
+                val output = response.optJSONObject("output")
+                if (output != null) {
+                    _apiResponseName.value = output.optString("title")
+                }
                 _apiResponseInput.value = response.optString("input")
                 // Handle the response
                 // For example, parse the response and update UI state
