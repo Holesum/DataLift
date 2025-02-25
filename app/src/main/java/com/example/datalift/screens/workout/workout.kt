@@ -53,9 +53,71 @@ import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.components.DataliftIcons
+import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 
+
+@Composable
+fun StatelessSearchExerciseDialog(
+    query: String,
+    changeQuery: (String) -> Unit,
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onSelectExercise: (Mexercise) -> Unit,
+    workoutViewModel: WorkoutViewModel = viewModel()
+) {
+    val exercises = workoutViewModel.exercises.collectAsState().value
+
+    LaunchedEffect(query) {
+        val handler = Handler(Looper.getMainLooper())
+        var runnable: Runnable? = null
+
+        runnable?.let { handler.removeCallbacks(it) }  // I don't think this runs ever
+
+        runnable = Runnable {
+            // Trigger the exercise search after the delay
+            workoutViewModel.getExercises(query)
+        }
+
+        handler.postDelayed(runnable, 500) // Delay for 500ms before fetching exercises
+    }
+
+    StatelessDataliftCloseCardDialog(
+        isVisible = isVisible,
+        onDismissRequest = onDismiss,
+    ) {
+        Column(modifier = Modifier.fillMaxHeight(0.8f)) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = changeQuery,
+                label = { Text("Search Exercise") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(text = "Search results:")
+
+            // Show search results
+            LazyColumn {
+                items(exercises) { exercise ->
+                    Text(
+                        text = exercise.title,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val exer = Mexercise(
+                                    name = exercise.title,
+                                    exercise = exercise,
+                                    sets = emptyList()
+                                )
+                                onSelectExercise(exer) // Select an exercise and add it to the workout
+                            }
+                            .padding(8.dp)
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun SearchExerciseDialog(
@@ -78,7 +140,6 @@ fun SearchExerciseDialog(
         }
 
         handler.postDelayed(runnable, 500) // Delay for 500ms before fetching exercises
-
     }
 
     AlertDialog(
