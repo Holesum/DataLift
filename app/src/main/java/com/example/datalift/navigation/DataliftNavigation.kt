@@ -1,13 +1,17 @@
 package com.example.datalift.navigation
 
 
+import android.provider.ContactsContract.Profile
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
+import com.example.datalift.model.Mworkout
 import com.example.datalift.screens.analysis.AnalysisScreen
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
@@ -17,6 +21,7 @@ import com.example.datalift.screens.signUp.PersonalInformationScreen
 import com.example.datalift.screens.signUp.SignUpViewModel
 import com.example.datalift.screens.workout.WorkoutDetailsScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
+import com.example.datalift.screens.workout.WorkoutScreen
 import com.example.datalift.screens.workout.WorkoutViewModel
 import kotlinx.serialization.Serializable
 
@@ -30,6 +35,9 @@ import kotlinx.serialization.Serializable
 @Serializable object WorkoutBaseRoute
 @Serializable object WorkoutListRoute
 @Serializable object AnalysisRoute
+
+@Serializable data class WorkoutDetail(val id: String)
+
 
 fun NavGraphBuilder.loginScreen(
     navController: NavController,
@@ -113,6 +121,10 @@ fun NavGraphBuilder.signUpGraph(
 fun NavController.navigateToWorkout(navOptions: NavOptions) =
     navigate(route = WorkoutListRoute, navOptions)
 
+fun NavController.navigateToWorkoutDetail(id: String){
+    navigate(route = WorkoutDetail(id))
+}
+
 fun NavGraphBuilder.workoutGraph(
     navController: NavController
 ) {
@@ -131,6 +143,7 @@ fun NavGraphBuilder.workoutGraph(
 
             WorkoutListScreen(
                 workoutViewModel = workoutViewModel,
+                onWorkoutClick = navController::navigateToWorkoutDetail,
                 navUp = { navController.navigateUp() },
                 navNext = { navController.navigate(Screens.WorkoutDetails.name) }
             )
