@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.model.Mexercise
+import com.example.datalift.screens.workout.SearchExerciseDialog
+import com.example.datalift.screens.workout.StatelessSearchExerciseDialog
 import com.example.datalift.screens.workout.WorkoutViewModel
 import com.example.datalift.ui.theme.DataliftTheme
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -61,6 +63,7 @@ fun AnalysisScreen(
     val tempFlag = analysisViewModel.tempFlag.collectAsState().value
     val search = remember { mutableStateOf(false) }
     val searched = remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
 
     Column {
         AnalysisScreen(
@@ -71,16 +74,32 @@ fun AnalysisScreen(
 
         Spacer(modifier = Modifier.weight(0.5F))
 
-        if (search.value) {
-            com.example.datalift.screens.workout.SearchExerciseDialog(
-                onDismiss = { search.value = false; searched.value = true },
-                onSelectExercise = { exercise ->
-                    analysisViewModel.setExercise(exercise.name)
-                    search.value = false
-                    searched.value = true
-                }
-            )
-        }
+//        if (search.value) {
+//            SearchExerciseDialog(
+//                onDismiss = { search.value = false; searched.value = true },
+//                onSelectExercise = { exercise ->
+//                    analysisViewModel.setExercise(exercise.name)
+//                    search.value = false
+//                    searched.value = true
+//                }
+//            )
+//        }
+
+        StatelessSearchExerciseDialog(
+            query = query,
+            changeQuery = { query = it},
+            isVisible = search.value,
+            onDismiss = {
+                search.value = false
+                searched.value = false
+            },
+            onSelectExercise = { exercise ->
+                analysisViewModel.setExercise(exercise.name)
+                search.value = false
+                searched.value = true
+            }
+        )
+
 
         if(searched.value){
             analysisViewModel.fetchExternalData()
@@ -99,73 +118,6 @@ fun AnalysisScreen(
     }
 }
 
-@Composable
-fun SearchExerciseDialog(
-    onDismiss: () -> Unit,
-    onSelectExercise: (Mexercise) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel(),
-) {
-    var query by remember { mutableStateOf("") }
-    val exercises = workoutViewModel.exercises.collectAsState().value
-    // Search query changes trigger fetching exercises
-    LaunchedEffect(query) {
-        val handler = Handler(Looper.getMainLooper())
-        var runnable: Runnable? = null
-
-        runnable?.let { handler.removeCallbacks(it) }
-
-        runnable = Runnable {
-            // Trigger the exercise search after the delay
-            workoutViewModel.getExercises(query)
-        }
-
-        handler.postDelayed(runnable, 500) // Delay for 500ms before fetching exercises
-
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Search Exercises") },
-        text = {
-            Column(modifier = Modifier.fillMaxHeight(0.8f)
-            ) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it;
-                    },
-                    label = { Text("Search Exercise") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(text = "Search results:")
-
-                // Show search results
-                LazyColumn {
-                    items(exercises) { exercise ->
-                        Text(
-                            text = exercise.title,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    val exer = Mexercise(
-                                        name = exercise.title,
-                                        exercise = exercise,
-                                        sets = emptyList()
-                                    )
-                                    onSelectExercise(exer) // Select an exercise and add it to the workout
-                                }
-                                .padding(8.dp)
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
 
 
 @Composable
