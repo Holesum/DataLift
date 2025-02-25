@@ -1,7 +1,6 @@
 package com.example.datalift.navigation
 
 
-import android.provider.ContactsContract.Profile
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -11,7 +10,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.example.datalift.model.Mworkout
 import com.example.datalift.screens.analysis.AnalysisScreen
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
