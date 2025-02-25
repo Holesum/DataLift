@@ -44,6 +44,7 @@ import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 fun AnalysisScreen(
     analysisViewModel: analysisViewModel = viewModel()
 ){
+    analysisViewModel.analyzeWorkouts()
     val uiState = analysisViewModel.uiState.collectAsStateWithLifecycle().value
     val exerciseUiState = analysisViewModel.searchExerciseUiState.collectAsStateWithLifecycle().value
     val exercise = analysisViewModel.exercise.collectAsState().value
