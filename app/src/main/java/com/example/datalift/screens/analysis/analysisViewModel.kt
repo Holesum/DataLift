@@ -14,12 +14,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.log
 
 class analysisViewModel(
@@ -33,12 +35,12 @@ class analysisViewModel(
 //    val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()
 //
 //    init {
-//        getWorkoutProgressions()
+//        getWorkoutProgressions2()
 //        getExerciseAnalysis()
-//        fetchData()
+////        fetchData()
 //
 //    }
-//
+////
 //    private fun fetchData(){
 //        viewModelScope.launch {
 //            getWorkoutProgressions()
@@ -53,37 +55,61 @@ class analysisViewModel(
 
     // Overall Workouts
     // Gets everyworkout completed in 30-90 amount of days
-    fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>> {
-//        _loading.value = true
+//    fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>> {
+//        analysisRepo.getWorkoutProgression(uid) { progressionList ->
+//            Log.d("Firebase", "Progression List Null")
+//
+//            _workoutProgressions.value = progressionList
+//            Log.d("Firebase", "Workout progression found: ${progressionList.size}")
+//        }
+//        Log.d("Firebase", "Finished Running Progression")
+//        Log.d("Debug", "Post-crash")
+//        return _workoutProgressions
+//    }
+
+//     fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>> {
+//         Log.d("Debug", "Pre-crash")
+//         analysisRepo.getWorkoutProgression(uid) { progressionList ->
+//             if (progressionList.isEmpty()) {
+//                 Log.d("Firebase", "No workout progressions found")
+//                 // Notify user about no progressions
+//             } else {
+//                 Log.d("Firebase", "Workout progression found: ${progressionList.size}")
+//             }
+//             _workoutProgressions.value = progressionList
+//         }
+//         Log.d("Debug", "Post-crash")
+//         return _workoutProgressions
+//
+//    }
+
+    fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>>{
         analysisRepo.getWorkoutProgression(uid) { progressionList ->
-
-                Log.d("Firebase", "Progression List Null")
-
+            if (progressionList.isEmpty()) {
+                Log.d("Firebase", "No workout progressions found")
+            } else {
+                Log.d("Firebase", "Workout progression found: ${progressionList.last()}")
+            }
             _workoutProgressions.value = progressionList
-            Log.d("Firebase", "Workout progression found: ${progressionList.size}")
-//            _loading.value = false
+            _tempFlag.value = true
         }
-        Log.d("Firebase", "Finished Running Progression")
-//        _loading.value = false
-        Log.d("Debug", "Post-crash")
+        analysisRepo.getAnalyzedExercises(uid) { analysisList ->
+            _exerciseAnalysis.value = analysisList
+            Log.d("Firebase", "Exercise analysis found: ${analysisList.last()}")
+        }
+        getBodyParts()
         return _workoutProgressions
     }
 
     //
     fun getExerciseAnalysis() : MutableStateFlow<List<MexerAnalysis>>{
-//        _loading.value = true
         analysisRepo.getAnalyzedExercises(uid) { analysisList ->
             _exerciseAnalysis.value = analysisList
             Log.d("Firebase", "Exercise analysis found: ${analysisList.size}")
             getBodyParts()
-//            _loading.value = false
         }
-//        _loading.value = false
         return _exerciseAnalysis
     }
-
-    private val _loading = MutableStateFlow(false)
-    val loading: StateFlow<Boolean> get() = _loading
 
     // Workouts state
     private val _workoutProgressions = MutableStateFlow<List<Manalysis>>(emptyList())
@@ -105,6 +131,11 @@ class analysisViewModel(
 
     private val _bodyParts = MutableStateFlow<List<String>>(emptyList()) //List of all body parts
     val bodyParts: StateFlow<List<String>> get() = _bodyParts
+
+    private val _tempFlag = MutableStateFlow(false)
+    val tempFlag: StateFlow<Boolean> get() = _tempFlag
+
+
 
     val uiState: StateFlow<AnalysisUiState> = combine(
         getWorkoutProgressions(),
