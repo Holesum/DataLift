@@ -27,7 +27,7 @@ fun DataliftTopBar(
             Text(title)
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = onProfileClick) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null
