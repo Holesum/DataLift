@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
@@ -24,6 +25,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.datalift.navigation.DataliftNavHost
 import com.example.datalift.ui.components.DataliftNavigationBar
 import com.example.datalift.ui.components.DataliftNavigationBarItem
+import com.example.datalift.ui.components.DataliftTopBar
 import kotlin.reflect.KClass
 
 @Composable
@@ -57,6 +59,16 @@ internal fun DataliftApp(
                 snackbarHostState,
                 modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
             )
+        },
+        topBar = {
+            if(loggedIn.value){
+                val destination = appState.currentTopLevelDestinations
+                if(destination != null){
+                    DataliftTopBar(
+                        title = destination.name,
+                    )
+                }
+            }
         },
         bottomBar = {
             if(loggedIn.value){
