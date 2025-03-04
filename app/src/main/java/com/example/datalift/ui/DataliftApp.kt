@@ -32,7 +32,7 @@ fun DataliftApp(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var loggedIn = remember { mutableStateOf(false) }
+    var loggedIn = rememberSaveable { mutableStateOf(false) }
 
     DataliftApp(
         appState = appState,
