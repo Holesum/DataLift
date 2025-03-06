@@ -13,10 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.screens.workout.StatelessSearchExerciseDialog
+import com.example.datalift.ui.components.RadioOptionFieldToModal
 import com.example.datalift.ui.theme.DataliftTheme
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -78,17 +78,20 @@ internal fun AnalysisScreen(
     tempFlag: Boolean,  // We're keeping tempFlag to study performance with large # of data
     modifier: Modifier = Modifier
 ) {
-    val modelProducer = remember { CartesianChartModelProducer() }
+    val workoutProgressionModelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(uiState) {
-            if(uiState is AnalysisUiState.Success){
-                val progressionData: List<Double> = uiState.workoutProgression.map { it.totalProgression }
-                if(progressionData.isNotEmpty()){
-                    modelProducer.runTransaction {
-                        lineSeries { series(progressionData) }
-                    }
+        if(uiState is AnalysisUiState.Success){
+            val progressionData: List<Double> = uiState.workoutProgression.map {
+                it.totalProgression
+            }
+
+            if(progressionData.isNotEmpty()){
+                workoutProgressionModelProducer.runTransaction {
+                    lineSeries { series(progressionData) }
                 }
             }
+        }
     }
 
 //    LaunchedEffect(Unit) {
@@ -99,13 +102,6 @@ internal fun AnalysisScreen(
 
 
     LazyColumn {
-        item{
-            Text(
-                text = "Analysis Screen",
-                fontSize = 28.sp
-            )
-        }
-
         when(uiState) {
             AnalysisUiState.Loading -> item {
                 Text("Loading")
@@ -116,10 +112,22 @@ internal fun AnalysisScreen(
                     Text("Workout Analysis")
                 }
                 item {
-                    ComposeBasicLineChart(modelProducer, modifier = modifier.fillMaxWidth())
+                    ComposeBasicLineChart(
+                        modelProducer = workoutProgressionModelProducer,
+                        modifier = modifier.fillMaxWidth()
+                    )
                 }
                 item {
                     Text("This graph displays how the user is progressing in their workouts over time")
+                }
+
+                item{
+                    RadioOptionFieldToModal(
+                        field = "Body Part",
+                        options = listOf("Push", "Pull", "Legs", "Chest", "Arms", "Core", "Full Body"),
+                        modifier = modifier.padding(4.dp)
+                            .fillMaxWidth(0.75f)
+                    )
                 }
             }
         }
@@ -128,13 +136,13 @@ internal fun AnalysisScreen(
             fetchExternalData()
             item {
                 Text(
-                    text = "The exercise you are getting recommendations for is: ${exercise}",
+                    text = "The exercise you are getting recommendations for is: $exercise",
                     modifier = Modifier.padding(top = 20.dp)
                 )
             }
             item {
                 Text(
-                    text = "You're recommended workout is: ${apiResponse}"
+                    text = "You're recommended workout is: $apiResponse"
                 )
             }
         }
