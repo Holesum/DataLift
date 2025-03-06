@@ -3,6 +3,7 @@ package com.example.datalift.ui.components
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -286,6 +289,43 @@ fun StatelessDataliftDialogTextField(
 
     if(dialogVisible){
         content()
+    }
+}
+
+@Composable
+fun MenuFieldToModal(
+    field: String,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+) {
+    val (savedOption, setSavedOption) = remember { mutableStateOf("") }
+    var menuVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = savedOption,
+        dialogVisible = menuVisible,
+        setVisibile = { menuVisible = true},
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            DropdownMenu(
+                expanded = menuVisible,
+                onDismissRequest = { menuVisible = false}
+            ) {
+                options.forEach{ option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            setSavedOption(option)
+                            menuVisible = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
