@@ -415,15 +415,15 @@ fun SemiStatelessRadioOptionFieldToModal(
 
     val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
 
-    if(selectedOption != ""){
-        confirmSavedOption(selectedOption)
-    }
+//    if(selectedOption != ""){
+//        confirmSavedOption(selectedOption)
+//    }
 
     var dialogVisible by remember { mutableStateOf(false) }
 
     StatelessDataliftDialogTextField(
         field = field,
-        text = savedOption,
+        text = selectedOption,
         dialogVisible = dialogVisible,
         isError = isError,
         supportingText = supportingText,
@@ -462,7 +462,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                         modifier = Modifier.fillMaxWidth()
                             .height(56.dp)
                             .selectable(
-                                selected = (text == selectedOption),
+                                selected = (text == savedOption),
                                 onClick = { confirmSavedOption(text) },
                                 role = Role.RadioButton
                             )
@@ -470,7 +470,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
-                            selected = (text == selectedOption),
+                            selected = (text == savedOption),
                             onClick = null // null recommended for accessibility with screen readers
                         )
                         Text(
