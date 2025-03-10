@@ -20,8 +20,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,11 +50,74 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.model.Mexercise
+import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.components.DataliftIcons
+import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 
+
+@Composable
+fun StatelessSearchExerciseDialog(
+    query: String,
+    changeQuery: (String) -> Unit,
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onSelectExercise: (Mexercise) -> Unit,
+    workoutViewModel: WorkoutViewModel = viewModel()
+) {
+    val exercises = workoutViewModel.exercises.collectAsState().value
+
+    LaunchedEffect(query) {
+        val handler = Handler(Looper.getMainLooper())
+        var runnable: Runnable? = null
+
+        runnable?.let { handler.removeCallbacks(it) }  // I don't think this runs ever
+
+        runnable = Runnable {
+            // Trigger the exercise search after the delay
+            workoutViewModel.getExercises(query)
+        }
+
+        handler.postDelayed(runnable, 500) // Delay for 500ms before fetching exercises
+    }
+
+    StatelessDataliftCloseCardDialog(
+        isVisible = isVisible,
+        onDismissRequest = onDismiss,
+    ) {
+        Column(modifier = Modifier.fillMaxHeight(0.8f)) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = changeQuery,
+                label = { Text("Search Exercise") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(text = "Search results:")
+
+            // Show search results
+            LazyColumn {
+                items(exercises) { exercise ->
+                    Text(
+                        text = exercise.title,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val exer = Mexercise(
+                                    name = exercise.title,
+                                    exercise = exercise,
+                                    sets = emptyList()
+                                )
+                                onSelectExercise(exer) // Select an exercise and add it to the workout
+                            }
+                            .padding(8.dp)
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun SearchExerciseDialog(
@@ -75,7 +140,6 @@ fun SearchExerciseDialog(
         }
 
         handler.postDelayed(runnable, 500) // Delay for 500ms before fetching exercises
-
     }
 
     AlertDialog(
@@ -86,8 +150,7 @@ fun SearchExerciseDialog(
             ) {
                 OutlinedTextField(
                     value = query,
-                    onValueChange = { query = it;
-                                    },
+                    onValueChange = { query = it },
                     label = { Text("Search Exercise") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -245,6 +308,7 @@ fun WorkoutItemCard(
                 Text(
                     text = workout.name,
                     modifier = Modifier.weight(1f)
+                        .padding(start = 8.dp)
                         .align(Alignment.CenterVertically)
                 )
                 IconButton(onClick = { removeWorkout() }) {
@@ -351,6 +415,73 @@ fun WorkoutListScreen(
 }
 
 @Composable
+fun ExcerciseCard(
+    exercise: Mexercise,
+    modifier: Modifier = Modifier
+){
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        onClick = { expanded = !expanded },
+        modifier = modifier.padding(5.dp)
+    ) {
+        Column {
+            Row {
+                Text(
+                    text = exercise.getFormattedName(),
+                    modifier = Modifier.weight(1f)
+                        .padding(start = 8.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        imageVector =
+                            if(expanded) { Icons.Default.KeyboardArrowDown } else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Expand/Dismiss Workout"
+                    )
+                }
+            }
+            if(expanded){
+                Column {
+                    exercise.sets.forEach { set ->
+                        Row {
+                            Spacer(modifier = Modifier.padding(15.dp))
+                            Text(text = set.getFormattedSet())
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ExerciseCardPreview(){
+    DataliftTheme {
+        Surface {
+            ExcerciseCard(
+                exercise =  Mexercise(
+                    id = "1",
+                    name = "Lift McDonald's",
+                    sets = listOf(
+                        Mset(
+                            rep = 5,
+                            weight = 30.0
+                        ),
+                        Mset(
+                            rep = 8,
+                            weight = 30.0
+                        )
+                    )
+                )
+            )
+        }
+    }
+}
+
+@Composable
 fun WorkoutScreen(
     mworkout: Mworkout?,
     navUp: () -> Unit,
@@ -358,6 +489,7 @@ fun WorkoutScreen(
 ){
     mworkout?.let {
         Column(modifier = modifier) {
+
             Row {
                 IconButton(onClick = navUp) {
                     Icon(
@@ -371,19 +503,10 @@ fun WorkoutScreen(
                 )
             }
             HorizontalDivider(thickness = 2.dp)
-            mworkout.exercises.forEach { exercise ->
-                Row {
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    Text(text = exercise.getFormattedName())
+            LazyColumn {
+                items(mworkout.exercises) { exercise ->
+                    ExcerciseCard(exercise)
                 }
-                Spacer(modifier = Modifier.padding(5.dp))
-                exercise.sets.forEach { set ->
-                    Row {
-                        Spacer(modifier = Modifier.padding(15.dp))
-                        Text(text = set.getFormattedSet())
-                    }
-                }
-                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
     }
@@ -413,11 +536,27 @@ fun TestExerciseList() : List<Mexercise> {
     return listOf(
         Mexercise(
             id = "1",
-            name = "Lift McDonald's"
+            name = "Lift McDonald's",
+            sets = listOf(
+                Mset(
+                    rep = 5,
+                    weight = 30.0
+                ),
+                Mset(
+                    rep = 8,
+                    weight = 30.0
+                )
+            )
         ),
         Mexercise(
             id = "2",
-            name = "Lift Broke People"
+            name = "Lift Broke People",
+            sets = listOf(
+                Mset(
+                    rep = 5,
+                    weight = 110.0
+                ),
+            )
         ),
     )
 }

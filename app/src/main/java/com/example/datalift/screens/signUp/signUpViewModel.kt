@@ -48,8 +48,8 @@ class SignUpViewModel : ViewModel() {
     var height by mutableStateOf("")
         private set
 
-    var dob:Long? by mutableStateOf(null)
-        private set
+//    var dob:Long? by mutableStateOf(null)
+//        private set
 
     var gender by mutableStateOf("")
         private set
@@ -109,11 +109,10 @@ class SignUpViewModel : ViewModel() {
         gender = newGender
     }
 
-    val updateDOB: (Long?) -> Unit = { newDOB ->
-
-     //   _user.value = _user.value?.copy(dob = newDOB)
-        dob = newDOB
-    }
+//    val updateDOB: (Long?) -> Unit = { newDOB ->
+//        _user.value = _user.value?.copy(dob = newDOB)
+//        dob = newDOB
+//    }
 
     fun nameValidated() : Boolean{
         if(name.isNotBlank()){
@@ -157,30 +156,33 @@ class SignUpViewModel : ViewModel() {
         usernameInvalid = !usernameIsValid()
         emailInvalid = !emailIsValid()
 
-        if(passwordInvalid || usernameInvalid || emailInvalid) {
-            return false
-        } else {
-            return true
-        }
+        return (passwordInvalid || usernameInvalid || emailInvalid)
+//        if(passwordInvalid || usernameInvalid || emailInvalid) {
+//            return false
+//        } else {
+//            return true
+//        }
     }
 
-    fun passwordIsValid(): Boolean {
-        if(password.isNotBlank()){
-            return true
-        } else {
-            return false
-        }
+    private fun passwordIsValid(): Boolean {
+        return (password.isNotBlank() && password.length >= 6)
+//        if(password.isNotBlank() && password.length >= 6){
+//            return true
+//        } else {
+//            return false
+//        }
     }
 
-    fun usernameIsValid(): Boolean{
-        if(username.isNotBlank()){
-            return true
-        } else {
-            return false
-        }
+    private fun usernameIsValid(): Boolean{
+        return (username.isNotBlank())
+//        if(username.isNotBlank()){
+//            return true
+//        } else {
+//            return false
+//        }
     }
 
-    fun emailIsValid(): Boolean{
+    private fun emailIsValid(): Boolean{
         if(email.isNotBlank()){
             return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
         } else {
@@ -188,28 +190,30 @@ class SignUpViewModel : ViewModel() {
         }
     }
 
-    // a account create success, and email verification
 
+
+
+    fun naving() {
+        _accountCreated.value = false
+    }
+
+    // a account create success, and email verification
     /**
      * Create user account with email and password
      *
-     * @param email: email of user
-     * @param name: preferred name of user
-     * @param height: user height in inches
-     * @param weight: user initial weight in lbs
-     * @param privacy: boolean does user want their workouts to be public true=public
-     * @param imperial: boolean, does the user want weight measurements in imperial or metric
-     * @param password: Password associated with user account
+     * //@param email: email of user
+     * //@param name: preferred name of user
+     * //@param height: user height in inches
+     * //@param weight: user initial weight in lbs
+     * //@param privacy: boolean does user want their workouts to be public true=public
+     * //@param imperial: boolean, does the user want weight measurements in imperial or metric
+     * //@param password: Password associated with user account
      *
      * @return null
      *
      * @see FirebaseAuth.createUserWithEmailAndPassword
      * @see createUser
      */
-    fun naving() {
-        _accountCreated.value = false
-    }
-
     fun createDBUser(/**email: String,
                      name: String,
                      gender: String,
@@ -219,6 +223,7 @@ class SignUpViewModel : ViewModel() {
                      imperial: Boolean,
                      password: String,
                      dob: Timestamp**/
+                     callback: () -> Unit
     ) {
         if (!_loading.value) {
             _loading.value = true
@@ -229,6 +234,7 @@ class SignUpViewModel : ViewModel() {
                         _accountCreated.value = true
                         createUser()
                         sendEmailVerification()
+                        callback()
                     } else {
                         _errorMessage.value = "failed to create user"
                     }
@@ -241,13 +247,13 @@ class SignUpViewModel : ViewModel() {
     /**
      * Create a user document in the database rather than the authentication object that was added before
      *
-     * @param email: email of user
-     * @param name: preferred name of user
-     * @param height: user height in inches
-     * @param weight: user initial weight in lbs
-     * @param privacy: boolean does user want their workouts to be public true=public
-     * @param imperial: boolean, does the user want weight measurements in imperial or metric
-     * @param uname: username of user, only ever one account with this username
+     * //@param email: email of user
+     * //@param name: preferred name of user
+     * //@param height: user height in inches
+     * //@param weight: user initial weight in lbs
+     * //@param privacy: boolean does user want their workouts to be public true=public
+     * //@param imperial: boolean, does the user want weight measurements in imperial or metric
+     * //@param uname: username of user, only ever one account with this username
      *
      * @see createDBUser
      */

@@ -3,6 +3,7 @@ package com.example.datalift.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,14 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.datalift.ui.theme.DataliftTheme
 
 @Composable
 fun StatelessDataliftBoxDialog(
@@ -64,6 +69,58 @@ fun StatelessDataliftCardDialog(
                 shape = RoundedCornerShape(roundedCorners)
             ) {
                 content()
+            }
+        }
+    }
+}
+
+@Composable
+fun StatelessDataliftCloseCardDialog(
+    height: Dp = 375.dp,
+    padding: Dp = 16.dp,
+    roundedCorners: Dp = 16.dp,
+    isVisible: Boolean,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    if (isVisible){
+        Dialog(
+            onDismissRequest = { onDismissRequest() }
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .padding(padding),
+                shape = RoundedCornerShape(roundedCorners)
+            ) {
+                Column {
+                    content()
+                    TextButton(
+                        onClick = { onDismissRequest() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Close")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun StatelessDataLiftCloseCardDialogPreview(){
+    DataliftTheme {
+        Surface {
+            StatelessDataliftCloseCardDialog(
+                isVisible = true,
+                onDismissRequest = {}
+            ){
+
             }
         }
     }

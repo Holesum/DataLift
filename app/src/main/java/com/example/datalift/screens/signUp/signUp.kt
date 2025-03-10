@@ -1,5 +1,6 @@
 package com.example.datalift.screens.signUp
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.R
 import com.example.datalift.ui.components.DataliftFormPrivateTextField
@@ -103,27 +102,27 @@ fun SignupFeatures(
     }
 }
 
-@Composable
-fun SignupScreen(
-    navUp: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Text(
-            text = "DATALIFT",
-            fontFamily = FontFamily.Serif,
-            fontSize = 48.sp,
-            modifier = modifier.padding(16.dp)
-        )
-        SignupFeatures(
-            navUp = navUp,
-            modifier = modifier
-        )
-    }
-}
+//@Composable
+//fun SignupScreen(
+//    navUp: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        modifier = modifier.fillMaxSize()
+//    ) {
+//        Text(
+//            text = "DATALIFT",
+//            fontFamily = FontFamily.Serif,
+//            fontSize = 48.sp,
+//            modifier = modifier.padding(16.dp)
+//        )
+//        SignupFeatures(
+//            navUp = navUp,
+//            modifier = modifier
+//        )
+//    }
+//}
 
 @Composable
 fun NameScreen(
@@ -297,8 +296,8 @@ fun CredentialsScreen(
             changeText = signUpViewModel.updatePassword,
             isError = signUpViewModel.passwordInvalid,
             supportingText = {
-                if(signUpViewModel.usernameInvalid) {
-                    Text("Password needs to be an un-empty field")
+                if(signUpViewModel.passwordInvalid) {
+                    Text("Password needs to be atleast 6 characters")
                 }
             },
             modifier = modifier.padding(4.dp)
@@ -328,11 +327,13 @@ fun CredentialsScreen(
         )
         Button(onClick = {
             if(signUpViewModel.accountInformationValidated()){
-                signUpViewModel.createDBUser()
-                val signedUp = signUpViewModel.accountCreated.value
-                if(signedUp) {
-                    signUpViewModel.naving()
-                    navNext()
+                signUpViewModel.createDBUser{
+                    val signedUp = signUpViewModel.accountCreated.value
+                    if(signedUp) {
+                        Log.d("Navigation", "We have a Nav Error")
+                        signUpViewModel.naving()
+                        navNext()
+                    }
                 }
             }
 

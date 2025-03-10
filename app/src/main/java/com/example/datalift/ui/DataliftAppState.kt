@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.trace
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -47,6 +48,13 @@ class DataliftAppState(
                     previousDestination.value = destination
                 }
             } ?: previousDestination.value
+        }
+
+    val currentTopLevelDestinations: TopLevelDestinations?
+        @Composable get() {
+            return TopLevelDestinations.entries.firstOrNull{ topLevelDestinations ->  
+                currentDestination?.hasRoute(route = topLevelDestinations.route) == true
+            }
         }
 
     val topLevelDestinations: List<TopLevelDestinations> = TopLevelDestinations.entries
