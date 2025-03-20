@@ -478,9 +478,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                 dialogVisible = false
             }
         ) {
-            Column(
-                modifier = Modifier.selectableGroup()
-            ){
+            Column(){
                 Text(
                     text = field,
                     fontSize = 24.sp,
@@ -493,27 +491,33 @@ fun SemiStatelessRadioOptionFieldToModal(
                 HorizontalDivider(
                     modifier = Modifier.height(4.dp)
                 )
-                options.forEach() { text ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .height(56.dp)
-                            .selectable(
+                Column(
+                    modifier = Modifier.selectableGroup()
+                        .height(200.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    options.forEach() { text ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(56.dp)
+                                .selectable(
+                                    selected = (text == savedOption),
+                                    onClick = { confirmSavedOption(text) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
                                 selected = (text == savedOption),
-                                onClick = { confirmSavedOption(text) },
-                                role = Role.RadioButton
+                                onClick = null // null recommended for accessibility with screen readers
                             )
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (text == savedOption),
-                            onClick = null // null recommended for accessibility with screen readers
-                        )
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
                     }
                 }
             }
