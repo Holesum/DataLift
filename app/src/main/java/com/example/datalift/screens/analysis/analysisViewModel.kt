@@ -21,6 +21,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -30,8 +31,10 @@ import org.json.JSONObject
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
+import javax.inject.Inject
 
-class analysisViewModel(
+@HiltViewModel
+class analysisViewModel @Inject constructor(
 //    private val analysisRepo: analysisRepo,
 ) : ViewModel()  {
     private var auth: FirebaseAuth = Firebase.auth
@@ -59,6 +62,13 @@ class analysisViewModel(
 
     private val _searchExerciseUiState = MutableStateFlow(SearchExerciseUiState())
     val searchExerciseUiState: StateFlow<SearchExerciseUiState> = _searchExerciseUiState.asStateFlow()
+
+    private val _chosenBodyPart = MutableStateFlow<String>("Full Body")
+    val chosenBodyPart: StateFlow<String> get() = _chosenBodyPart
+
+    fun updateBodyPart(string: String){
+        _chosenBodyPart.value = string
+    }
 
     fun updateQuery(newQuery: String){
         _searchExerciseUiState.update { currentState ->
