@@ -1,7 +1,6 @@
 package com.example.datalift.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.example.datalift.model.Manalysis
 import com.example.datalift.screens.analysis.AnalysisUiState
 import com.example.datalift.ui.PreviewParamterData.mananalysis
 import com.example.datalift.ui.PreviewParamterData.exeranalysis

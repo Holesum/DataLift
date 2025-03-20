@@ -10,7 +10,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.example.datalift.screens.analysis.AnalysisScreen
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen

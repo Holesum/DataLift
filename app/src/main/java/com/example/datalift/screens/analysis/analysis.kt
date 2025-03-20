@@ -1,12 +1,10 @@
 package com.example.datalift.screens.analysis
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,10 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.datalift.screens.workout.StatelessSearchExerciseDialog
-import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.components.RadioOptionFieldToModal
 import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
-import com.example.datalift.ui.theme.DataliftTheme
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
