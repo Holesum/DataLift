@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
     id("com.google.gms.google-services")
 }
 
@@ -87,5 +89,16 @@ dependencies {
 
     //Volley
     implementation("com.android.volley:volley:1.2.1")
+
+    //Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
+
+    kspTest(libs.hilt.compiler)
+
+    testImplementation(libs.hilt.android.testing)
+
+    androidTestImplementation(libs.hilt.android.testing)
 
 }

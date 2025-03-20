@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,7 +32,6 @@ fun StatelessDataliftBoxDialog(
     isVisible: Boolean,
     onDismissRequest: () -> Unit,
     color: Color = Color.White,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     if (isVisible){
@@ -147,22 +147,29 @@ fun StatelessDataliftCDCardDialog(
                     .padding(padding),
                 shape = RoundedCornerShape(roundedCorners)
             ) {
-                content()
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    TextButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text("Dismiss")
-                    }
-                    TextButton(
-                        onClick = { onConfirmation() },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text("Confirm")
+                Column {
+                    content()
+                    HorizontalDivider(
+                        modifier = Modifier.height(4.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .align(Alignment.End)
+                            .height(64.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ){
+                        TextButton(
+                            onClick = { onDismissRequest() },
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text("Dismiss")
+                        }
+                        TextButton(
+                            onClick = { onConfirmation() },
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text("Confirm")
+                        }
                     }
                 }
             }

@@ -65,7 +65,7 @@ internal fun DataliftApp(
                 val destination = appState.currentTopLevelDestinations
                 if(destination != null){
                     DataliftTopBar(
-                        title = destination.name,
+                        title = stringResource(destination.iconTextId),
                     )
                 }
             }

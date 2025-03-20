@@ -327,7 +327,7 @@ fun WorkoutItemCardPreview(){
             WorkoutItemCard(
                 workout = Mworkout(
                     name = "Test",
-                    exercises = TestExerciseList()
+                    exercises = testExerciseList()
                 ),
                 onWorkoutClick = {},
                 removeWorkout = {},
@@ -352,7 +352,6 @@ fun WorkoutList(
                 onWorkoutClick = onWorkoutClick,
                 removeWorkout = { removeWorkout(workout) }
             )
-            Spacer(modifier = Modifier.padding(20.dp))
         }
     }
 }
@@ -364,7 +363,7 @@ fun WorkoutListScreen(
     workoutViewModel: WorkoutViewModel = viewModel(),
     onWorkoutClick: (String) -> Unit,
     navNext: () -> Unit = {},
-    navUp: () -> Unit = {}
+//    navUp: () -> Unit = {}
 
 ){
     workoutViewModel.getWorkouts()
@@ -415,7 +414,7 @@ fun WorkoutListScreen(
 }
 
 @Composable
-fun ExcerciseCard(
+fun ExerciseCard(
     exercise: Mexercise,
     modifier: Modifier = Modifier
 ){
@@ -461,7 +460,7 @@ fun ExcerciseCard(
 fun ExerciseCardPreview(){
     DataliftTheme {
         Surface {
-            ExcerciseCard(
+            ExerciseCard(
                 exercise =  Mexercise(
                     id = "1",
                     name = "Lift McDonald's",
@@ -483,11 +482,11 @@ fun ExerciseCardPreview(){
 
 @Composable
 fun WorkoutScreen(
-    mworkout: Mworkout?,
+    workout: Mworkout?,
     navUp: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    mworkout?.let {
+    workout?.let {
         Column(modifier = modifier) {
 
             Row {
@@ -498,14 +497,14 @@ fun WorkoutScreen(
                     )
                 }
                 Text(
-                    text = mworkout.name,
+                    text = workout.name,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
             HorizontalDivider(thickness = 2.dp)
             LazyColumn {
-                items(mworkout.exercises) { exercise ->
-                    ExcerciseCard(exercise)
+                items(workout.exercises) { exercise ->
+                    ExerciseCard(exercise)
                 }
             }
         }
@@ -519,9 +518,9 @@ fun WorkoutScreenPreview(){
     DataliftTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             WorkoutScreen(
-                mworkout = Mworkout(
+                workout = Mworkout(
                     name = "Test Workout",
-                    exercises = TestExerciseList()
+                    exercises = testExerciseList()
                 ),
                 navUp = {}
             )
@@ -532,7 +531,7 @@ fun WorkoutScreenPreview(){
 
 
 
-fun TestExerciseList() : List<Mexercise> {
+fun testExerciseList() : List<Mexercise> {
     return listOf(
         Mexercise(
             id = "1",

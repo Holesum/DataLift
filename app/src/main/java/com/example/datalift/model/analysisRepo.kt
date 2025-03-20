@@ -42,6 +42,7 @@ class analysisRepo {
                         analysisList.add(analysis)
                     }
                 }
+                callback(analysisList)
             }.addOnFailureListener{
                 Log.d("Firebase", "Error getting analysis returning empty list")
                 callback(emptyList()) // Call the callback with an empty list on error
