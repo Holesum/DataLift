@@ -10,9 +10,10 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.example.datalift.screens.analysis.AnalysisScreen
+import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
+import com.example.datalift.screens.settings.SettingsScreen
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
@@ -26,6 +27,8 @@ import kotlinx.serialization.Serializable
 @Serializable object LoginRoute
 @Serializable object FeedBaseRoute
 @Serializable object FeedRoute
+@Serializable object SettingsBaseRoute
+@Serializable object SettingsRoute
 @Serializable object SignUpBaseRoute
 @Serializable object NameRoute
 @Serializable object PersonalInformationRoute
@@ -147,7 +150,7 @@ fun NavGraphBuilder.workoutGraph(
             WorkoutListScreen(
                 workoutViewModel = workoutViewModel,
                 onWorkoutClick = navController::navigateToWorkoutDetail,
-                navUp = { navController.navigateUp() },
+//                navUp = { navController.navigateUp() },
                 navNext = { navController.navigate(Screens.WorkoutDetails.name) }
             )
         }
@@ -162,7 +165,7 @@ fun NavGraphBuilder.workoutGraph(
             workoutViewModel.getWorkout(workoutDetail.id)
             val workout = workoutViewModel.workout.collectAsStateWithLifecycle().value
             WorkoutScreen(
-                mworkout = workout,
+                workout = workout,
                 navUp = { navController.navigateUp() }
             )
         }
@@ -200,7 +203,22 @@ fun NavController.navigateToAnalysis(navOptions: NavOptions) =
 
 fun NavGraphBuilder.analysisScreen(){
     composable<AnalysisRoute>{
-        AnalysisScreen()
+        AnalysisRoute()
+    }
+}
+
+fun NavController.navigateToSettings() = navigate(route = SettingsBaseRoute)
+
+fun NavGraphBuilder.settingsSection(
+    onBackClick: () -> Unit,
+
+){
+    navigation<SettingsBaseRoute>(startDestination = SettingsRoute){
+        composable<SettingsRoute> {
+            SettingsScreen(
+                onBackClick = onBackClick
+            )
+        }
     }
 }
 

@@ -23,6 +23,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.datalift.navigation.DataliftNavHost
+import com.example.datalift.navigation.navigateToSettings
 import com.example.datalift.ui.components.DataliftNavigationBar
 import com.example.datalift.ui.components.DataliftNavigationBarItem
 import com.example.datalift.ui.components.DataliftTopBar
@@ -65,7 +66,8 @@ internal fun DataliftApp(
                 val destination = appState.currentTopLevelDestinations
                 if(destination != null){
                     DataliftTopBar(
-                        title = destination.name,
+                        title = stringResource(destination.iconTextId),
+                        onSettingsClick = appState.navController::navigateToSettings
                     )
                 }
             }

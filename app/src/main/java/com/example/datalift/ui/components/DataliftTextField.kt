@@ -3,16 +3,21 @@ package com.example.datalift.ui.components
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -290,6 +295,43 @@ fun StatelessDataliftDialogTextField(
 }
 
 @Composable
+fun MenuFieldToModal(
+    field: String,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+) {
+    val (savedOption, setSavedOption) = remember { mutableStateOf("") }
+    var menuVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = savedOption,
+        dialogVisible = menuVisible,
+        setVisibile = { menuVisible = true},
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            DropdownMenu(
+                expanded = menuVisible,
+                onDismissRequest = { menuVisible = false}
+            ) {
+                options.forEach{ option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            setSavedOption(option)
+                            menuVisible = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun RadioOptionFieldToModal(
     field: String,
     options: List<String> = emptyList(),
@@ -318,9 +360,7 @@ fun RadioOptionFieldToModal(
                 dialogVisible = false
             }
         ) {
-            Column(
-                modifier = Modifier.selectableGroup()
-            ){
+            Column {
                 Text(
                     text = field,
                     fontSize = 24.sp,
@@ -333,30 +373,66 @@ fun RadioOptionFieldToModal(
                 HorizontalDivider(
                     modifier = Modifier.height(4.dp)
                 )
-                options.forEach() { text ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .height(56.dp)
-                            .selectable(
+                Column(
+                    modifier = Modifier.selectableGroup()
+                        .height(200.dp)
+                        .verticalScroll(rememberScrollState())
+                ){
+                    options.forEach() { text ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(56.dp)
+                                .selectable(
+                                    selected = (text == selectedOption),
+                                    onClick = { changeSelectedOption(text) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
                                 selected = (text == selectedOption),
-                                onClick = { changeSelectedOption(text) },
-                                role = Role.RadioButton
+                                onClick = null // null recommended for accessibility with screen readers
                             )
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (text == selectedOption),
-                            onClick = null // null recommended for accessibility with screen readers
-                        )
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
                     }
                 }
             }
+
+//                Box {
+//                    LazyColumn {
+//                        items(options){ text ->
+//                            Row(
+//                                modifier = Modifier.fillMaxWidth()
+//                                    .height(56.dp)
+//                                    .selectable(
+//                                        selected = (text == selectedOption),
+//                                        onClick = { changeSelectedOption(text) },
+//                                        role = Role.RadioButton
+//                                    )
+//                                    .padding(horizontal = 16.dp),
+//                                verticalAlignment = Alignment.CenterVertically,
+//                            ) {
+//                                RadioButton(
+//                                    selected = (text == selectedOption),
+//                                    onClick = null // null recommended for accessibility with screen readers
+//                                )
+//                                Text(
+//                                    text = text,
+//                                    style = MaterialTheme.typography.bodyLarge,
+//                                    modifier = Modifier.padding(start = 16.dp)
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+
+//            }
         }
     }
 }
@@ -375,15 +451,15 @@ fun SemiStatelessRadioOptionFieldToModal(
 
     val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
 
-    if(selectedOption != ""){
-        confirmSavedOption(selectedOption)
-    }
+//    if(selectedOption != ""){
+//        confirmSavedOption(selectedOption)
+//    }
 
     var dialogVisible by remember { mutableStateOf(false) }
 
     StatelessDataliftDialogTextField(
         field = field,
-        text = savedOption,
+        text = selectedOption,
         dialogVisible = dialogVisible,
         isError = isError,
         supportingText = supportingText,
@@ -402,9 +478,7 @@ fun SemiStatelessRadioOptionFieldToModal(
                 dialogVisible = false
             }
         ) {
-            Column(
-                modifier = Modifier.selectableGroup()
-            ){
+            Column(){
                 Text(
                     text = field,
                     fontSize = 24.sp,
@@ -417,27 +491,33 @@ fun SemiStatelessRadioOptionFieldToModal(
                 HorizontalDivider(
                     modifier = Modifier.height(4.dp)
                 )
-                options.forEach() { text ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .height(56.dp)
-                            .selectable(
-                                selected = (text == selectedOption),
-                                onClick = { confirmSavedOption(text) },
-                                role = Role.RadioButton
+                Column(
+                    modifier = Modifier.selectableGroup()
+                        .height(200.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    options.forEach() { text ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(56.dp)
+                                .selectable(
+                                    selected = (text == savedOption),
+                                    onClick = { confirmSavedOption(text) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = (text == savedOption),
+                                onClick = null // null recommended for accessibility with screen readers
                             )
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (text == selectedOption),
-                            onClick = null // null recommended for accessibility with screen readers
-                        )
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
                     }
                 }
             }
