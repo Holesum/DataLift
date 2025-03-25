@@ -15,8 +15,6 @@ data class Muser(
     var privacy: Boolean = true,
     var imperial: Boolean = true,
     var dob: Timestamp = Timestamp.now(),
-    var workouts: List<String> = emptyList(),
-    var friends: List<String> = emptyList(),
     var weights: List<userWeights> = emptyList()
 ) {
     companion object {
@@ -32,8 +30,6 @@ data class Muser(
                 privacy = document.getBoolean("privacy") ?: false,
                 imperial = document.getBoolean("imperial") ?: false,
                 dob = document.getTimestamp("dob") ?: Timestamp.now(), //fix the date to work better
-                workouts = (document.get("workouts") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                friends = (document.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 weights = document.get("weights") as List<userWeights>
             )
         }
@@ -50,8 +46,6 @@ data class Muser(
             "privacy" to this.privacy,
             "imperial" to this.imperial,
             "dob" to this.dob,
-            "workouts" to this.workouts,
-            "friends" to this.friends,
             "weights" to this.weights
         )
     }
