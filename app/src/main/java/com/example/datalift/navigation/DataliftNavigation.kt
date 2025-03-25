@@ -13,6 +13,7 @@ import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
+import com.example.datalift.screens.settings.SettingsScreen
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
@@ -26,6 +27,8 @@ import kotlinx.serialization.Serializable
 @Serializable object LoginRoute
 @Serializable object FeedBaseRoute
 @Serializable object FeedRoute
+@Serializable object SettingsBaseRoute
+@Serializable object SettingsRoute
 @Serializable object SignUpBaseRoute
 @Serializable object NameRoute
 @Serializable object PersonalInformationRoute
@@ -201,6 +204,21 @@ fun NavController.navigateToAnalysis(navOptions: NavOptions) =
 fun NavGraphBuilder.analysisScreen(){
     composable<AnalysisRoute>{
         AnalysisRoute()
+    }
+}
+
+fun NavController.navigateToSettings() = navigate(route = SettingsBaseRoute)
+
+fun NavGraphBuilder.settingsSection(
+    onBackClick: () -> Unit,
+
+){
+    navigation<SettingsBaseRoute>(startDestination = SettingsRoute){
+        composable<SettingsRoute> {
+            SettingsScreen(
+                onBackClick = onBackClick
+            )
+        }
     }
 }
 
