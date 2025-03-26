@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,7 +14,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,14 +71,40 @@ fun LoginFeatures(
             isError = loginUiState.hasErrors,
             modifier = modifier.padding(4.dp)
         )
-        StatelessDataliftFormPrivateTextField(
-            field = "Password",
+
+//        StatelessDataliftFormPrivateTextField(
+//            field = "Password",
+//            text = loginUiState.password,
+//            changeText = changePassword,
+//            isError = loginUiState.hasErrors,
+//            supportingText = {
+//                if(loginUiState.hasErrors) {
+//                    Text(loginUiState.errorMessage)
+//                }
+//            },
+//            imeAction = ImeAction.Go,
+//            keyboardActions = KeyboardActions(
+//                onGo = {
+//                    loginUser(loginUiState.username, loginUiState.password)
+//                    if (loggedin) {
+//                        signinUser()
+//                        navigateToHome()
+//                    }
+//                }
+//            ),
+//            modifier = modifier.padding(4.dp)
+//        )
+
+        DataliftPasswordLoginField(
             text = loginUiState.password,
             changeText = changePassword,
             isError = loginUiState.hasErrors,
-            supportingText = {
-                if(loginUiState.hasErrors) {
-                    Text(loginUiState.errorMessage)
+            errorMessage = loginUiState.errorMessage,
+            loginUser = {
+                loginUser(loginUiState.username, loginUiState.password)
+                if (loggedin) {
+                    signinUser()
+                    navigateToHome()
                 }
             },
             modifier = modifier.padding(4.dp)
@@ -142,4 +171,40 @@ fun LoginScreen(
             modifier = modifier
         )
     }
+}
+
+@Composable
+fun DataliftPasswordLoginField(
+    text: String,
+    changeText: (String) -> Unit,
+    isError: Boolean,
+    errorMessage: String,
+    loginUser: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val closeKeyboard = {
+        keyboardController?.hide()
+    }
+
+    StatelessDataliftFormPrivateTextField(
+        field = "Password",
+        text = text,
+        changeText = changeText,
+        isError = isError,
+        supportingText = {
+            if(isError) {
+                Text(errorMessage)
+            }
+        },
+        imeAction = ImeAction.Go,
+        keyboardActions = KeyboardActions(
+            onGo = {
+                loginUser()
+                closeKeyboard()
+            }
+        ),
+        modifier = modifier
+    )
 }
