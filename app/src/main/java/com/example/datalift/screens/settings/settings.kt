@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -14,6 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -21,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +37,55 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
+
+
+@Composable
+fun SettingsDialogRow(
+    text: String,
+    selectRow: (String) -> Unit,
+    selected: Boolean
+
+){
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .selectable(
+                selected = selected,
+                onClick = { selectRow(text) },
+                role = Role.RadioButton
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            onClick = { selectRow(text) },
+            selected = selected
+        )
+        Text(
+            text = text,
+            fontSize = 24.sp,
+        )
+    }
+}
+
+@Composable
+fun SettingsDialogColumn(
+    choice: String,
+    updateChoice: (String) -> Unit,
+    options: List<String>
+) {
+    Column(
+        modifier = Modifier.selectableGroup()
+            .verticalScroll(rememberScrollState())
+    ){
+        options.forEach { row ->
+            SettingsDialogRow(
+                text = row,
+                selectRow = updateChoice,
+                selected = choice == row
+            )
+        }
+    }
+}
+
 
 @Composable
 fun SettingsEntry(
@@ -109,6 +165,20 @@ fun SettingsScreen(
     }
 }
 
+@Preview
+@Composable
+fun DialogScreenPreview(){
+    DataliftTheme {
+        Surface() {
+            SettingsDialogColumn(
+                choice = "Imperial",
+                updateChoice = {_ -> },
+                options = listOf("Imperial","Metric")
+            )
+        }
+    }
+}
+
 @DevicePreviews
 @Composable
 fun SettingsScreenPreview(){
@@ -120,3 +190,4 @@ fun SettingsScreenPreview(){
         }
     }
 }
+
