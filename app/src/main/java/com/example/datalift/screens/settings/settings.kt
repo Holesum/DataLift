@@ -34,10 +34,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.datalift.navigation.SettingDetail
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
-
 
 @Composable
 fun SettingsDialogRow(
@@ -173,16 +174,31 @@ fun SettingsEntry(
 }
 
 @Composable
-fun SettingsRoute(
+fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    navigateToDetail: (SettingDetail) -> Unit,
     onBackClick: () -> Unit,
 ){
-    SettingsScreen(onBackClick)
+    val uiState = settingsViewModel.settingsUiState.collectAsStateWithLifecycle().value
+
+    SettingsScreen(
+        onBackClick = onBackClick,
+        navigateToDetail = navigateToDetail,
+        privacy = uiState.privacy,
+        units = uiState.units,
+        updatePrivacy = settingsViewModel::updatePrivacy,
+        updateUnits = settingsViewModel::updateUnit
+    )
 }
 
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
+    navigateToDetail: (SettingDetail) -> Unit,
+    privacy: String,
+    units: String,
+    updatePrivacy: (String) -> Unit,
+    updateUnits: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(modifier = modifier.fillMaxWidth()) {
@@ -207,11 +223,31 @@ fun SettingsScreen(
         )
         SettingsEntry(
             entry = "Units",
-            subtext = "Imperial",
+            subtext = units,
+            action = {
+                navigateToDetail(
+                    SettingDetail(
+                        title = "Units",
+                        options = listOf("Imperial","Metric"),
+//                        currentChoice = units,
+                        type = SettingsType.UNITS
+                    )
+                )
+            }
         )
         SettingsEntry(
             entry = "Privacy Controls",
-            subtext = "Private",
+            subtext = privacy,
+            action = {
+                navigateToDetail(
+                    SettingDetail(
+                        title = "Privacy",
+                        options = listOf("Public","Followers Only","Private"),
+//                        currentChoice = privacy,
+                        type = SettingsType.PRIVACY
+                    )
+                )
+            }
         )
         SettingsEntry(
             entry = "Log out"
@@ -239,7 +275,12 @@ fun SettingsScreenPreview(){
     DataliftTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             SettingsScreen(
-                onBackClick = {}
+                onBackClick = {},
+                navigateToDetail = {_ -> },
+                privacy = "Private",
+                units = "Imperial",
+                updatePrivacy = {_ -> },
+                updateUnits = {_ -> },
             )
         }
     }
