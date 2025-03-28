@@ -39,7 +39,7 @@ fun DataliftNavHost(
         analysisScreen()
 
         settingsSection(
-            onBackClick = navController::navigateUp
+            navController = navController
         )
     }
 }

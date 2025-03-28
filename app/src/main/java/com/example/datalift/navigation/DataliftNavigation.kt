@@ -210,8 +210,7 @@ fun NavGraphBuilder.analysisScreen(){
 fun NavController.navigateToSettings() = navigate(route = SettingsBaseRoute)
 
 fun NavGraphBuilder.settingsSection(
-    onBackClick: () -> Unit,
-
+    navController: NavController,
 ){
     navigation<SettingsBaseRoute>(startDestination = SettingsRoute){
         composable<SettingsRoute> {
