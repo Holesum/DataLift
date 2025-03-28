@@ -13,24 +13,18 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,7 +32,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.datalift.navigation.SettingDetail
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun SettingsDialogRow(
@@ -186,8 +179,6 @@ fun SettingsScreen(
         navigateToDetail = navigateToDetail,
         privacy = uiState.privacy,
         units = uiState.units,
-        updatePrivacy = settingsViewModel::updatePrivacy,
-        updateUnits = settingsViewModel::updateUnit
     )
 }
 
@@ -197,8 +188,6 @@ fun SettingsScreen(
     navigateToDetail: (SettingDetail) -> Unit,
     privacy: String,
     units: String,
-    updatePrivacy: (String) -> Unit,
-    updateUnits: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(modifier = modifier.fillMaxWidth()) {
@@ -279,8 +268,6 @@ fun SettingsScreenPreview(){
                 navigateToDetail = {_ -> },
                 privacy = "Private",
                 units = "Imperial",
-                updatePrivacy = {_ -> },
-                updateUnits = {_ -> },
             )
         }
     }

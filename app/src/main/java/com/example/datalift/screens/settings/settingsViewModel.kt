@@ -35,7 +35,7 @@ class SettingsViewModel @Inject constructor(
         when(settingType){
             SettingsType.UNITS -> uiState.units
             SettingsType.PRIVACY -> uiState.privacy
-            else -> ""
+//            else -> ""
         }
     }
 
@@ -43,7 +43,7 @@ class SettingsViewModel @Inject constructor(
         when(settingType){
             SettingsType.UNITS -> this::updateUnit
             SettingsType.PRIVACY -> this::updatePrivacy
-            else -> {_ -> }
+//            else -> {_ -> }
         }
     }
 }

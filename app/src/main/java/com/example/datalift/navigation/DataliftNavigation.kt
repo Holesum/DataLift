@@ -9,7 +9,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
@@ -18,7 +17,6 @@ import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.settings.SettingsDialogScreen
 import com.example.datalift.screens.settings.SettingsScreen
 import com.example.datalift.screens.settings.SettingsType
-import com.example.datalift.screens.settings.SettingsUiState
 import com.example.datalift.screens.settings.SettingsViewModel
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
