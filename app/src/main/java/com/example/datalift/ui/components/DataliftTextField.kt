@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -190,6 +192,9 @@ fun StatelessDataliftFormPrivateTextField(
     field: String,
     text: String,
     isError: Boolean = false,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onImeAction: () -> Unit = {},
     supportingText: @Composable() (() -> Unit)? = null,
     changeText: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -216,7 +221,11 @@ fun StatelessDataliftFormPrivateTextField(
         },
         supportingText = supportingText,
         isError = isError,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = imeAction
+        ),
+        keyboardActions = keyboardActions,
         modifier = modifier
     )
 }

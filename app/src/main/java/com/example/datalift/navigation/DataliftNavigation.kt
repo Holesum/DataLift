@@ -2,6 +2,7 @@ package com.example.datalift.navigation
 
 
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -13,7 +14,10 @@ import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.logIn.LoginScreen
+import com.example.datalift.screens.settings.SettingsDialogScreen
 import com.example.datalift.screens.settings.SettingsScreen
+import com.example.datalift.screens.settings.SettingsType
+import com.example.datalift.screens.settings.SettingsViewModel
 import com.example.datalift.screens.signUp.CredentialsScreen
 import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
@@ -38,6 +42,11 @@ import kotlinx.serialization.Serializable
 @Serializable object AnalysisRoute
 
 @Serializable data class WorkoutDetail(val id: String)
+@Serializable data class SettingDetail(
+    val title: String,
+    val options: List<String>,
+    val type: SettingsType
+)
 
 
 fun NavGraphBuilder.loginScreen(
@@ -209,14 +218,49 @@ fun NavGraphBuilder.analysisScreen(){
 
 fun NavController.navigateToSettings() = navigate(route = SettingsBaseRoute)
 
-fun NavGraphBuilder.settingsSection(
-    onBackClick: () -> Unit,
+fun NavController.navigateToSettingsDetail(
+    settingDetail: SettingDetail
+){
+    navigate(route = settingDetail)
+}
 
+fun NavGraphBuilder.settingsSection(
+    navController: NavController,
 ){
     navigation<SettingsBaseRoute>(startDestination = SettingsRoute){
-        composable<SettingsRoute> {
+        composable<SettingsRoute> { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = SettingsBaseRoute)
+            }
+
+
+            val settingsViewModel: SettingsViewModel = hiltViewModel(parentEntry)
+
+
             SettingsScreen(
-                onBackClick = onBackClick
+                settingsViewModel = settingsViewModel,
+                onBackClick = navController::navigateUp,
+                navigateToDetail = navController::navigateToSettingsDetail
+            )
+        }
+
+        composable<SettingDetail> {backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = SettingsBaseRoute)
+            }
+
+            val settingDetail: SettingDetail = backStackEntry.toRoute()
+
+            val settingsViewModel: SettingsViewModel = hiltViewModel(parentEntry)
+
+            val uiState = settingsViewModel.settingsUiState.collectAsStateWithLifecycle().value
+
+
+            SettingsDialogScreen(
+                navUp = navController::navigateUp,
+                setting = settingDetail,
+                choice = settingsViewModel.getCurrentChoice(settingDetail.type,uiState),
+                updateChoice = settingsViewModel.updateFunction(settingDetail.type),
             )
         }
     }

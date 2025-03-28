@@ -31,6 +31,26 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    val getCurrentChoice: (SettingsType, SettingsUiState) -> String = { settingType, uiState ->
+        when(settingType){
+            SettingsType.UNITS -> uiState.units
+            SettingsType.PRIVACY -> uiState.privacy
+//            else -> ""
+        }
+    }
+
+    val updateFunction: (SettingsType) -> ((String) -> Unit) = { settingType ->
+        when(settingType){
+            SettingsType.UNITS -> this::updateUnit
+            SettingsType.PRIVACY -> this::updatePrivacy
+//            else -> {_ -> }
+        }
+    }
+}
+
+enum class SettingsType {
+    UNITS,
+    PRIVACY
 }
 
 data class SettingsUiState(
