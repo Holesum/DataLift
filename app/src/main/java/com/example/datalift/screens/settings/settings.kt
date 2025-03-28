@@ -86,6 +86,60 @@ fun SettingsDialogColumn(
     }
 }
 
+@Composable
+fun SettingsDialogScreen(
+    setting: SettingDetail,
+    navUp: () -> Unit,
+    choice: String,
+    updateChoice: (String) -> Unit,
+){
+
+    SettingsDialogScreen(
+        navUp = navUp,
+        title = setting.title,
+        options = setting.options,
+        choice = choice,
+        updateChoice = updateChoice,
+
+    )
+}
+
+@Composable
+internal fun SettingsDialogScreen(
+    navUp: () -> Unit,
+    title: String,
+    choice: String,
+    updateChoice: (String) -> Unit,
+    options: List<String>,
+    modifier: Modifier = Modifier
+){
+    Column {
+        Row(modifier = modifier.fillMaxWidth()) {
+            IconButton(onClick = navUp) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+            Text(
+                text = title,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterVertically)
+                    .padding(start = 16.dp)
+            )
+        }
+        HorizontalDivider(
+            modifier = modifier.padding(top = 8.dp),
+            thickness = 1.dp
+        )
+        SettingsDialogColumn(
+            choice = choice,
+            updateChoice = updateChoice,
+            options = options
+        )
+    }
+}
 
 @Composable
 fun SettingsEntry(
