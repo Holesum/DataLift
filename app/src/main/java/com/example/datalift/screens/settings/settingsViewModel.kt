@@ -1,37 +1,43 @@
 package com.example.datalift.screens.settings
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.datalift.data.repository.SettingsRepo
+import com.example.datalift.data.repository.SettingsRepository
+import com.example.datalift.model.userRepo
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-
+//    private val userRepo: userRepo,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    private val _settingsUiState = MutableStateFlow(SettingsUiState())
-    val settingsUiState: StateFlow<SettingsUiState> = _settingsUiState.asStateFlow()
 
     fun updateUnit(newUnit: String){
-        _settingsUiState.update { currentState ->
-            currentState.copy(
-                units = newUnit
-            )
+        viewModelScope.launch{
+            settingsRepository.saveUnitType(newUnit)
         }
     }
 
     fun updatePrivacy(newPrivacy: String){
-        _settingsUiState.update { currentState ->
-            currentState.copy(
-                privacy = newPrivacy
-            )
+        viewModelScope.launch{
+            settingsRepository.savePrivacySetting(newPrivacy)
         }
     }
 
-    val getCurrentChoice: (SettingsType, SettingsUiState) -> String = { settingType, uiState ->
+    val getCurrentChoiceUiState: (SettingsType, SettingUiState.Success) -> String = { settingType, uiState ->
         when(settingType){
             SettingsType.UNITS -> uiState.units
             SettingsType.PRIVACY -> uiState.privacy
@@ -46,6 +52,17 @@ class SettingsViewModel @Inject constructor(
 //            else -> {_ -> }
         }
     }
+
+    val uiState: StateFlow<SettingUiState> = combine(
+        settingsRepository.getUnitType(),
+        settingsRepository.getPrivacyType(),
+        SettingUiState::Success
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = SettingUiState.Loading
+    )
+
 }
 
 enum class SettingsType {
@@ -53,7 +70,11 @@ enum class SettingsType {
     PRIVACY
 }
 
-data class SettingsUiState(
-    val units: String = "Imperial",
-    val privacy: String = "Private"
-)
+sealed interface SettingUiState{
+    data object Loading : SettingUiState
+
+    data class Success(
+        val units: String,
+        val privacy: String,
+    ) : SettingUiState
+}
