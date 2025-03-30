@@ -2,6 +2,7 @@ package com.example.datalift.model
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 
 class userRepo {
@@ -18,6 +19,40 @@ class userRepo {
             }.addOnFailureListener {
                 Log.d("Firebase", "Error getting user: ${it.message}")
                 callback(null)
+            }
+    }
+
+    fun getUnitType(uid: String, callback: (String) -> Unit) {
+        db.collection("Users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val user = Muser.fromDocument(snapshot)
+                if(user.imperial){
+                    callback("Imperial")
+                } else {
+                    callback("Metric")
+                }
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error updating privacy: ${it.message}")
+                callback("Imperial")
+            }
+    }
+
+    fun getPrivacy(uid: String, callback: (String) -> Unit) {
+        db.collection("Users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val user = Muser.fromDocument(snapshot)
+                if(user.privacy){
+                    callback("Private")
+                } else {
+                    callback("Public")
+                }
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error updating privacy: ${it.message}")
+                callback("Private")
             }
     }
 
