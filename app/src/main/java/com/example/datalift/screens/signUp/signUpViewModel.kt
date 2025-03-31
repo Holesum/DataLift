@@ -152,10 +152,12 @@ class SignUpViewModel : ViewModel() {
     }
 
     fun accountInformationValidated(): Boolean {
+        Log.d("testing", "is account being verified")
         passwordInvalid = !passwordIsValid()
         usernameInvalid = !usernameIsValid()
         emailInvalid = !emailIsValid()
 
+        Log.d("testing", "valid account info: ${passwordInvalid || usernameInvalid || emailInvalid}")
         return (passwordInvalid || usernameInvalid || emailInvalid)
 //        if(passwordInvalid || usernameInvalid || emailInvalid) {
 //            return false

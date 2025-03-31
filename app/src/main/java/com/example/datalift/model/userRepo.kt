@@ -153,18 +153,37 @@ class userRepo {
 
     }
 
-    fun getFollowers(uid: String, callback: (List<Muser>) -> Unit) {
+    fun getFollowers(uid: String, callback: (List<String>) -> Unit) {
         db.collection("Users")
             .document(uid)
             .collection("Followers")
             .get()
+            .addOnSuccessListener {
+                val followersList = it.documents.mapNotNull { document ->
+                    document.getString("uid")
+                }
+                Log.d("Firebase", "Followers list: $followersList")
+                callback(followersList)
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error getting followers: ${it.message}")
+            }
+
     }
 
-    fun getFollowing(uid: String, callback: (List<Muser>) -> Unit) {
+    fun getFollowing(uid: String, callback: (List<String>) -> Unit) {
         db.collection("Users")
             .document(uid)
             .collection("Following")
             .get()
+            .addOnSuccessListener {
+                val followingList = it.documents.mapNotNull { document ->
+                    document.getString("uid")
+                }
+                Log.d("Firebase", "Following list: $followingList")
+                callback(followingList)
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error getting following: ${it.message}")
+            }
     }
 
     fun getUsers(query: String = "", callback: (List<Muser>) -> Unit) {

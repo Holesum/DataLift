@@ -5,18 +5,34 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+
+//data models
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mworkout
 import com.example.datalift.model.workoutRepo
+import com.example.datalift.model.postRepo
+import com.example.datalift.model.Mchallenge
+import com.example.datalift.model.Mset
+import com.example.datalift.model.Muser
+import com.example.datalift.model.Mpost
+
+//testing imports remove when done
+import com.example.datalift.model.challengeRepo
+import com.example.datalift.model.userRepo
+
+//Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.Timestamp
+
+//Compose
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
-import com.example.datalift.model.Mset
-import com.google.firebase.Timestamp
+
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,6 +43,12 @@ class WorkoutViewModel : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
     private val workoutRepo = workoutRepo()
+    private val postRepo = postRepo()
+    private val userRepo = userRepo()
+
+//    //testing repos remove when done
+//    private val challengeRepo = challengeRepo()
+//    private val userRepo = userRepo()
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
@@ -53,6 +75,10 @@ class WorkoutViewModel : ViewModel() {
 
     private val _workoutsFetched = MutableStateFlow(false)
     val workoutsFetched: StateFlow<Boolean> get() = _workoutsFetched
+
+    private val _user = MutableStateFlow<Muser?>(null)
+
+    private val _users = MutableStateFlow<List<Muser>>(emptyList())
 
     /*init {
         if (!_workoutFetched.value) {
@@ -103,7 +129,15 @@ class WorkoutViewModel : ViewModel() {
         if(!_loading.value) {
             _loading.value = true
             try{
-                workoutRepo.createNewWorkout(oRM(workout), uid)
+
+                workoutRepo.createNewWorkout(oRM(workout), uid){ workout ->
+                    userRepo.getUser(uid){ user ->
+                        val post = Mpost("",Timestamp.now(),workout,user,"","")
+                        postRepo.addPost(uid, post)
+                    }
+
+
+                }
                 _loading.value = false
 
             } catch (e: Exception) {

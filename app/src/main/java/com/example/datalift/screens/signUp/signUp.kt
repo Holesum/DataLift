@@ -326,7 +326,8 @@ fun CredentialsScreen(
                 .fillMaxWidth(0.75f)
         )
         Button(onClick = {
-            if(signUpViewModel.accountInformationValidated()){
+            Log.d("Testing", "Create account button clicked")
+            if(!signUpViewModel.accountInformationValidated()){
                 signUpViewModel.createDBUser{
                     val signedUp = signUpViewModel.accountCreated.value
                     if(signedUp) {

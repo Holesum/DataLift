@@ -2,10 +2,12 @@ package com.example.datalift.model
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 
 class workoutRepo {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val postRepo = postRepo()
 
 
     /**
@@ -15,6 +17,7 @@ class workoutRepo {
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
+            .orderBy("date", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snapShot ->
                 val workoutList = mutableListOf<Mworkout>()
@@ -54,7 +57,7 @@ class workoutRepo {
     /**
      * Function to create a new workout object
      */
-    fun createNewWorkout(workout: Mworkout, uid: String) {
+    fun createNewWorkout(workout: Mworkout, uid: String, callback: (Mworkout?) -> Unit) {
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -69,6 +72,8 @@ class workoutRepo {
                     .set(updatedWorkout)
                     .addOnSuccessListener {
                         Log.d("Firebase", "Workout docID set: ${updatedWorkout.docID}")
+                        callback(updatedWorkout)
+
                     }.addOnFailureListener{
                         Log.d("Firebase", "Error setting docID: ${it.message}")
                     }
