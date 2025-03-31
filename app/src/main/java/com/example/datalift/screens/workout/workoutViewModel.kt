@@ -50,6 +50,9 @@ class WorkoutViewModel : ViewModel() {
 //    private val challengeRepo = challengeRepo()
 //    private val userRepo = userRepo()
 
+    private val _posts = MutableStateFlow<List<Mpost>?>(null)
+    val posts: StateFlow<List<Mpost>?> get() = _posts
+
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
 
@@ -129,14 +132,11 @@ class WorkoutViewModel : ViewModel() {
         if(!_loading.value) {
             _loading.value = true
             try{
-
                 workoutRepo.createNewWorkout(oRM(workout), uid){ workout ->
                     userRepo.getUser(uid){ user ->
                         val post = Mpost("",Timestamp.now(),workout,user,"","")
                         postRepo.addPost(uid, post)
                     }
-
-
                 }
                 _loading.value = false
 
@@ -186,6 +186,10 @@ class WorkoutViewModel : ViewModel() {
      * Function to get workout list from database for specific user
      */
     fun getWorkouts() {
+        postRepo.getPosts(uid){ posts ->
+            _posts.value = posts
+            Log.d("Firebase", "Posts found: ${posts.size}")
+        }
         _workoutsFetched.value = true
         _loading.value = true
         workoutRepo.getWorkouts(uid) { workoutList ->
