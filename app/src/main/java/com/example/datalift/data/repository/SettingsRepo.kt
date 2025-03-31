@@ -51,7 +51,7 @@ class SettingsRepo @Inject constructor(
             userRepo.changeImperial(uid,true)
         } else if (unitType.contentEquals("Metric")){
             _unitType.value = unitType
-            userRepo.changePrivacy(uid,false)
+            userRepo.changeImperial(uid,false)
         }
     }
 }
