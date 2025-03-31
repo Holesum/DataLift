@@ -83,16 +83,19 @@ fun SettingsDialogColumn(
 @Composable
 fun SettingsDialogScreen(
     setting: SettingDetail,
+    uiState: SettingUiState,
     navUp: () -> Unit,
-    choice: String,
+    getChoice: (SettingsType, SettingUiState.Success) -> String,
     updateChoice: (String) -> Unit,
 ){
 
     SettingsDialogScreen(
         navUp = navUp,
+        uiState = uiState,
         title = setting.title,
         options = setting.options,
-        choice = choice,
+        settingType = setting.type,
+        getChoice = getChoice,
         updateChoice = updateChoice,
 
     )
@@ -101,8 +104,10 @@ fun SettingsDialogScreen(
 @Composable
 internal fun SettingsDialogScreen(
     navUp: () -> Unit,
+    uiState: SettingUiState,
     title: String,
-    choice: String,
+    settingType: SettingsType,
+    getChoice: (SettingsType, SettingUiState.Success) -> String,
     updateChoice: (String) -> Unit,
     options: List<String>,
     modifier: Modifier = Modifier
@@ -127,11 +132,17 @@ internal fun SettingsDialogScreen(
             modifier = modifier.padding(top = 8.dp),
             thickness = 1.dp
         )
-        SettingsDialogColumn(
-            choice = choice,
-            updateChoice = updateChoice,
-            options = options
-        )
+        when(uiState){
+            SettingUiState.Loading -> Text("Loading")
+            is SettingUiState.Success -> {
+                SettingsDialogColumn(
+                    choice = getChoice(settingType,uiState),
+                    updateChoice = updateChoice,
+                    options = options
+                )
+            }
+        }
+
     }
 }
 
@@ -172,22 +183,20 @@ fun SettingsScreen(
     navigateToDetail: (SettingDetail) -> Unit,
     onBackClick: () -> Unit,
 ){
-    val uiState = settingsViewModel.settingsUiState.collectAsStateWithLifecycle().value
+    val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
 
     SettingsScreen(
         onBackClick = onBackClick,
+        uiState = uiState,
         navigateToDetail = navigateToDetail,
-        privacy = uiState.privacy,
-        units = uiState.units,
     )
 }
 
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
+    uiState: SettingUiState,
     navigateToDetail: (SettingDetail) -> Unit,
-    privacy: String,
-    units: String,
     modifier: Modifier = Modifier
 ){
     Column(modifier = modifier.fillMaxWidth()) {
@@ -210,37 +219,42 @@ fun SettingsScreen(
             modifier = modifier.padding(top = 8.dp),
             thickness = 1.dp
         )
-        SettingsEntry(
-            entry = "Units",
-            subtext = units,
-            action = {
-                navigateToDetail(
-                    SettingDetail(
-                        title = "Units",
-                        options = listOf("Imperial","Metric"),
-//                        currentChoice = units,
-                        type = SettingsType.UNITS
+        when(uiState) {
+            SettingUiState.Loading -> Text("Loading")
+            is SettingUiState.Success -> {
+                Column {
+                    SettingsEntry(
+                        entry = "Units",
+                        subtext = uiState.units,
+                        action = {
+                            navigateToDetail(
+                                SettingDetail(
+                                    title = "Units",
+                                    options = listOf("Imperial", "Metric"),
+                                    type = SettingsType.UNITS
+                                )
+                            )
+                        }
                     )
-                )
-            }
-        )
-        SettingsEntry(
-            entry = "Privacy Controls",
-            subtext = privacy,
-            action = {
-                navigateToDetail(
-                    SettingDetail(
-                        title = "Privacy",
-                        options = listOf("Public","Followers Only","Private"),
-//                        currentChoice = privacy,
-                        type = SettingsType.PRIVACY
+                    SettingsEntry(
+                        entry = "Privacy Controls",
+                        subtext = uiState.privacy,
+                        action = {
+                            navigateToDetail(
+                                SettingDetail(
+                                    title = "Privacy",
+                                    options = listOf("Public", "Followers Only", "Private"),
+                                    type = SettingsType.PRIVACY
+                                )
+                            )
+                        }
                     )
-                )
+                    SettingsEntry(
+                        entry = "Log out"
+                    )
+                }
             }
-        )
-        SettingsEntry(
-            entry = "Log out"
-        )
+        }
     }
 }
 
@@ -265,9 +279,8 @@ fun SettingsScreenPreview(){
         Surface(modifier = Modifier.fillMaxSize()) {
             SettingsScreen(
                 onBackClick = {},
+                uiState = SettingUiState.Success("Imperial","Private"),
                 navigateToDetail = {_ -> },
-                privacy = "Private",
-                units = "Imperial",
             )
         }
     }

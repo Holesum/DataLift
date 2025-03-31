@@ -21,6 +21,40 @@ class userRepo {
             }
     }
 
+    fun getUnitType(uid: String, callback: (String) -> Unit) {
+        db.collection("Users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val user = Muser.fromDocument(snapshot)
+                if(user.imperial){
+                    callback("Imperial")
+                } else {
+                    callback("Metric")
+                }
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error updating privacy: ${it.message}")
+                callback("Imperial")
+            }
+    }
+
+    fun getPrivacy(uid: String, callback: (String) -> Unit) {
+        db.collection("Users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val user = Muser.fromDocument(snapshot)
+                if(user.privacy){
+                    callback("Private")
+                } else {
+                    callback("Public")
+                }
+            }.addOnFailureListener {
+                Log.d("Firebase", "Error updating privacy: ${it.message}")
+                callback("Private")
+            }
+    }
+
     fun changePrivacy(uid: String, privacy: Boolean) {
         db.collection("Users")
             .document(uid)

@@ -233,9 +233,7 @@ fun NavGraphBuilder.settingsSection(
                 navController.getBackStackEntry(route = SettingsBaseRoute)
             }
 
-
             val settingsViewModel: SettingsViewModel = hiltViewModel(parentEntry)
-
 
             SettingsScreen(
                 settingsViewModel = settingsViewModel,
@@ -253,13 +251,13 @@ fun NavGraphBuilder.settingsSection(
 
             val settingsViewModel: SettingsViewModel = hiltViewModel(parentEntry)
 
-            val uiState = settingsViewModel.settingsUiState.collectAsStateWithLifecycle().value
-
+            val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
 
             SettingsDialogScreen(
                 navUp = navController::navigateUp,
                 setting = settingDetail,
-                choice = settingsViewModel.getCurrentChoice(settingDetail.type,uiState),
+                uiState = uiState,
+                getChoice = settingsViewModel.getCurrentChoiceUiState,
                 updateChoice = settingsViewModel.updateFunction(settingDetail.type),
             )
         }
