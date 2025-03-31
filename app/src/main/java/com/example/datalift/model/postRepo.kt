@@ -10,8 +10,6 @@ class postRepo {
 
     private val posts : MutableList<Mpost> = emptyList<Mpost>().toMutableList()
 
-
-
         fun getPosts(uid: String, callback: (List<Mpost>) -> Unit) {
             userRepo.getFollowing(uid) {
                 val followingList = it
@@ -27,12 +25,11 @@ class postRepo {
                                     posts.add(post)
                                 }
                             }
-
                         }.addOnFailureListener { e ->
                             Log.w("Firebase", "Error getting posts for user $user", e)
                         }
-
                 }
+                posts.sortByDescending { it.date }
                 callback(posts)
 
             }
