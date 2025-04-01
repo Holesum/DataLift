@@ -193,7 +193,7 @@ internal fun AnalysisScreen(
             }
             item {
                 Text(
-                    text = "You're recommended workout is: $apiResponse"
+                    text = "Your recommended workout is: $apiResponse"
                 )
             }
         }

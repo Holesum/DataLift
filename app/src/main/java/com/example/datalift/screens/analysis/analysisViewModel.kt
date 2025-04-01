@@ -112,7 +112,26 @@ class analysisViewModel @Inject constructor(
                 Log.d("Volley", "Response: $response.")
                 val output = response.optJSONObject("output")
                 if (output != null) {
-                    _apiResponseName.value = output.optString("title")
+                    val rec1 = output.optJSONObject("1")
+                    val rec2 = output.optJSONObject("2")
+                    val rec3 = output.optJSONObject("3")
+                    val rec4 = output.optJSONObject("4")
+                    val rec5 = output.optJSONObject("5")
+                    if(
+                        rec1 != null &&
+                        rec2 != null &&
+                        rec3 != null &&
+                        rec4 != null &&
+                        rec5 != null
+                    ){
+                        val rec1_str = rec1.optString("title")
+                        val rec2_str = rec2.optString("title")
+                        val rec3_str = rec3.optString("title")
+                        val rec4_str = rec4.optString("title")
+                        val rec5_str = rec5.optString("title")
+                        _apiResponseName.value = rec1_str + ", " + rec2_str + ", " + rec3_str + ", " + rec4_str + ", " + rec5_str
+                    }
+                    //Log.d("Volley", "Title: $_apiResponseName")
                 }
                 _apiResponseInput.value = response.optString("input")
                 // Handle the response
