@@ -216,4 +216,34 @@ class userRepo {
             }
     }
 
+    fun userLiveSearch(query: String = "", callback: (List<Muser>) -> Unit){
+        if (query.isBlank()) {
+            // If the query is empty or just whitespace, don't make a Firebase call
+            callback(emptyList())
+            return
+        }
+
+        val userList = mutableListOf<Muser>()
+
+        db.collection("Users")
+            .whereGreaterThanOrEqualTo("uname", query)
+            .whereLessThanOrEqualTo("uname", query + "\uf8ff")
+            .limit(10)
+            .addSnapshotListener { snapShot, exception ->
+                if (exception != null) {
+                    // Handle the error (e.g., log or show a message to the user)
+                    Log.e("FirestoreError", "Error fetching exercises", exception)
+                    callback(emptyList()) // Return an empty list if there's an error
+                    return@addSnapshotListener
+                }
+                snapShot?.documents?.forEach { document ->
+                    val user = Muser.fromDocument(document)
+                    userList.add(user)
+                }
+
+                // Return the fetched exercises to the callback
+                callback(userList)
+            }
+    }
+
 }
