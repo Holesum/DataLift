@@ -270,28 +270,6 @@ fun WorkoutDialog(
     }
 }
 
-
-@Composable
-fun WorkoutItem(
-    workout: Mworkout,
-    removeWorkout: () -> Unit,
-){
-    Row {
-        Text(
-            text = workout.name,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = { removeWorkout() }) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
-        }
-    }
-    Column(modifier = Modifier.border(1.dp, Color.Black), horizontalAlignment = Alignment.CenterHorizontally) {
-        workout.exercises.forEach { exercise ->
-            Text(text = exercise.getFormattedName())
-        }
-    }
-}
-
 @Composable
 fun WorkoutItemCard(
     workout: Mworkout,
