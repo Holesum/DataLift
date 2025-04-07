@@ -2,12 +2,9 @@ package com.example.datalift.model
 
 import android.util.Log
 import com.example.datalift.data.repository.PostRepository
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import com.google.firebase.ktx.Firebase
 import javax.inject.Inject
 
 class PostRepo @Inject constructor(

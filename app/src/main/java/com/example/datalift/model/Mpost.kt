@@ -1,6 +1,5 @@
 package com.example.datalift.model
 
-import android.graphics.Picture
 import com.google.firebase.Timestamp
 import java.util.Date
 
@@ -23,7 +22,7 @@ data class Mpost(
     }
 }
 
-fun testPost() : Mpost?{
+fun testPost() : Mpost{
     return Mpost(
         docID = "1",
         //date = ,

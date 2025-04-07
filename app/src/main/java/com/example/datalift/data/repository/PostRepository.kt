@@ -1,7 +1,6 @@
 package com.example.datalift.data.repository
 
 import com.example.datalift.model.Mpost
-import kotlinx.coroutines.flow.StateFlow
 
 interface PostRepository {
     fun getPost(uid: String, id: String, callback: (Mpost?) -> Unit)

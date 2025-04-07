@@ -9,8 +9,6 @@ import com.example.datalift.data.repository.WorkoutRepository
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mworkout
-import com.example.datalift.model.WorkoutRepo
-import com.example.datalift.model.PostRepo
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Muser
 import com.example.datalift.model.Mpost
@@ -21,7 +19,6 @@ import com.example.datalift.model.userRepo
 //Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
