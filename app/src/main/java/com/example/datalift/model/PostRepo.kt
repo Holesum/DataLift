@@ -32,32 +32,30 @@ class PostRepo @Inject constructor(
         }
 
     override fun getPosts(uid: String, callback: (List<Mpost>) -> Unit) {
-            userRepo.getFollowing(uid) {
-                val followingList = it
-                for (user in followingList) {
-                    db.collection("Users")
-                        .document(user)
-                        .collection("Posts")
-                        .get()
-                        .addOnSuccessListener { snapShot ->
-                            posts.clear()
-                            for (document in snapShot.documents) {
-                                val post = document.toObject(Mpost::class.java)
-                                if (post != null) {
-                                    posts.add(post)
-                                }
-                            }
-                            callback(posts)
-                            Log.d("Firebase","Finished retrieving ${posts.size} posts")
-                        }.addOnFailureListener { e ->
-                            Log.w("Firebase", "Error getting posts for user $user", e)
-                        }
-                }
-                posts.sortByDescending { it.date }
-                callback(posts)
+        userRepo.getFollowing(uid) {
 
+            val followingList = it
+            val posts = mutableListOf<Mpost>()
+            for (user in followingList) {
+                db.collection("Users")
+                    .document(user)
+                    .collection("Posts")
+                    .get()
+                    .addOnSuccessListener { snapShot ->
+                        for (document in snapShot.documents) {
+                            val post = document.toObject(Mpost::class.java)
+                            if (post != null) {
+                                posts.add(post)
+                            }
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.w("Firebase", "Error getting posts for user $user", e)
+                    }
             }
+            posts.sortByDescending { it.date }
+            callback(posts)
         }
+    }
 
     override fun addPost(uid: String, post: Mpost) {
         db.collection("Users")
