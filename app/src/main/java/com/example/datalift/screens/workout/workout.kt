@@ -4,7 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
@@ -65,7 +64,7 @@ fun StatelessSearchExerciseDialog(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onSelectExercise: (Mexercise) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel()
+    workoutViewModel: WorkoutViewModel = hiltViewModel()
 ) {
     val exercises = workoutViewModel.exercises.collectAsState().value
 
@@ -123,7 +122,7 @@ fun StatelessSearchExerciseDialog(
 fun SearchExerciseDialog(
     onDismiss: () -> Unit,
     onSelectExercise: (Mexercise) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
 ) {
     var query by remember { mutableStateOf("") }
     val exercises = workoutViewModel.exercises.collectAsState().value
@@ -192,7 +191,7 @@ fun WorkoutDialog(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onSave: (String, String) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
 ) {
     var workoutName by remember { mutableStateOf("") }
     var selectedMuscleGroup by remember { mutableStateOf("") }
@@ -270,28 +269,6 @@ fun WorkoutDialog(
     }
 }
 
-
-@Composable
-fun WorkoutItem(
-    workout: Mworkout,
-    removeWorkout: () -> Unit,
-){
-    Row {
-        Text(
-            text = workout.name,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = { removeWorkout() }) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
-        }
-    }
-    Column(modifier = Modifier.border(1.dp, Color.Black), horizontalAlignment = Alignment.CenterHorizontally) {
-        workout.exercises.forEach { exercise ->
-            Text(text = exercise.getFormattedName())
-        }
-    }
-}
-
 @Composable
 fun WorkoutItemCard(
     workout: Mworkout,
@@ -360,7 +337,7 @@ fun WorkoutList(
 @Composable
 fun WorkoutListScreen(
     modifier: Modifier = Modifier,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     onWorkoutClick: (String) -> Unit,
     navNext: () -> Unit = {},
 //    navUp: () -> Unit = {}

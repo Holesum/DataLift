@@ -34,7 +34,9 @@ fun DataliftNavHost(
             navController = navController
         )
 
-        feedSection()
+        feedSection(
+            navController = navController
+        )
 
         analysisScreen()
 
