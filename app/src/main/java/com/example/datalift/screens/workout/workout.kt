@@ -48,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
@@ -65,7 +66,7 @@ fun StatelessSearchExerciseDialog(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onSelectExercise: (Mexercise) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel()
+    workoutViewModel: WorkoutViewModel = hiltViewModel()
 ) {
     val exercises = workoutViewModel.exercises.collectAsState().value
 
@@ -123,7 +124,7 @@ fun StatelessSearchExerciseDialog(
 fun SearchExerciseDialog(
     onDismiss: () -> Unit,
     onSelectExercise: (Mexercise) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
 ) {
     var query by remember { mutableStateOf("") }
     val exercises = workoutViewModel.exercises.collectAsState().value
@@ -192,7 +193,7 @@ fun WorkoutDialog(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onSave: (String, String) -> Unit,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
 ) {
     var workoutName by remember { mutableStateOf("") }
     var selectedMuscleGroup by remember { mutableStateOf("") }
@@ -360,7 +361,7 @@ fun WorkoutList(
 @Composable
 fun WorkoutListScreen(
     modifier: Modifier = Modifier,
-    workoutViewModel: WorkoutViewModel = viewModel(),
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     onWorkoutClick: (String) -> Unit,
     navNext: () -> Unit = {},
 //    navUp: () -> Unit = {}

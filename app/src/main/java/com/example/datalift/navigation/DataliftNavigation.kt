@@ -158,7 +158,7 @@ fun NavGraphBuilder.workoutGraph(
             }
 
 
-            val workoutViewModel: WorkoutViewModel = viewModel(parentEntry)
+            val workoutViewModel: WorkoutViewModel = hiltViewModel(parentEntry)
 
 
             WorkoutListScreen(
@@ -175,7 +175,7 @@ fun NavGraphBuilder.workoutGraph(
             }
             val workoutDetail: WorkoutDetail = backStackEntry.toRoute()
 
-            val workoutViewModel: WorkoutViewModel = viewModel(parentEntry)
+            val workoutViewModel: WorkoutViewModel = hiltViewModel(parentEntry)
             workoutViewModel.getWorkout(workoutDetail.id)
             val workout = workoutViewModel.workout.collectAsStateWithLifecycle().value
             WorkoutScreen(
@@ -192,7 +192,7 @@ fun NavGraphBuilder.workoutGraph(
             }
 
 
-            val workoutViewModel: WorkoutViewModel = viewModel(parentEntry)
+            val workoutViewModel: WorkoutViewModel = hiltViewModel(parentEntry)
             WorkoutDetailsScreen(
                 workoutViewModel = workoutViewModel,
                 navUp = { navController.navigateUp() },
