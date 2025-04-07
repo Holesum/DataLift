@@ -205,4 +205,23 @@ class WorkoutViewModel @Inject constructor(
             _loading.value = false
         }
     }
+
+    /**
+     * function to remove a set from a workout
+     * @param exercise: exercise to remove set from
+     * @param set: set to remove
+     */
+    fun removeSet(exercise: Mexercise, setToRemove: Mset) {
+        val updatedExercise = exercise.copy(
+            sets = exercise.sets.filter { it != setToRemove }
+        )
+
+        // Find the exercise in the workout and update it
+        _workout.value?.let {
+            val updatedExercises = it.exercises.map { currentExercise ->
+                if (currentExercise == exercise) updatedExercise else currentExercise
+            }
+            _workout.value = it.copy(exercises = updatedExercises)
+        }
+    }
 }

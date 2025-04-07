@@ -25,6 +25,7 @@ import com.example.datalift.screens.signUp.NameScreen
 import com.example.datalift.screens.signUp.PersonalInformationScreen
 import com.example.datalift.screens.signUp.SignUpViewModel
 import com.example.datalift.screens.workout.WorkoutDetailsScreen
+import com.example.datalift.screens.workout.WorkoutDetailsEditScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.screens.workout.WorkoutScreen
 import com.example.datalift.screens.workout.WorkoutViewModel
@@ -44,6 +45,7 @@ import kotlinx.serialization.Serializable
 @Serializable object AnalysisRoute
 
 @Serializable data class WorkoutDetail(val id: String)
+@Serializable data class WorkoutDetailEdit(val id: String)
 @Serializable data class SettingDetail(
     val title: String,
     val options: List<String>,
@@ -145,6 +147,10 @@ fun NavController.navigateToWorkoutDetail(id: String){
     navigate(route = WorkoutDetail(id))
 }
 
+fun NavController.navigateToWorkoutDetailEdit(id: String){
+    navigate(route = WorkoutDetailEdit(id))
+}
+
 fun NavGraphBuilder.workoutGraph(
     navController: NavController
 ) {
@@ -164,6 +170,7 @@ fun NavGraphBuilder.workoutGraph(
             WorkoutListScreen(
                 workoutViewModel = workoutViewModel,
                 onWorkoutClick = navController::navigateToWorkoutDetail,
+                onWorkoutEditClick = navController::navigateToWorkoutDetailEdit,
 //                navUp = { navController.navigateUp() },
                 navNext = { navController.navigate(Screens.WorkoutDetails.name) }
             )
@@ -196,8 +203,28 @@ fun NavGraphBuilder.workoutGraph(
             WorkoutDetailsScreen(
                 workoutViewModel = workoutViewModel,
                 navUp = { navController.navigateUp() },
-                        navNext = { navController.navigate(route = WorkoutListRoute) },
+                navNext = { navController.navigate(route = WorkoutListRoute) },
+
             )
+        }
+
+        composable<WorkoutDetailEdit> { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = WorkoutBaseRoute)
+            }
+            val workoutDetailEdit: WorkoutDetailEdit = backStackEntry.toRoute()
+
+            val workoutViewModel: WorkoutViewModel = hiltViewModel(parentEntry)
+            workoutViewModel.getWorkout(workoutDetailEdit.id)
+            val workout = workoutViewModel.workout.collectAsStateWithLifecycle().value
+            WorkoutDetailsEditScreen(
+                workoutViewModel = workoutViewModel,
+                workout = workout,
+                navUp = { navController.navigateUp() },
+                navNext = { navController.navigate(route = WorkoutListRoute) },
+                removeSet = workoutViewModel::removeSet
+
+                )
         }
     }
 }

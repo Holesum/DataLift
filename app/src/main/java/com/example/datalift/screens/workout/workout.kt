@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -273,6 +274,7 @@ fun WorkoutDialog(
 fun WorkoutItemCard(
     workout: Mworkout,
     onWorkoutClick: (String) -> Unit,
+    onWorkoutEditClick: (String) -> Unit,
     removeWorkout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -288,6 +290,15 @@ fun WorkoutItemCard(
                         .padding(start = 8.dp)
                         .align(Alignment.CenterVertically)
                 )
+                IconButton(
+                    onClick = { onWorkoutEditClick(workout.docID) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit, // Pencil icon
+                        contentDescription = "Edit Exercise"
+                    )
+                }
+
                 IconButton(onClick = { removeWorkout() }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
                 }
@@ -307,6 +318,7 @@ fun WorkoutItemCardPreview(){
                     exercises = testExerciseList()
                 ),
                 onWorkoutClick = {},
+                onWorkoutEditClick = {},
                 removeWorkout = {},
             )
         }
@@ -317,6 +329,7 @@ fun WorkoutItemCardPreview(){
 fun WorkoutList(
     list: List<Mworkout>,
     onWorkoutClick: (String) -> Unit,
+    onWorkoutEditClick: (String) -> Unit,
     removeWorkout: (Mworkout) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -327,6 +340,7 @@ fun WorkoutList(
             WorkoutItemCard(
                 workout = workout,
                 onWorkoutClick = onWorkoutClick,
+                onWorkoutEditClick = onWorkoutEditClick,
                 removeWorkout = { removeWorkout(workout) }
             )
         }
@@ -339,6 +353,7 @@ fun WorkoutListScreen(
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel = hiltViewModel(),
     onWorkoutClick: (String) -> Unit,
+    onWorkoutEditClick: (String) -> Unit,
     navNext: () -> Unit = {},
 //    navUp: () -> Unit = {}
 
@@ -350,6 +365,7 @@ fun WorkoutListScreen(
         WorkoutList(
             list = workoutViewModel.workouts.collectAsState().value,
             onWorkoutClick = onWorkoutClick,
+            onWorkoutEditClick = onWorkoutEditClick,
             removeWorkout = { workout -> workoutViewModel.deleteWorkout(workout) },
             modifier = modifier.fillMaxSize()
         )
@@ -432,30 +448,6 @@ fun ExerciseCard(
     }
 }
 
-@Preview
-@Composable
-fun ExerciseCardPreview(){
-    DataliftTheme {
-        Surface {
-            ExerciseCard(
-                exercise =  Mexercise(
-                    id = "1",
-                    name = "Lift McDonald's",
-                    sets = listOf(
-                        Mset(
-                            rep = 5,
-                            weight = 30.0
-                        ),
-                        Mset(
-                            rep = 8,
-                            weight = 30.0
-                        )
-                    )
-                )
-            )
-        }
-    }
-}
 
 @Composable
 fun WorkoutScreen(
@@ -489,24 +481,6 @@ fun WorkoutScreen(
 
 }
 
-@Preview
-@Composable
-fun WorkoutScreenPreview(){
-    DataliftTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            WorkoutScreen(
-                workout = Mworkout(
-                    name = "Test Workout",
-                    exercises = testExerciseList()
-                ),
-                navUp = {}
-            )
-        }
-    }
-}
-
-
-
 
 fun testExerciseList() : List<Mexercise> {
     return listOf(
@@ -537,18 +511,111 @@ fun testExerciseList() : List<Mexercise> {
     )
 }
 
-/*
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun WorkoutPreview(){
+fun StatelessSearchExerciseDialogPreview() {
     DataliftTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ){ innerPadding ->
-            WorkoutListScreen(
-                modifier = Modifier.padding(innerPadding)
+        Surface {
+            StatelessSearchExerciseDialog(
+                query = "Push-up",
+                changeQuery = {},
+                isVisible = true,
+                onDismiss = {},
+                onSelectExercise = {}
             )
         }
-
     }
-}*/
+}
+
+@Preview
+@Composable
+fun SearchExerciseDialogPreview() {
+    DataliftTheme {
+        Surface {
+            SearchExerciseDialog(
+                onDismiss = {},
+                onSelectExercise = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WorkoutDialogPreview() {
+    DataliftTheme {
+        Surface {
+            WorkoutDialog(
+                isVisible = true,
+                onDismiss = {},
+                onSave = { _, _ -> }
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun WorkoutListPreview() {
+    DataliftTheme {
+        Surface {
+            WorkoutList(
+                list = listOf(
+                    Mworkout(
+                        name = "Test Workout 1",
+                        exercises = testExerciseList()
+                    ),
+                    Mworkout(
+                        name = "Test Workout 2",
+                        exercises = testExerciseList()
+                    )
+                ),
+                onWorkoutClick = {},
+                onWorkoutEditClick = {},
+                removeWorkout = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WorkoutScreenPreview() {
+    DataliftTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            WorkoutScreen(
+                workout = Mworkout(
+                    name = "Test Workout",
+                    exercises = testExerciseList()
+                ),
+                navUp = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ExerciseCardPreview() {
+    DataliftTheme {
+        Surface {
+            ExerciseCard(
+                exercise = Mexercise(
+                    id = "1",
+                    name = "Lift McDonald's",
+                    sets = listOf(
+                        Mset(
+                            rep = 5,
+                            weight = 30.0
+                        ),
+                        Mset(
+                            rep = 8,
+                            weight = 30.0
+                        )
+                    )
+                )
+            )
+        }
+    }
+}
