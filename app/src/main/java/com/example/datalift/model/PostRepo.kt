@@ -43,12 +43,15 @@ class PostRepo @Inject constructor(
                         .collection("Posts")
                         .get()
                         .addOnSuccessListener { snapShot ->
+                            posts.clear()
                             for (document in snapShot.documents) {
                                 val post = document.toObject(Mpost::class.java)
                                 if (post != null) {
                                     posts.add(post)
                                 }
                             }
+                            callback(posts)
+                            Log.d("Firebase","Finished retrieving ${posts.size} posts")
                         }.addOnFailureListener { e ->
                             Log.w("Firebase", "Error getting posts for user $user", e)
                         }
