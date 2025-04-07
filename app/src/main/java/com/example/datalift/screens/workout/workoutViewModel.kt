@@ -1,50 +1,44 @@
 package com.example.datalift.screens.workout
 
 import android.util.Log
-import androidx.compose.runtime.toMutableStateList
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.datalift.data.repository.PostRepository
+import com.example.datalift.data.repository.WorkoutRepository
 
 //data models
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mworkout
-import com.example.datalift.model.workoutRepo
-import com.example.datalift.model.postRepo
-import com.example.datalift.model.Mchallenge
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Muser
 import com.example.datalift.model.Mpost
 
 //testing imports remove when done
-import com.example.datalift.model.challengeRepo
 import com.example.datalift.model.userRepo
 
 //Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.Timestamp
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 //Compose
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
 
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
+@HiltViewModel
+class WorkoutViewModel @Inject constructor(
+    private val userRepo: userRepo,
+    private val postRepo: PostRepository,
+    private val workoutRepo: WorkoutRepository
+) : ViewModel() {
 
-class WorkoutViewModel : ViewModel() {
-
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
-    private val workoutRepo = workoutRepo()
-    private val postRepo = postRepo()
-    private val userRepo = userRepo()
 
 //    //testing repos remove when done
 //    private val challengeRepo = challengeRepo()

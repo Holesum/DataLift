@@ -1,19 +1,22 @@
 package com.example.datalift.model
 
 import android.util.Log
+import com.example.datalift.data.repository.PostRepository
+import com.example.datalift.data.repository.WorkoutRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import javax.inject.Inject
 
 
-class workoutRepo {
+class WorkoutRepo @Inject constructor(
+    private val postRepo: PostRepository
+) : WorkoutRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val postRepo = postRepo()
-
 
     /**
      * Function to get all workouts of user
      */
-    fun getWorkouts(uid: String, callback: (List<Mworkout>) -> Unit) {
+    override fun getWorkouts(uid: String, callback: (List<Mworkout>) -> Unit) {
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -38,7 +41,7 @@ class workoutRepo {
     /**
      * Function to get workout details from database with ID
      */
-    fun getWorkout(uid: String, id: String, callback: (Mworkout?) -> Unit){
+    override fun getWorkout(uid: String, id: String, callback: (Mworkout?) -> Unit){
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -57,7 +60,7 @@ class workoutRepo {
     /**
      * Function to create a new workout object
      */
-    fun createNewWorkout(workout: Mworkout, uid: String, callback: (Mworkout?) -> Unit) {
+    override fun createNewWorkout(workout: Mworkout, uid: String, callback: (Mworkout?) -> Unit) {
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -87,7 +90,7 @@ class workoutRepo {
     /**
      * Function to edit an existing workout
      */
-    fun editWorkout(workout: Mworkout, uid: String) {
+    override fun editWorkout(workout: Mworkout, uid: String) {
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -103,7 +106,7 @@ class workoutRepo {
     /**
      * Function to delete an existing workout
      */
-    fun deleteWorkout(workout: Mworkout, uid: String){
+    override fun deleteWorkout(workout: Mworkout, uid: String){
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -116,7 +119,7 @@ class workoutRepo {
             }
     }
 
-    fun getExercises(query: String = "", callback: (List<ExerciseItem>) -> Unit){
+    override fun getExercises(query: String, callback: (List<ExerciseItem>) -> Unit){
         if (query.isBlank()) {
             // If the query is empty or just whitespace, don't make a Firebase call
             callback(emptyList())
@@ -145,9 +148,4 @@ class workoutRepo {
                 callback(exerciseList)
             }
     }
-
-
-
-
-
 }

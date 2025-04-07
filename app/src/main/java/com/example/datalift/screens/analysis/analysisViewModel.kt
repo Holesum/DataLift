@@ -7,11 +7,11 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.datalift.data.repository.WorkoutRepository
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Manalysis
 import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.analysisRepo
-import com.example.datalift.model.workoutRepo
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,11 +36,11 @@ import javax.inject.Inject
 @HiltViewModel
 class analysisViewModel @Inject constructor(
 //    private val analysisRepo: analysisRepo,
+    private val workoutRepo: WorkoutRepository
 ) : ViewModel()  {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
     private val analysisRepo = analysisRepo()
-    private val workoutRepo = workoutRepo()
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
