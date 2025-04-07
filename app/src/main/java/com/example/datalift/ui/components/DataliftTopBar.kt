@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.datalift.R
 import com.example.datalift.ui.theme.DataliftTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,12 +23,20 @@ fun DataliftTopBar(
     title: String,
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onFriendsClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
             Text(title)
         },
         actions = {
+            IconButton(onClick = onFriendsClick) {
+                Icon(
+                    painter = painterResource(R.drawable.group),
+                    contentDescription = null
+                )
+            }
+
             IconButton(onClick = onProfileClick) {
                 Icon(
                     imageVector = Icons.Default.Person,
