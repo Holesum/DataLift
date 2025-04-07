@@ -13,6 +13,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
+import com.example.datalift.screens.feed.FeedViewModel
+import com.example.datalift.screens.feed.PostScreen
 import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.settings.SettingsDialogScreen
 import com.example.datalift.screens.settings.SettingsScreen
@@ -46,6 +48,9 @@ import kotlinx.serialization.Serializable
     val title: String,
     val options: List<String>,
     val type: SettingsType
+)
+@Serializable data class PostDetail(
+    val postId: String
 )
 
 
@@ -199,15 +204,46 @@ fun NavGraphBuilder.workoutGraph(
 
 fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(route = FeedRoute, navOptions)
 
-fun NavGraphBuilder.feedSection(){
+fun NavController.navigateToPost(id: String){
+    navigate(route = PostDetail(id))
+}
+
 fun NavGraphBuilder.feedSection(
     navController: NavController
 ){
     navigation<FeedBaseRoute>(startDestination = FeedRoute){
-        composable<FeedRoute>(){
-            FeedScreen()
+        composable<FeedRoute> { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = FeedBaseRoute)
+            }
+
+            val feedViewModel: FeedViewModel = hiltViewModel(parentEntry)
+
+            FeedScreen(
+                feedViewModel = feedViewModel,
+                navigateToPost = navController::navigateToPost
+            )
+        }
+
+        composable<PostDetail> {  backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(route = FeedBaseRoute)
+            }
+
+            val postDetail: PostDetail = backStackEntry.toRoute()
+            val feedViewModel: FeedViewModel = hiltViewModel(parentEntry)
+
+            feedViewModel.updateCurrentViewedPost(postDetail.postId)
+            val currentPost = feedViewModel.currentPost.collectAsStateWithLifecycle().value
+            PostScreen(
+                navUp = { navController.navigateUp() },
+                post = currentPost,
+            )
+
         }
     }
+
+
 }
 
 fun NavController.navigateToAnalysis(navOptions: NavOptions) =
