@@ -200,6 +200,9 @@ fun NavGraphBuilder.workoutGraph(
 fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(route = FeedRoute, navOptions)
 
 fun NavGraphBuilder.feedSection(){
+fun NavGraphBuilder.feedSection(
+    navController: NavController
+){
     navigation<FeedBaseRoute>(startDestination = FeedRoute){
         composable<FeedRoute>(){
             FeedScreen()
