@@ -34,7 +34,6 @@ import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 import java.util.Locale
-import kotlin.reflect.KFunction2
 
 @Composable
 fun PostScreen(
@@ -150,7 +149,7 @@ fun PostDescription(
 
 @Composable
 fun PostCard(
-    navigateToPost: KFunction2<String, String, Unit>,
+    navigateToPost: (String, String) -> Unit,
     post: Mpost,
     modifier: Modifier = Modifier,
 ){
@@ -223,7 +222,7 @@ fun TimeDisplay(timestamp: Timestamp){
 @Composable
 fun FeedScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
-    navigateToPost: KFunction2<String, String, Unit>,
+    navigateToPost: (String, String) -> Unit,
 ){
     feedViewModel.getPosts()
     val posts = feedViewModel.posts.collectAsStateWithLifecycle().value
@@ -237,7 +236,7 @@ fun FeedScreen(
 @Composable
 internal fun FeedScreen(
     posts: List<Mpost>,
-    navigateToPost: KFunction2<String, String, Unit>,
+    navigateToPost: (String, String) -> Unit,
 ){
 //    Text("Feed Screen placeholder")
     LazyColumn(
@@ -254,21 +253,21 @@ internal fun FeedScreen(
     }
 }
 
-//@DevicePreviews
-//@Composable
-//fun FeedPreview(){
-//    DataliftTheme {
-//        Surface(modifier = Modifier.fillMaxSize()) {
-////            val tPost = testPost()
-////            PostCard(post = tPost)
-//            val testPosts = testPostList()
-//            FeedScreen(
-//                posts = testPosts,
-//                navigateToPost = {_,_ ->}
-//            )
-//        }
-//    }
-//}
+@DevicePreviews
+@Composable
+fun FeedPreview(){
+    DataliftTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+//            val tPost = testPost()
+//            PostCard(post = tPost)
+            val testPosts = testPostList()
+            FeedScreen(
+                posts = testPosts,
+                navigateToPost = {_,_ ->}
+            )
+        }
+    }
+}
 
 @DevicePreviews
 @Composable
