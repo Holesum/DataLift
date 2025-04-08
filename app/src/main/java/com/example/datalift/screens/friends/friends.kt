@@ -27,9 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.datalift.model.Muser
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 @Composable
 fun FriendsScreen(
