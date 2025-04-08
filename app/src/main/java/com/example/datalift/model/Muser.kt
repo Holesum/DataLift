@@ -2,7 +2,6 @@ package com.example.datalift.model
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
-import java.time.LocalDate
 
 data class Muser(
     val uid: String = "",
