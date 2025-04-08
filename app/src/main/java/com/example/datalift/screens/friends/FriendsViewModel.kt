@@ -58,19 +58,20 @@ class FriendsViewModel @Inject constructor(
     }
 
     fun currentlyFollowingUser(user: Muser) : Boolean{
-        var currentUser: Muser? = null
+//        var currentUser: Muser? = null
 
-        userRepo.getUser(uid){ myUserObject ->
-            currentUser = myUserObject
-        }
+//        userRepo.getUser(uid){ myUserObject ->
+//            currentUser = myUserObject
+//        }
 
         var ret = false
 
-        currentUser?.let {
-            ret = user.following.contains(currentUser)
-        }
 
-        return ret
+//        currentUser?.let {
+//            ret = user.following.contains(currentUser)
+//        }
+
+        return user.followers.contains(uid)
     }
 
     fun getUsers(query: String): MutableStateFlow<List<Muser>>{
