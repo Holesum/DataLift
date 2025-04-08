@@ -40,7 +40,7 @@ class FeedViewModel @Inject constructor(
         postRepo.removeLike(uid, post)
     }
 
-    fun updateCurrentViewedPost(postID: String){
+    fun updateCurrentViewedPost(postID: String, uid: String){
         postRepo.getPost(uid,postID) { post ->
             _currentPost.value = post
         }

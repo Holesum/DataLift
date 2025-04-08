@@ -1,7 +1,9 @@
 package com.example.datalift.model
 
 import android.util.Log
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 
 class userRepo {
@@ -115,6 +117,19 @@ class userRepo {
                 Log.d("Firebase", "Error adding follower: ${it.message}")
 
             }
+
+        db.collection("Users")
+            .document(friend.uid)
+            .update("followers", FieldValue.arrayUnion(user.uid))
+            .addOnSuccessListener {
+                Log.d("Firebase", "Follower field added")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error adding field follower: ${it.message}")
+
+            }
+
+
         db.collection("Users")
             .document(user.uid)
             .collection("Following")
@@ -125,6 +140,16 @@ class userRepo {
             }
             .addOnFailureListener {
                 Log.d("Firebase", "Error adding following: ${it.message}")
+            }
+
+        db.collection("Users")
+            .document(user.uid)
+            .update("following", FieldValue.arrayUnion(friend.uid))
+            .addOnSuccessListener {
+                Log.d("Firebase", "Following field added")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error adding field following: ${it.message}")
             }
     }
 
@@ -141,6 +166,17 @@ class userRepo {
             }
 
         db.collection("Users")
+            .document(friend.uid)
+            .update("followers", FieldValue.arrayRemove(user.uid))
+            .addOnSuccessListener {
+                Log.d("Firebase", "Follower field removed")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error removing field follower: ${it.message}")
+
+            }
+
+        db.collection("Users")
             .document(user.uid)
             .collection("Following")
             .document(friend.uid)
@@ -149,6 +185,16 @@ class userRepo {
                 Log.d("Firebase", "Following removed")
             }.addOnFailureListener {
                 Log.d("Firebase", "Error removing following: ${it.message}")
+            }
+
+        db.collection("Users")
+            .document(user.uid)
+            .update("following", FieldValue.arrayRemove(friend.uid))
+            .addOnSuccessListener {
+                Log.d("Firebase", "Following field removed")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error removing field following: ${it.message}")
             }
 
     }
@@ -207,8 +253,10 @@ class userRepo {
                     return@addSnapshotListener
                 }
                 snapShot?.documents?.forEach { document ->
-                    val user = Muser.fromDocument(document)
-                    userList.add(user)
+                    val user = document.toObject<Muser>()
+                    user?.let {
+                        userList.add(user)
+                    }
                 }
 
                 // Return the fetched exercises to the callback
