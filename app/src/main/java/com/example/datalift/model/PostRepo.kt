@@ -48,12 +48,14 @@ class PostRepo @Inject constructor(
                                 posts.add(post)
                             }
                         }
+                        posts.sortByDescending{ it.date }
+                        callback(posts)
                     }.addOnFailureListener { e ->
                         Log.w("Firebase", "Error getting posts for user $user", e)
                     }
             }
-            posts.sortByDescending { it.date }
-            callback(posts)
+
+            //callback(posts)
         }
     }
 

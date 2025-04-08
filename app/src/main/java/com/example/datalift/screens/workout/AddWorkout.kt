@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datalift.R
@@ -45,6 +49,7 @@ import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
+import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.example.datalift.ui.theme.DataliftTheme
 
 
@@ -56,6 +61,7 @@ fun WorkoutDetailsScreen(
     navNext: () -> Unit = {}
 ) {
     var workout: Mworkout = Mworkout()
+    var isAddPostVisible by remember { mutableStateOf(false) }
     var isExerciseDialogVisible by remember { mutableStateOf(false) }
     var isAddSetVisible by remember { mutableStateOf(false) }
     var selectedExercise by remember { mutableStateOf<Mexercise?>(null) }
@@ -66,13 +72,30 @@ fun WorkoutDetailsScreen(
         workout = workoutViewModel.workout.collectAsState().value!!
     }
 
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(1F),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!isAddSetVisible) {
+        Row(modifier = modifier.fillMaxWidth()) {
+            IconButton(onClick = navUp) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+            Text(
+                text = "Workouts",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterVertically)
+                    .padding(start = 16.dp)
+            )
+        }
+        HorizontalDivider(thickness = 2.dp)
+        if (!isAddSetVisible && !isAddPostVisible) {
             Text(text = "Workout: ${workout.name}", style = MaterialTheme.typography.headlineMedium)
             Text(text = "Date: ${workout.getFormattedDate()}")
             Text(text = "Muscle Group: ${workout.muscleGroup}")
@@ -133,6 +156,17 @@ fun WorkoutDetailsScreen(
 
 
         }
+        if (isAddPostVisible) {
+            addPost(
+                workoutViewModel = workoutViewModel,
+                modifier = Modifier.fillMaxHeight(0.5F),
+                onConfirmPost = {workoutViewModel.createNewWorkout(workout)
+                    isWorkoutAdded = true}
+            )
+            saveWorkout = false
+        } else {
+            saveWorkout = true
+        }
 
         if (isAddSetVisible) {
             AddSetDialog(
@@ -149,7 +183,7 @@ fun WorkoutDetailsScreen(
             saveWorkout = true
         }
 
-        if (!isAddSetVisible) {
+        if (!isAddSetVisible && !isAddPostVisible) {
             Spacer(modifier = Modifier.weight(1F)) // Push the save workout button to the bottom
 
             // Add Exercise button placed here
@@ -163,16 +197,24 @@ fun WorkoutDetailsScreen(
             }
 
             if (saveWorkout) {
-                Button(
-                    onClick = {
-                        workoutViewModel.createNewWorkout(workout)
-                        isWorkoutAdded = true
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = 16.dp) // Optional: Add padding to separate from the bottom edge
-                ) {
-                    Text("Save Workout")
+                Row(Modifier.align(Alignment.CenterHorizontally)) {
+                    Button(
+                        onClick = {
+                            workoutViewModel.createNewWorkout(workout)
+                            isWorkoutAdded = true
+                        },
+                        modifier = Modifier
+                            .padding(bottom = 16.dp) // Optional: Add padding to separate from the bottom edge
+                    ) {
+                        Text("Save Workout")
+                    }
+                    Button(
+                        onClick = {
+                            workoutViewModel.addPost = true;
+                            isAddPostVisible = true
+                        }) {
+                        Text("Add Post")
+                    }
                 }
             }
         }
@@ -204,6 +246,7 @@ fun WorkoutDetailsEditScreen(
     navNext: () -> Unit = {},
     removeSet: (Mexercise, Mset) -> Unit
 ) {
+
     var isExerciseDialogVisible by remember { mutableStateOf(false) }
     var isAddSetVisible by remember { mutableStateOf(false) }
     var selectedExercise by remember { mutableStateOf<Mexercise?>(null) }
@@ -219,6 +262,22 @@ fun WorkoutDetailsEditScreen(
             .fillMaxWidth(1F),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row(modifier = modifier.fillMaxWidth()) {
+            IconButton(onClick = navUp) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+            Text(
+                text = "Workouts",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterVertically)
+                    .padding(start = 16.dp)
+            )
+        }
+        HorizontalDivider(thickness = 2.dp)
         if (!isAddSetVisible) {
             Text(
                 text = "Workout: ${workout.name}",
@@ -290,6 +349,7 @@ fun WorkoutDetailsEditScreen(
 
         }
 
+
         if (isAddSetVisible) {
             AddSetDialog(
                 workoutViewModel = workoutViewModel,
@@ -319,17 +379,17 @@ fun WorkoutDetailsEditScreen(
             }
 
             if (saveWorkout) {
-                Button(
-                    onClick = {
-                        workoutViewModel.editWorkout(workout)
-                        isWorkoutAdded = true
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = 16.dp) // Optional: Add padding to separate from the bottom edge
-                ) {
-                    Text("Save Workout")
-                }
+                    Button(
+                        onClick = {
+                            workoutViewModel.editWorkout(workout)
+                            isWorkoutAdded = true
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(bottom = 16.dp) // Optional: Add padding to separate from the bottom edge
+                    ) {
+                        Text("Save Workout")
+                    }
             }
         }
     }
@@ -359,92 +419,73 @@ fun AddSetDialog(
     onDismiss: () -> Unit,
     onAddSet: (Mset) -> Unit,
     workoutViewModel: WorkoutViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ){
-    var weight by remember { mutableDoubleStateOf(0.0) }
-    var reps by remember { mutableLongStateOf(0) }
     Column(modifier = modifier.fillMaxHeight(1F).fillMaxWidth(1F),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(modifier = Modifier.fillMaxWidth(0.5F)) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null,
-                        )
-                    }
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null
-                        )
-                    }
-                }
-                Row {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.weight_plate),
-                            contentDescription = null
-                        )
-                    }
-                }
-            }
-        }
         Column(modifier = Modifier.fillMaxHeight(1F)) {
-            StatelessDataliftFormTextField(
-                field = "Weight",
-                text = weight.toString(),
-                changeText = { weight = it.toDouble() },
+            StatelessDataliftNumberTextField(
+                field = "Weight (lb)",
+                suffix = "lbs",
+                text = workoutViewModel.weight,
+                changeText =  workoutViewModel.updateWeight ,
+                isError = workoutViewModel.weightInvalid,
+                supportingText = {
+                    if(workoutViewModel.weightInvalid) {
+                        Text("Weight needs to be an un-empty field")
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
             )
-            StatelessDataliftFormTextField(
+
+            StatelessDataliftNumberTextField(
                 field = "Reps",
-                text = reps.toString(),
-                changeText = {
-                    reps = if (it.isNotBlank()) {
-                        it.toLong()
-                    } else {
-                        0
+                suffix = "",
+                text = workoutViewModel.reps,
+                changeText =  workoutViewModel.updateReps ,
+                isError = workoutViewModel.repsInvalid,
+                supportingText = {
+                    if(workoutViewModel.repsInvalid) {
+                        Text("Reps needs to be an un-empty field")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
             )
             Button(
-                onClick = { onAddSet(Mset(reps, weight)) },
+                onClick = { onAddSet(Mset(workoutViewModel.reps.toLong(), workoutViewModel.weight.toDouble()))
+                          workoutViewModel.weight = ""; workoutViewModel.reps = ""},
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Confirm Set")
+            }
+        }
+    }
+}
+
+@Composable
+fun addPost(
+    workoutViewModel: WorkoutViewModel,
+    modifier: Modifier = Modifier,
+    onConfirmPost: () -> Unit
+){
+    Column(modifier = modifier.fillMaxHeight(1F).fillMaxWidth(1F),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier.fillMaxHeight(1F)) {
+            StatelessDataliftFormTextField(
+                field = "Title",
+                text = workoutViewModel.title,
+                changeText =  workoutViewModel.updateTitle,
+                modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
+
+            )
+            StatelessDataliftFormTextField(
+                field = "Body",
+                text = workoutViewModel.body,
+                changeText =  workoutViewModel.updateBody,
+                modifier = Modifier.fillMaxWidth(0.75f).fillMaxHeight(.6f).align(Alignment.CenterHorizontally)
+            )
+            Button(onClick = onConfirmPost) {
+                Text("Add Post and Save Workout")
             }
         }
     }

@@ -1,6 +1,9 @@
 package com.example.datalift.screens.workout
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.datalift.data.repository.PostRepository
 import com.example.datalift.data.repository.WorkoutRepository
@@ -58,6 +61,10 @@ class WorkoutViewModel @Inject constructor(
     private val _workout = MutableStateFlow<Mworkout?>(null)
     val workout: StateFlow<Mworkout?> get() = _workout
 
+    // Single set state
+    private val _set = MutableStateFlow<Mset?>(null)
+    val set: StateFlow<Mset?> get() = _set
+
     // Exercises state
     private val _exercises = MutableStateFlow<List<ExerciseItem>>(emptyList())
     val exercises: StateFlow<List<ExerciseItem>> get() = _exercises
@@ -77,12 +84,62 @@ class WorkoutViewModel @Inject constructor(
 
     private val _users = MutableStateFlow<List<Muser>>(emptyList())
 
+
+
+    private val repRegex = Regex("^[0-9]*$")
+    private val weightRegex = Regex("^[0-9]*[.]?[0-9]?$")
+    var weight by mutableStateOf("")
+    var reps by mutableStateOf("")
+
+    var weightInvalid by mutableStateOf(false)
+    var repsInvalid by mutableStateOf(false)
+
+    var title by mutableStateOf("")
+    var body by mutableStateOf("")
+
+    var titleInvalid by mutableStateOf(false)
+    var bodyInvalid by mutableStateOf(false)
+
+    var addPost by mutableStateOf(false)
+
     /*init {
         if (!_workoutFetched.value) {
             getWorkouts()
             _workoutFetched.value = true
         }
     }*/
+
+    val updateWeight: (String) -> Unit = { newWeight ->
+        if(newWeight.matches(weightRegex)){
+            if(newWeight.isNotEmpty()) {
+                _set.value = _set.value?.copy(weight = newWeight.toDouble())
+            }
+            weight = newWeight
+        }
+    }
+
+    val updateReps: (String) -> Unit = { newReps ->
+        if(newReps.isEmpty() || newReps.matches(repRegex)){
+            if(newReps.isNotEmpty()){
+                _set.value = _set.value?.copy(rep = newReps.toLong())
+            }
+            reps = newReps
+        }
+    }
+
+    val updateBody: (String) -> Unit = { newBody ->
+        if(newBody.isNotEmpty()){
+            body = newBody
+        }
+    }
+
+    val updateTitle: (String) -> Unit = { newTitle ->
+        if(newTitle.isNotEmpty()){
+            title = newTitle
+        }
+    }
+
+
 
     fun addSet(exercise: Mexercise, set: Mset) {
 
@@ -117,6 +174,13 @@ class WorkoutViewModel @Inject constructor(
             _loading.value = false
         }
     }
+
+    /**
+     * Function to remove an exercise from the currently mutable workout
+     *
+     */
+
+
     /**
      * Function to create a new workout object
      *
@@ -127,9 +191,11 @@ class WorkoutViewModel @Inject constructor(
             _loading.value = true
             try{
                 workoutRepo.createNewWorkout(oRM(workout), uid){ workout ->
-                    userRepo.getUser(uid){ user ->
-                        val post = Mpost("",Timestamp.now(),workout,user,"","")
-                        postRepo.addPost(uid, post)
+                    if(addPost) {
+                        userRepo.getUser(uid) { user ->
+                            val post = Mpost("", Timestamp.now(), workout, user, title, body)
+                            postRepo.addPost(uid, post)
+                        }
                     }
                 }
                 _loading.value = false
