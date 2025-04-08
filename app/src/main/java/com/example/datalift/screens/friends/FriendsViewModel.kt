@@ -1,5 +1,6 @@
 package com.example.datalift.screens.friends
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,8 +27,19 @@ class FriendsViewModel @Inject constructor(
     private val userRepo: userRepo
 ) : ViewModel() {
 
-    var auth: FirebaseAuth = Firebase.auth
+    private var auth: FirebaseAuth = Firebase.auth
     val uid: String = auth.currentUser?.uid.toString()
+    private val _currentUser = MutableStateFlow<Muser?>(null)
+    val currentUser: StateFlow<Muser?> = _currentUser
+
+
+    fun getCurrUser() {
+            userRepo.getUser(uid) { user ->
+                _currentUser.value = user
+                Log.d("Firebase", "Current user: ${user?.name}")
+            }
+        }
+
 
     val searchQuery = savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
 
@@ -79,6 +92,27 @@ class FriendsViewModel @Inject constructor(
             _users.value = userList
         }
         return _users
+    }
+
+    fun followUser(user: Muser) {
+        Log.d("Firebase", "Attempting to Following user: ${user.name}")
+        val currentUser = _currentUser.value
+        if(currentUser == null){
+            Log.d("Firebase", "Current user is null")
+            return
+        }
+        Log.d("Firebase", "Current user: ${currentUser.name}")
+        userRepo.addFollower(currentUser, user)
+    }
+
+    fun unfollowUser(user: Muser){
+        val currentUser = _currentUser.value
+        if(currentUser == null){
+            Log.d("Firebase", "Current user is null")
+            return
+        }
+        Log.d("Firebase", "Current user: ${currentUser.name}")
+        userRepo.removeFollower(currentUser, user)
     }
 
 }

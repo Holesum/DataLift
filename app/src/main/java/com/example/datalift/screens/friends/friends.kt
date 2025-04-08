@@ -1,5 +1,6 @@
 package com.example.datalift.screens.friends
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,13 +40,16 @@ fun FriendsScreen(
 ){
     val uiState by friendsViewModel.searchFriendsUiState.collectAsStateWithLifecycle()
     val searchQuery by friendsViewModel.searchQuery.collectAsStateWithLifecycle()
+    friendsViewModel.getCurrUser()
 
     FriendsScreen(
         navUp = navUp,
         uiState = uiState,
         searchQuery = searchQuery,
         onChangeQuery = friendsViewModel::onSearchQueryChange,
-        currentFollowingUser = friendsViewModel::currentlyFollowingUser
+        currentFollowingUser = friendsViewModel::currentlyFollowingUser,
+        follow = friendsViewModel::followUser,
+        unfollow = friendsViewModel::unfollowUser
     )
 }
 
@@ -56,6 +60,8 @@ internal fun FriendsScreen(
     searchQuery: String = "",
     onChangeQuery: (String) -> Unit = {},
     currentFollowingUser: (Muser) -> Boolean = {_ -> false},
+    follow: (Muser) -> Unit = {},
+    unfollow: (Muser) -> Unit = {},
     modifier: Modifier = Modifier
 ){
     Column {
@@ -99,7 +105,9 @@ internal fun FriendsScreen(
                     // Search Result Body
                     FriendsSearchBody(
                         users = uiState.usersSearched,
-                        currentlyFollowingUser = currentFollowingUser
+                        currentlyFollowingUser = currentFollowingUser,
+                        follow =  follow,
+                        unfollow = unfollow
                     )
                 }
             }
@@ -151,13 +159,18 @@ fun EmptyFriendsSearchBody(
 fun FriendsSearchBody(
     users: List<Muser> = emptyList(),
     currentlyFollowingUser: (Muser) -> Boolean,
+    follow: (Muser) -> Unit,
+    unfollow: (Muser) -> Unit
 ){
     LazyColumn {
         items(users){ user ->
             DisplayUser(
                 name = user.name,
                 username = user.uname,
-                isFollowing = currentlyFollowingUser(user)
+                isFollowing = currentlyFollowingUser(user),
+                follow = follow,
+                unfollow = unfollow,
+                user = user
             )
             HorizontalDivider(
                 modifier = Modifier.padding(top = 8.dp),
@@ -172,8 +185,12 @@ fun DisplayUser(
     name: String,
     username: String,
     isFollowing: Boolean,
+    follow: (Muser) -> Unit,
+    unfollow: (Muser) -> Unit,
+    user: Muser,
     modifier: Modifier = Modifier
 ){
+    Log.d("Firebase", "isFollowing: $isFollowing")
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.padding(horizontal = 8.dp),
@@ -189,10 +206,17 @@ fun DisplayUser(
             fontSize = 15.sp,
             modifier = Modifier.weight(1.0f)
         )
-        Button(onClick = {}) {
+        if(isFollowing){
+        Button(onClick = { unfollow(user) }) {
             Text(
-                text = if (isFollowing) "Following" else "Follow"
+                text = "Unfollow"
             )
+        }}else {
+            Button(onClick = { follow(user) }) {
+                Text(
+                    text = "Follow"
+                )
+            }
         }
     }
 }
@@ -206,6 +230,9 @@ fun DisplayUserPreview(){
                "Dylan",
                "DCSmith",
                isFollowing = true,
+               follow = {},
+               unfollow = {},
+               user = Muser(),
                modifier = Modifier.fillMaxWidth()
            )
        }
