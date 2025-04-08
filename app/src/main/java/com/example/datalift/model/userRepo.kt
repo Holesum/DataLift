@@ -2,6 +2,7 @@ package com.example.datalift.model
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 
 class userRepo {
@@ -207,8 +208,10 @@ class userRepo {
                     return@addSnapshotListener
                 }
                 snapShot?.documents?.forEach { document ->
-                    val user = Muser.fromDocument(document)
-                    userList.add(user)
+                    val user = document.toObject<Muser>()
+                    user?.let {
+                        userList.add(user)
+                    }
                 }
 
                 // Return the fetched exercises to the callback
