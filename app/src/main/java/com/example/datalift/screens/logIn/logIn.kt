@@ -65,7 +65,7 @@ fun LoginFeatures(
             modifier = modifier.padding(4.dp)
         )
         StatelessDataliftFormTextField(
-            field = "Username",
+            field = "Email",
             text = loginUiState.username,
             changeText = changeUsername,
             isError = loginUiState.hasErrors,
