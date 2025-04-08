@@ -54,7 +54,8 @@ import kotlinx.serialization.Serializable
     val type: SettingsType
 )
 @Serializable data class PostDetail(
-    val postId: String
+    val postId: String,
+    val uid: String
 )
 
 
@@ -233,8 +234,8 @@ fun NavGraphBuilder.workoutGraph(
 
 fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(route = FeedRoute, navOptions)
 
-fun NavController.navigateToPost(id: String){
-    navigate(route = PostDetail(id))
+fun NavController.navigateToPost(id: String, uid: String){
+    navigate(route = PostDetail(id, uid))
 }
 
 fun NavGraphBuilder.feedSection(
@@ -262,7 +263,7 @@ fun NavGraphBuilder.feedSection(
             val postDetail: PostDetail = backStackEntry.toRoute()
             val feedViewModel: FeedViewModel = hiltViewModel(parentEntry)
 
-            feedViewModel.updateCurrentViewedPost(postDetail.postId)
+            feedViewModel.updateCurrentViewedPost(postDetail.postId, postDetail.uid)
             val currentPost = feedViewModel.currentPost.collectAsStateWithLifecycle().value
             PostScreen(
                 navUp = { navController.navigateUp() },

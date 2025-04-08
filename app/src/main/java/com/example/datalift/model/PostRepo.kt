@@ -22,6 +22,7 @@ class PostRepo @Inject constructor(
             .document(id)
             .get()
             .addOnSuccessListener { snapshot ->
+                Log.d("Firebase", "Poster uid: ${uid}")
                 Log.d("Firebase", "Post found: ${snapshot.data}")
                 callback(snapshot.toObject<Mpost>())
             }
