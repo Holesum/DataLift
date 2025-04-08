@@ -24,6 +24,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.datalift.navigation.DataliftNavHost
 import com.example.datalift.navigation.navigateToFriends
+import com.example.datalift.navigation.navigateToProfile
 import com.example.datalift.navigation.navigateToSettings
 import com.example.datalift.ui.components.DataliftNavigationBar
 import com.example.datalift.ui.components.DataliftNavigationBarItem
@@ -69,7 +70,8 @@ internal fun DataliftApp(
                     DataliftTopBar(
                         title = stringResource(destination.iconTextId),
                         onSettingsClick = appState.navController::navigateToSettings,
-                        onFriendsClick = appState.navController::navigateToFriends
+                        onFriendsClick = appState.navController::navigateToFriends,
+                        onProfileClick = appState.navController::navigateToProfile
                     )
                 }
             }

@@ -17,6 +17,7 @@ import com.example.datalift.screens.feed.FeedViewModel
 import com.example.datalift.screens.feed.PostScreen
 import com.example.datalift.screens.friends.FriendsScreen
 import com.example.datalift.screens.logIn.LoginScreen
+import com.example.datalift.screens.profile.ProfileScreen
 import com.example.datalift.screens.settings.SettingsDialogScreen
 import com.example.datalift.screens.settings.SettingsScreen
 import com.example.datalift.screens.settings.SettingsType
@@ -57,6 +58,10 @@ import kotlinx.serialization.Serializable
     val postId: String,
     val uid: String
 )
+@Serializable data class ProfileDetail(
+    val uid: String
+)
+@Serializable object TemporaryProfileRoute
 
 
 fun NavGraphBuilder.loginScreen(
@@ -345,6 +350,22 @@ fun NavGraphBuilder.friendsRoute(
     }
 }
 
+fun NavController.navigateToProfile() = navigate(route = TemporaryProfileRoute)
+
+fun NavGraphBuilder.profileRoute(
+    navUp: () -> Unit,
+) {
+//    composable<ProfileDetail>{ backStackEntry ->
+//
+//        val profileDetail: ProfileDetail = backStackEntry.toRoute()
+//        ProfileScreen()
+//    }
+    composable<TemporaryProfileRoute> {
+        ProfileScreen(
+            navUp = navUp
+        )
+    }
+}
 //object DataliftDestinations {
 //    const val LOGIN = "signin"
 //    const val SIGNUP = "signin/signup"
