@@ -141,7 +141,7 @@ internal fun AnalysisScreen(
             AnalysisUiState.Loading -> item {
                 Text("Loading")
             }
-            AnalysisUiState.Error -> TODO()
+            AnalysisUiState.Error -> Unit
             is AnalysisUiState.Success -> {
                 item{
                     Text("Workout Analysis")
