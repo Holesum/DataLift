@@ -72,7 +72,7 @@ fun PostScreen(
                     }
                     Column {
                         Text(
-                            text = "Username Placeholder",
+                            text = post.poster?.uname.toString(),
                             fontWeight = FontWeight.Bold
                         )
                         TimeDisplay(post.date)
@@ -166,7 +166,7 @@ fun PostCard(
                     )
                 }
                 Column {
-                    Text("Username placeholder")
+                    Text(post.poster?.uname.toString())
                     TimeDisplay(post.date)
                 }
             }

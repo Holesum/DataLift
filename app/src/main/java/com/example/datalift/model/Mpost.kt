@@ -8,7 +8,7 @@ data class Mpost(
     val date: Timestamp = Timestamp.now(),
     val workout: Mworkout? = null,
     //var goal: Mugoal? = null,
-    var poster: Muser? = null,
+    var poster: Muser? = Muser(),
     var title: String = "",
     var body: String = "",
     //var pictures: List<Picture> = emptyList(),
@@ -25,7 +25,7 @@ data class Mpost(
 fun testPost() : Mpost{
     return Mpost(
         docID = "1",
-        //date = ,
+        date = Timestamp.now(),
         workout = Mworkout(
             name = "",
             date = Timestamp(Date(1743459788216)),
@@ -59,7 +59,8 @@ fun testPost() : Mpost{
             )
         ),
         //goal = ,
-        //poster = ,
+        poster =  Muser("VlcMPI0J6JZA3LIUqNxgUyp4nY63", "dcmith", "dcsmith0396@gmail.com",
+            "Male", "Dylan", 70.0, 225.0, privacy = false, imperial = true ),
         title = "Broke McDonald's Workout",
         body = "I had a great day at the gym. My homeless broke besties all joined up with me " +
                 "to go to McDonald's and get a bunch of Big Macs. We had to preacher curl our " +
@@ -110,7 +111,8 @@ fun testPostList() : List<Mpost> {
                 )
             ),
             //goal = ,
-            //poster = ,
+            poster = Muser("VlcMPI0J6JZA3LIUqNxgUyp4nY63", "dcmith", "dcsmith0396@gmail.com",
+                "Male", "Dylan", 70.0, 225.0, privacy = false, imperial = true ),
             title = "Broke McDonald's Workout",
             body = "I had a great day at the gym. My homeless broke besties all joined up with me " +
                     "to go to McDonald's and get a bunch of Big Macs. We had to preacher curl our " +
@@ -156,7 +158,8 @@ fun testPostList() : List<Mpost> {
                 )
             ),
             //goal = ,
-            //poster = ,
+            poster = Muser("VlcMPI0J6JZA3LIUqNxgUyp4nY63", "dcmith", "dcsmith0396@gmail.com",
+                "Male", "Dylan", 70.0, 225.0, privacy = false, imperial = true ),
             title = "Homeless Burger King Workout",
             body = "For my next exercise, I took my homeless homies to a Burger King, where I got " +
                     "absolutely plastered by eating so many Whopper Jrs and Vanilla Shakes. One of" +
