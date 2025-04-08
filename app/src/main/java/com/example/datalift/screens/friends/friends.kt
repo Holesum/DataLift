@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -20,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -112,6 +116,7 @@ fun FriendsSearchToolbar(
         query = searchQuery,
         onChangeQuery = onChangeQuery,
         modifier = Modifier.fillMaxWidth()
+            .padding(8.dp)
     )
 }
 
@@ -124,7 +129,14 @@ fun SearchTextField(
     TextField(
         value = query,
         onValueChange = onChangeQuery,
-        modifier = modifier
+        prefix = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null
+            )
+        },
+        shape = RoundedCornerShape(32.dp),
+        modifier = modifier,
     )
 }
 
@@ -147,6 +159,10 @@ fun FriendsSearchBody(
                 username = user.uname,
                 isFollowing = currentlyFollowingUser(user)
             )
+            HorizontalDivider(
+                modifier = Modifier.padding(top = 8.dp),
+                thickness = 1.dp
+            )
         }
     }
 }
@@ -156,18 +172,44 @@ fun DisplayUser(
     name: String,
     username: String,
     isFollowing: Boolean,
+    modifier: Modifier = Modifier
 ){
-    Row {
-        Column {
-            Text(name)
-            Text(username)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.padding(horizontal = 8.dp),
+    ) {
+        IconButton(onClick = {}) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null
+            )
         }
+        Text(
+            text = "$name (@$username)",
+            fontSize = 15.sp,
+            modifier = Modifier.weight(1.0f)
+        )
         Button(onClick = {}) {
             Text(
                 text = if (isFollowing) "Following" else "Follow"
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun DisplayUserPreview(){
+   DataliftTheme {
+       Surface() {
+           DisplayUser(
+               "Dylan",
+               "DCSmith",
+               isFollowing = true,
+               modifier = Modifier.fillMaxWidth()
+           )
+       }
+   }
 }
 
 @DevicePreviews
