@@ -43,5 +43,9 @@ fun DataliftNavHost(
         settingsSection(
             navController = navController
         )
+
+        friendsRoute(
+            navUp = navController::navigateUp
+        )
     }
 }
