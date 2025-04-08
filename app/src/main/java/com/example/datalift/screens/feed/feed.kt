@@ -34,7 +34,6 @@ import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 import java.util.Locale
-import kotlin.reflect.KFunction2
 
 @Composable
 fun PostScreen(
