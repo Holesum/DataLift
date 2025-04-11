@@ -6,14 +6,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -64,51 +69,23 @@ fun LoginFeatures(
             text = "Login",
             modifier = modifier.padding(4.dp)
         )
-        StatelessDataliftFormTextField(
-            field = "Email",
-            text = loginUiState.username,
-            changeText = changeUsername,
-            isError = loginUiState.hasErrors,
-            modifier = modifier.padding(4.dp)
-        )
 
-//        StatelessDataliftFormPrivateTextField(
-//            field = "Password",
-//            text = loginUiState.password,
-//            changeText = changePassword,
-//            isError = loginUiState.hasErrors,
-//            supportingText = {
-//                if(loginUiState.hasErrors) {
-//                    Text(loginUiState.errorMessage)
-//                }
-//            },
-//            imeAction = ImeAction.Go,
-//            keyboardActions = KeyboardActions(
-//                onGo = {
-//                    loginUser(loginUiState.username, loginUiState.password)
-//                    if (loggedin) {
-//                        signinUser()
-//                        navigateToHome()
-//                    }
-//                }
-//            ),
-//            modifier = modifier.padding(4.dp)
-//        )
-
-        DataliftPasswordLoginField(
-            text = loginUiState.password,
-            changeText = changePassword,
-            isError = loginUiState.hasErrors,
+        LoginFields(
+            usernameInput = loginUiState.username,
+            passwordInput = loginUiState.password,
+            changeUsername = changeUsername,
+            changePassword = changePassword,
             errorMessage = loginUiState.errorMessage,
+            hasErrors = loginUiState.hasErrors,
             loginUser = {
                 loginUser(loginUiState.username, loginUiState.password)
                 if (loggedin) {
                     signinUser()
                     navigateToHome()
                 }
-            },
-            modifier = modifier.padding(4.dp)
+            }
         )
+
         Button(
             onClick = {
                 loginUser(loginUiState.username, loginUiState.password)
@@ -131,6 +108,45 @@ fun LoginFeatures(
             navigateToHome()
         }
     }
+}
+
+@Composable
+fun LoginFields(
+    usernameInput: String,
+    passwordInput: String,
+    changePassword: (String) -> Unit,
+    changeUsername: (String) -> Unit,
+    errorMessage: String,
+    loginUser: () -> Unit,
+    hasErrors: Boolean,
+    modifier: Modifier = Modifier
+){
+    val (first, second) = remember { FocusRequester.createRefs() }
+
+    StatelessDataliftFormTextField(
+        field = "Email",
+        text = usernameInput,
+        changeText = changeUsername,
+        isError = hasErrors,
+        keyboardActions = KeyboardActions(
+            onNext = { second.requestFocus() }
+        ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+        ),
+        modifier = modifier.padding(4.dp)
+            .focusRequester(first)
+            .focusProperties { next = second }
+    )
+    DataliftPasswordLoginField(
+        text = passwordInput,
+        changeText = changePassword,
+        isError = hasErrors,
+        errorMessage = errorMessage,
+        loginUser = loginUser,
+        modifier = modifier.padding(4.dp)
+            .focusRequester(second)
+    )
 }
 
 @Composable
