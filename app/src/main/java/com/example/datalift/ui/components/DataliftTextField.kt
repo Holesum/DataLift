@@ -139,6 +139,7 @@ fun StatelessDataliftFormTextField(
     supportingText: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     modifier: Modifier = Modifier
 ) {
 
@@ -152,6 +153,7 @@ fun StatelessDataliftFormTextField(
         suffix = { if(suffix != ""){ Text(suffix) } },
         trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         modifier = modifier
     )
 }
