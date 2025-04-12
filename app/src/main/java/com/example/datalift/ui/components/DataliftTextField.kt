@@ -306,6 +306,48 @@ fun StatelessDataliftDialogTextField(
 }
 
 @Composable
+fun SemiStatelessDataliftMenu(
+    field: String,
+    text: String,
+    selectOption: (String) -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+){
+    var menuVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = text,
+        dialogVisible = menuVisible,
+        isError = isError,
+        supportingText = supportingText,
+        setVisibile = { menuVisible = true},
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            DropdownMenu(
+                expanded = menuVisible,
+                onDismissRequest = { menuVisible = false}
+            ) {
+                options.forEach{ option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            selectOption(option)
+                            menuVisible = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun MenuFieldToModal(
     field: String,
     options: List<String> = emptyList(),
