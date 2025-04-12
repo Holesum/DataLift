@@ -1,7 +1,12 @@
 package com.example.datalift.navigation
 
 
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.remember
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -10,6 +15,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
@@ -18,6 +24,7 @@ import com.example.datalift.screens.feed.PostScreen
 import com.example.datalift.screens.friends.FriendsScreen
 import com.example.datalift.screens.logIn.LoginScreen
 import com.example.datalift.screens.profile.ProfileScreen
+import com.example.datalift.screens.profile.ProfileViewModel
 import com.example.datalift.screens.settings.SettingsDialogScreen
 import com.example.datalift.screens.settings.SettingsScreen
 import com.example.datalift.screens.settings.SettingsType
@@ -31,6 +38,9 @@ import com.example.datalift.screens.workout.WorkoutDetailsEditScreen
 import com.example.datalift.screens.workout.WorkoutListScreen
 import com.example.datalift.screens.workout.WorkoutScreen
 import com.example.datalift.screens.workout.WorkoutViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.Serializable
 
 @Serializable object LoginRoute
@@ -46,6 +56,7 @@ import kotlinx.serialization.Serializable
 @Serializable object WorkoutBaseRoute
 @Serializable object WorkoutListRoute
 @Serializable object AnalysisRoute
+@Serializable object ProfileBaseRoute
 
 @Serializable data class WorkoutDetail(val id: String)
 @Serializable data class WorkoutDetailEdit(val id: String)
@@ -59,10 +70,34 @@ import kotlinx.serialization.Serializable
     val uid: String
 )
 @Serializable data class ProfileDetail(
-    val uid: String
+    val profileId: String
 )
 @Serializable object TemporaryProfileRoute
 
+fun getCurrentUserId(): String{
+    var auth: FirebaseAuth = Firebase.auth
+    val uid: String = auth.currentUser?.uid.toString()
+
+    return uid
+}
+
+fun openProfileDetails(context: Context, profileId: String) : PendingIntent{
+    val deepLinkIntent = Intent(
+        Intent.ACTION_VIEW,
+        "$uri/profile/$profileId".toUri(),
+    )
+
+    deepLinkIntent.setPackage(context.packageName)
+
+    return PendingIntent.getActivity(
+        context,
+        0,
+        deepLinkIntent,
+        PendingIntent.FLAG_IMMUTABLE
+    )
+}
+
+const val uri = "https://www.datalift.com"
 
 fun NavGraphBuilder.loginScreen(
     navController: NavController,
@@ -350,7 +385,9 @@ fun NavGraphBuilder.friendsRoute(
     }
 }
 
-fun NavController.navigateToProfile() = navigate(route = TemporaryProfileRoute)
+fun NavController.navigateToProfile(
+    profileId: String = getCurrentUserId()
+) = navigate(route = ProfileDetail(profileId = profileId))
 
 fun NavGraphBuilder.profileRoute(
     navUp: () -> Unit,
@@ -360,11 +397,36 @@ fun NavGraphBuilder.profileRoute(
 //        val profileDetail: ProfileDetail = backStackEntry.toRoute()
 //        ProfileScreen()
 //    }
-    composable<TemporaryProfileRoute> {
-        ProfileScreen(
-            navUp = navUp
-        )
+
+    navigation<ProfileBaseRoute>(startDestination = TemporaryProfileRoute){
+        composable<ProfileDetail>(
+            deepLinks = listOf(
+                navDeepLink<ProfileDetail>(
+                    basePath = "$uri/profile"
+                )
+                // {$uri}/profile?profileId={$profileId}
+                // {$uri}/profile/{$profileId}
+            )
+        ){ backStackEntry ->
+//            val profile: ProfileDetail = backStackEntry.toRoute()
+
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+
+            ProfileScreen(
+                profileViewModel = profileViewModel,
+                navUp = navUp
+            )
+
+
+        }
+
+        composable<TemporaryProfileRoute> {
+            ProfileScreen(
+                navUp = navUp
+            )
+        }
     }
+
 }
 //object DataliftDestinations {
 //    const val LOGIN = "signin"
