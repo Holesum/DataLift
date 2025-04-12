@@ -196,7 +196,6 @@ fun StatelessDataliftFormPrivateTextField(
     isError: Boolean = false,
     imeAction: ImeAction = ImeAction.Unspecified,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    onImeAction: () -> Unit = {},
     supportingText: @Composable() (() -> Unit)? = null,
     changeText: (String) -> Unit,
     modifier: Modifier = Modifier
