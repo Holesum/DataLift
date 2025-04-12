@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,8 +49,10 @@ import com.example.datalift.R
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
+import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
+import com.example.datalift.ui.components.StatelessDataliftTwoButtonDialog
 import com.example.datalift.ui.theme.DataliftTheme
 
 
@@ -413,6 +416,31 @@ fun WorkoutDetailsEditScreen(
     }
 
 
+@Composable
+fun CreateSetDialog(
+    height: Dp = 375.dp,
+    padding: Dp = 16.dp,
+    roundedCorners: Dp = 16.dp,
+    isVisible: Boolean,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    StatelessDataliftTwoButtonDialog(
+        height = height,
+        padding = padding,
+        roundedCorners = roundedCorners,
+        isVisible = isVisible,
+        buttonOneText = "Cancel",
+        buttonTwoText = "Save",
+        onDismissRequest = onDismiss,
+        buttonOneAction = onDismiss,
+        buttonTwoAction = onSave
+    ){
+        content()
+    }
+}
+
 
 @Composable
 fun AddSetDialog(
@@ -491,7 +519,7 @@ fun addPost(
     }
 }
 
-@Preview
+@DevicePreviews
 @Composable
 fun WorkoutDetailsScreenPreview() {
     DataliftTheme {
