@@ -41,7 +41,8 @@ fun DataliftNavHost(
         analysisScreen()
 
         settingsSection(
-            navController = navController
+            navController = navController,
+            logoutUser = logoutUser
         )
 
         friendsRoute(

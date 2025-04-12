@@ -15,6 +15,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navDeepLink
+import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
 import com.example.datalift.screens.feed.FeedScreen
@@ -79,6 +80,11 @@ fun getCurrentUserId(): String{
     return uid
 }
 
+fun signOutUser(){
+    val auth: FirebaseAuth = Firebase.auth
+    auth.signOut()
+}
+
 fun openProfileDetails(context: Context, profileId: String) : PendingIntent{
     val deepLinkIntent = Intent(
         Intent.ACTION_VIEW,
@@ -96,6 +102,17 @@ fun openProfileDetails(context: Context, profileId: String) : PendingIntent{
 }
 
 const val uri = "https://www.datalift.com"
+
+fun NavController.navigateToLogin(){
+    navigate(
+        route = LoginRoute,
+        navOptions = navOptions {
+            popUpTo(0) {
+                inclusive = true
+            }
+        }
+    )
+}
 
 fun NavGraphBuilder.loginScreen(
     navController: NavController,
@@ -335,6 +352,7 @@ fun NavController.navigateToSettingsDetail(
 
 fun NavGraphBuilder.settingsSection(
     navController: NavController,
+    logoutUser: () -> Unit,
 ){
     navigation<SettingsBaseRoute>(startDestination = SettingsRoute){
         composable<SettingsRoute> { backStackEntry ->
@@ -347,7 +365,12 @@ fun NavGraphBuilder.settingsSection(
             SettingsScreen(
                 settingsViewModel = settingsViewModel,
                 onBackClick = navController::navigateUp,
-                navigateToDetail = navController::navigateToSettingsDetail
+                navigateToDetail = navController::navigateToSettingsDetail,
+                signOutUser = {
+                    logoutUser()
+                    signOutUser()
+                    navController.navigateToLogin()
+                }
             )
         }
 
