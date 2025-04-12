@@ -4,7 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,13 +60,11 @@ import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
 import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.components.DataliftIcons
 import com.example.datalift.ui.components.SemiStatelessDataliftMenu
 import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.components.StatelessDataliftTwoButtonDialog
 import com.example.datalift.ui.theme.DataliftTheme
-import com.google.firebase.Timestamp
 
 
 @Composable
