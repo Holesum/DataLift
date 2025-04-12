@@ -377,10 +377,12 @@ fun NavController.navigateToFriends() = navigate(route = FriendsRoute)
 
 fun NavGraphBuilder.friendsRoute(
     navUp: () -> Unit,
+    navigationToProfile: (String) -> Unit,
 ){
     composable<FriendsRoute>{
         FriendsScreen(
-            navUp = navUp
+            navUp = navUp,
+            navigateToProfile = navigationToProfile
         )
     }
 }
