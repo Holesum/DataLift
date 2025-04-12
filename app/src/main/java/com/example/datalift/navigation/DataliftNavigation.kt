@@ -4,7 +4,6 @@ package com.example.datalift.navigation
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.remember
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,10 +71,9 @@ import kotlinx.serialization.Serializable
 @Serializable data class ProfileDetail(
     val profileId: String
 )
-@Serializable object TemporaryProfileRoute
 
 fun getCurrentUserId(): String{
-    var auth: FirebaseAuth = Firebase.auth
+    val auth: FirebaseAuth = Firebase.auth
     val uid: String = auth.currentUser?.uid.toString()
 
     return uid
@@ -291,7 +289,8 @@ fun NavGraphBuilder.feedSection(
 
             FeedScreen(
                 feedViewModel = feedViewModel,
-                navigateToPost = navController::navigateToPost
+                navigateToPost = navController::navigateToPost,
+                navigateToProfile = navController::navigateToProfile
             )
         }
 
@@ -307,6 +306,7 @@ fun NavGraphBuilder.feedSection(
             val currentPost = feedViewModel.currentPost.collectAsStateWithLifecycle().value
             PostScreen(
                 navUp = { navController.navigateUp() },
+                navigateToProfile = navController::navigateToProfile,
                 post = currentPost,
             )
 
@@ -394,13 +394,7 @@ fun NavController.navigateToProfile(
 fun NavGraphBuilder.profileRoute(
     navUp: () -> Unit,
 ) {
-//    composable<ProfileDetail>{ backStackEntry ->
-//
-//        val profileDetail: ProfileDetail = backStackEntry.toRoute()
-//        ProfileScreen()
-//    }
-
-    navigation<ProfileBaseRoute>(startDestination = TemporaryProfileRoute){
+    navigation<ProfileBaseRoute>(startDestination = ProfileDetail(getCurrentUserId())){
         composable<ProfileDetail>(
             deepLinks = listOf(
                 navDeepLink<ProfileDetail>(
@@ -410,8 +404,6 @@ fun NavGraphBuilder.profileRoute(
                 // {$uri}/profile/{$profileId}
             )
         ){ backStackEntry ->
-//            val profile: ProfileDetail = backStackEntry.toRoute()
-
             val profileViewModel: ProfileViewModel = hiltViewModel()
 
             ProfileScreen(
@@ -420,12 +412,6 @@ fun NavGraphBuilder.profileRoute(
             )
 
 
-        }
-
-        composable<TemporaryProfileRoute> {
-            ProfileScreen(
-                navUp = navUp
-            )
         }
     }
 

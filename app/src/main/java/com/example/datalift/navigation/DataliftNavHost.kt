@@ -45,7 +45,8 @@ fun DataliftNavHost(
         )
 
         friendsRoute(
-            navUp = navController::navigateUp
+            navUp = navController::navigateUp,
+            navigationToProfile = navController::navigateToProfile
         )
 
         profileRoute(
