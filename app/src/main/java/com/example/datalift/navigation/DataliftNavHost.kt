@@ -8,11 +8,11 @@ import com.example.datalift.ui.DataliftAppState
 @Composable
 fun DataliftNavHost(
     appState: DataliftAppState,
+    modifier: Modifier = Modifier,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     userLoggedIn: Boolean = false,
     loginUser: () -> Unit,
     logoutUser: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val navController = appState.navController
 
