@@ -8,16 +8,17 @@ import com.example.datalift.ui.DataliftAppState
 @Composable
 fun DataliftNavHost(
     appState: DataliftAppState,
+    modifier: Modifier = Modifier,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    userLoggedIn: Boolean = false,
     loginUser: () -> Unit,
     logoutUser: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val navController = appState.navController
 
     NavHost(
         navController = navController,
-        startDestination = LoginRoute,
+        startDestination = if(userLoggedIn) FeedBaseRoute else LoginRoute,
         modifier = modifier
     ){
         loginScreen(
@@ -41,11 +42,13 @@ fun DataliftNavHost(
         analysisScreen()
 
         settingsSection(
-            navController = navController
+            navController = navController,
+            logoutUser = logoutUser
         )
 
         friendsRoute(
-            navUp = navController::navigateUp
+            navUp = navController::navigateUp,
+            navigationToProfile = navController::navigateToProfile
         )
 
         profileRoute(

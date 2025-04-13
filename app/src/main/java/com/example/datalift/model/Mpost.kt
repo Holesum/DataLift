@@ -8,7 +8,7 @@ data class Mpost(
     val date: Timestamp = Timestamp.now(),
     val workout: Mworkout? = null,
     //var goal: Mugoal? = null,
-    var poster: Muser? = Muser(),
+    val poster: Muser? = Muser(),
     var title: String = "",
     var body: String = "",
     //var pictures: List<Picture> = emptyList(),

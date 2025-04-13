@@ -13,10 +13,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
@@ -37,12 +34,12 @@ fun DataliftApp(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var loggedIn = rememberSaveable { mutableStateOf(false) }
+//    var loggedIn = rememberSaveable { mutableStateOf(false) }
 
     DataliftApp(
         appState = appState,
         snackbarHostState = snackbarHostState,
-        loggedIn = loggedIn,
+//        loggedIn = loggedIn,
         modifier = modifier
     )
 }
@@ -51,7 +48,6 @@ fun DataliftApp(
 internal fun DataliftApp(
     appState: DataliftAppState,
     snackbarHostState: SnackbarHostState,
-    loggedIn: MutableState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     val currentDestination = appState.currentDestination
@@ -64,7 +60,7 @@ internal fun DataliftApp(
             )
         },
         topBar = {
-            if(loggedIn.value){
+            if(appState.loggedIn){
                 val destination = appState.currentTopLevelDestinations
                 if(destination != null){
                     DataliftTopBar(
@@ -77,7 +73,7 @@ internal fun DataliftApp(
             }
         },
         bottomBar = {
-            if(loggedIn.value){
+            if(appState.loggedIn){
                 DataliftNavigationBar {
                     appState.topLevelDestinations.forEach {destination ->
                         val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
@@ -113,8 +109,9 @@ internal fun DataliftApp(
                     duration = SnackbarDuration.Short,
                 ) == SnackbarResult.ActionPerformed
             },
-            loginUser = { loggedIn.value = true },
-            logoutUser = { loggedIn.value = false },
+            userLoggedIn = appState.loggedIn,
+            loginUser = { appState.loggedIn = true },
+            logoutUser = { appState.loggedIn = false },
             modifier = Modifier.padding(padding)
         )
     }

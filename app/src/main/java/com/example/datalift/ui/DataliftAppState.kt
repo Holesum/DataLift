@@ -2,8 +2,10 @@ package com.example.datalift.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.trace
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -18,6 +20,16 @@ import com.example.datalift.navigation.TopLevelDestinations.WORKOUTS
 import com.example.datalift.navigation.navigateToAnalysis
 import com.example.datalift.navigation.navigateToFeed
 import com.example.datalift.navigation.navigateToWorkout
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
+fun getUserLoggedIn(): Boolean{
+    val auth: FirebaseAuth = Firebase.auth
+    val currentUser = auth.currentUser
+
+    return (currentUser != null)
+}
 
 @Composable
 fun rememberDataliftAppState(
@@ -37,6 +49,8 @@ class DataliftAppState(
     val navController: NavHostController
 ) {
     private val previousDestination = mutableStateOf<NavDestination?>(null)
+
+    var loggedIn by mutableStateOf(getUserLoggedIn())
 
     val currentDestination: NavDestination?
         @Composable get() {

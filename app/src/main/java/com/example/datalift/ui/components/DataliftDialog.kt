@@ -127,6 +127,59 @@ fun StatelessDataLiftCloseCardDialogPreview(){
 }
 
 @Composable
+fun StatelessDataliftTwoButtonDialog(
+    height: Dp = 375.dp,
+    padding: Dp = 16.dp,
+    roundedCorners: Dp = 16.dp,
+    isVisible: Boolean,
+    buttonOneText: String = "Dismiss",
+    buttonTwoText: String = "Confirm",
+    onDismissRequest: () -> Unit,
+    buttonOneAction: () -> Unit = onDismissRequest,
+    buttonTwoAction: () -> Unit,
+    content: @Composable () -> Unit,
+){
+    if(isVisible){
+        Dialog(onDismissRequest = onDismissRequest) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .padding(padding),
+                shape = RoundedCornerShape(roundedCorners)
+            ) {
+                Column {
+                    content()
+                    HorizontalDivider(
+                        modifier = Modifier.height(4.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .align(Alignment.End)
+                            .height(64.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(
+                            onClick = buttonOneAction,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(text = buttonOneText)
+                        }
+                        TextButton(
+                            onClick = buttonTwoAction,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(text = buttonTwoText)
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun StatelessDataliftCDCardDialog(
     height: Dp = 375.dp,
     padding: Dp = 16.dp,

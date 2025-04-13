@@ -38,33 +38,38 @@ import java.util.Locale
 @Composable
 fun PostScreen(
     navUp: () -> Unit = {},
+    navigateToProfile: (String) -> Unit = {},
     post: Mpost?,
     modifier: Modifier = Modifier,
 ) {
-    post?.let {
-        Column {
-            Row(modifier = modifier.fillMaxWidth()) {
-                IconButton(onClick = navUp) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-                Text(
-                    text = post.title,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                        .padding(start = 16.dp)
+    Column {
+        Row(modifier = modifier.fillMaxWidth()) {
+            IconButton(onClick = navUp) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
                 )
             }
-            HorizontalDivider(
-                modifier = modifier.padding(top = 8.dp),
-                thickness = 1.dp
+            Text(
+                text = post?.title ?: "Post",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterVertically)
+                    .padding(start = 16.dp)
             )
+        }
+        HorizontalDivider(
+            modifier = modifier.padding(top = 8.dp),
+            thickness = 1.dp
+        )
+        if (post != null) {
             Card(modifier = Modifier.fillMaxWidth()){
                 Row(modifier = Modifier.padding(top= 8.dp)) {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        if(post.poster != null){
+                            navigateToProfile(post.poster.uid)
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
@@ -117,6 +122,8 @@ fun PostScreen(
                     }
                 }
             }
+        } else {
+            Text("Post is unavailable")
         }
     }
 }
@@ -150,6 +157,7 @@ fun PostDescription(
 @Composable
 fun PostCard(
     navigateToPost: (String, String) -> Unit,
+    navigateToProfile: (String) -> Unit,
     post: Mpost,
     modifier: Modifier = Modifier,
 ){
@@ -159,7 +167,13 @@ fun PostCard(
     ){
         Column {
             Row(modifier = Modifier.padding(top = 8.dp)) {
-                IconButton(onClick = {}) {
+                IconButton(
+                    onClick = {
+                        if(post.poster != null){
+                            navigateToProfile(post.poster.uid)
+                        }
+
+                }) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
@@ -223,13 +237,15 @@ fun TimeDisplay(timestamp: Timestamp){
 fun FeedScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     navigateToPost: (String, String) -> Unit,
+    navigateToProfile: (String) -> Unit,
 ){
     feedViewModel.getPosts()
     val posts = feedViewModel.posts.collectAsStateWithLifecycle().value
 //    val tPosts = testPostList()
     FeedScreen(
         posts = posts,
-        navigateToPost = navigateToPost
+        navigateToPost = navigateToPost,
+        navigateToProfile = navigateToProfile
     )
 }
 
@@ -237,6 +253,7 @@ fun FeedScreen(
 internal fun FeedScreen(
     posts: List<Mpost>,
     navigateToPost: (String, String) -> Unit,
+    navigateToProfile: (String) -> Unit = {},
 ){
 //    Text("Feed Screen placeholder")
     LazyColumn(
@@ -246,6 +263,7 @@ internal fun FeedScreen(
             PostCard(
                 navigateToPost = navigateToPost,
                 post = post,
+                navigateToProfile = navigateToProfile,
                 modifier = Modifier.fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
             )

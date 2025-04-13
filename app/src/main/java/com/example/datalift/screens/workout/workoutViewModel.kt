@@ -31,6 +31,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,7 +47,61 @@ class WorkoutViewModel @Inject constructor(
 
 //    //testing repos remove when done
 //    private val challengeRepo = challengeRepo()
-//    private val userRepo = userRepo()
+
+    private val _dialogUiState = MutableStateFlow(WorkoutDialogUiState())
+    val dialogUiState: StateFlow<WorkoutDialogUiState> = _dialogUiState.asStateFlow()
+
+    fun updateDialogWorkoutName(newWorkoutName: String){
+        _dialogUiState.update { currentState ->
+            currentState.copy(
+                workoutName = newWorkoutName,
+                workoutNameError = false
+            )
+        }
+    }
+
+    fun updateDialogWorkoutMuscleGroup(newMuscleGroup: String){
+        _dialogUiState.update { currentState ->
+            currentState.copy(
+                muscleGroup = newMuscleGroup,
+                muscleGroupError = false
+            )
+        }
+    }
+
+    fun validateDialog(workoutName: String, muscleGroup: String): Boolean{
+        val workoutNamePass = validateWorkoutName(workoutName)
+        val muscleGroupPass = validateMuscleGroup(muscleGroup)
+
+        return workoutNamePass && muscleGroupPass
+    }
+
+    private fun validateWorkoutName(workoutName: String) : Boolean{
+        if (workoutName.isNotBlank()){
+            return true
+        } else {
+            _dialogUiState.update { currentState ->
+                currentState.copy(
+                    workoutNameError = true
+                )
+            }
+            return false
+        }
+    }
+
+    private fun validateMuscleGroup(muscleGroup: String) : Boolean{
+        if(muscleGroup.isNotBlank()){
+            return true
+        } else {
+            _dialogUiState.update { currentState ->
+                currentState.copy(
+                    muscleGroupError = true
+                )
+            }
+            return false
+        }
+    }
+
 
     private val _posts = MutableStateFlow<List<Mpost>?>(null)
     val posts: StateFlow<List<Mpost>?> get() = _posts
@@ -291,3 +347,10 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 }
+
+data class WorkoutDialogUiState(
+    val workoutName: String = "",
+    val muscleGroup: String = "",
+    val workoutNameError: Boolean = false,
+    val muscleGroupError: Boolean = false,
+)

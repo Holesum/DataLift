@@ -1,12 +1,16 @@
 package com.example.datalift.model
 
 import android.util.Log
+import com.example.datalift.data.repository.AnalysisRepository
 import com.google.firebase.firestore.FirebaseFirestore
+import javax.inject.Inject
 
-class analysisRepo {
+class analysisRepo @Inject constructor(
+
+) : AnalysisRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    fun getWorkoutProgression(uid: String, callback: (List<Manalysis>) -> Unit){
+    override fun getWorkoutProgression(uid: String, callback: (List<Manalysis>) -> Unit){
         Log.d("Firebase", "Running Progression")
         db.collection("Users")
             .document(uid)
@@ -29,7 +33,7 @@ class analysisRepo {
             }
     }
 
-    fun getAnalyzedExercises(uid: String, callback: (List<MexerAnalysis>) -> Unit){
+    override fun getAnalyzedExercises(uid: String, callback: (List<MexerAnalysis>) -> Unit){
         db.collection("Users")
             .document(uid)
             .collection("AnalyzedExercises")
