@@ -17,7 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -257,6 +261,8 @@ fun CredentialsScreen(
     navNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val autofillManager = LocalAutofillManager.current
+
     Column(
         modifier = modifier
     ) {
@@ -289,6 +295,9 @@ fun CredentialsScreen(
             },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
+                .semantics {
+                    contentType = ContentType.NewUsername
+                }
         )
         StatelessDataliftFormPrivateTextField(
             field = "Password",
@@ -302,6 +311,9 @@ fun CredentialsScreen(
             },
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
+                .semantics {
+                    contentType = ContentType.NewPassword
+                }
         )
         StatelessDataliftFormTextField(
             field = "Email",
@@ -324,6 +336,9 @@ fun CredentialsScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = modifier.padding(4.dp)
                 .fillMaxWidth(0.75f)
+                .semantics {
+                    contentType = ContentType.EmailAddress
+                }
         )
         Button(onClick = {
             Log.d("Testing", "Create account button clicked")
@@ -331,7 +346,7 @@ fun CredentialsScreen(
                 signUpViewModel.createDBUser{
                     val signedUp = signUpViewModel.accountCreated.value
                     if(signedUp) {
-                        Log.d("Navigation", "We have a Nav Error")
+                        autofillManager?.commit()
                         signUpViewModel.naving()
                         navNext()
                     }
