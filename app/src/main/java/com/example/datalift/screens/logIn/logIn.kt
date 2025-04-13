@@ -16,10 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -135,6 +138,7 @@ fun LoginFields(
             imeAction = ImeAction.Next,
         ),
         modifier = modifier.padding(4.dp)
+            .semantics { contentType = ContentType.Username + ContentType.EmailAddress  }
             .focusRequester(first)
             .focusProperties { next = second }
     )
@@ -221,6 +225,8 @@ fun DataliftPasswordLoginField(
                 closeKeyboard()
             }
         ),
-        modifier = modifier
+        modifier = modifier.semantics {
+            contentType = ContentType.Password
+        }
     )
 }
