@@ -9,6 +9,7 @@ import com.example.datalift.ui.DataliftAppState
 fun DataliftNavHost(
     appState: DataliftAppState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    userLoggedIn: Boolean = false,
     loginUser: () -> Unit,
     logoutUser: () -> Unit,
     modifier: Modifier = Modifier,
@@ -17,7 +18,7 @@ fun DataliftNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = LoginRoute,
+        startDestination = if(userLoggedIn) FeedBaseRoute else LoginRoute,
         modifier = modifier
     ){
         loginScreen(

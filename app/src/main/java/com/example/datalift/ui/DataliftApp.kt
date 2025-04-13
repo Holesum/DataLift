@@ -37,12 +37,12 @@ fun DataliftApp(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var loggedIn = rememberSaveable { mutableStateOf(false) }
+//    var loggedIn = rememberSaveable { mutableStateOf(false) }
 
     DataliftApp(
         appState = appState,
         snackbarHostState = snackbarHostState,
-        loggedIn = loggedIn,
+//        loggedIn = loggedIn,
         modifier = modifier
     )
 }
@@ -51,7 +51,6 @@ fun DataliftApp(
 internal fun DataliftApp(
     appState: DataliftAppState,
     snackbarHostState: SnackbarHostState,
-    loggedIn: MutableState<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     val currentDestination = appState.currentDestination
@@ -64,7 +63,7 @@ internal fun DataliftApp(
             )
         },
         topBar = {
-            if(loggedIn.value){
+            if(appState.loggedIn){
                 val destination = appState.currentTopLevelDestinations
                 if(destination != null){
                     DataliftTopBar(
@@ -77,7 +76,7 @@ internal fun DataliftApp(
             }
         },
         bottomBar = {
-            if(loggedIn.value){
+            if(appState.loggedIn){
                 DataliftNavigationBar {
                     appState.topLevelDestinations.forEach {destination ->
                         val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
@@ -113,8 +112,9 @@ internal fun DataliftApp(
                     duration = SnackbarDuration.Short,
                 ) == SnackbarResult.ActionPerformed
             },
-            loginUser = { loggedIn.value = true },
-            logoutUser = { loggedIn.value = false },
+            userLoggedIn = appState.loggedIn,
+            loginUser = { appState.loggedIn = true },
+            logoutUser = { appState.loggedIn = false },
             modifier = Modifier.padding(padding)
         )
     }
