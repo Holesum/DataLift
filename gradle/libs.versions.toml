@@ -6,6 +6,7 @@ androidxHiltNavigationCompose = "1.2.0"
 appcompat = "1.6.1"
 autofill = "1.3.0-rc01"
 composeBom = "2024.04.01"
+composeVersion = "1.8.0-rc03"
 coreKtx = "1.10.1"
 espressoCore = "3.5.1"
 hilt = "2.51.1"
@@ -32,7 +33,7 @@ androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "li
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose"}
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" , version.ref = "composeVersion"}
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
