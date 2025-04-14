@@ -139,6 +139,7 @@ fun StatelessDataliftFormTextField(
     supportingText: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     modifier: Modifier = Modifier
 ) {
 
@@ -152,6 +153,7 @@ fun StatelessDataliftFormTextField(
         suffix = { if(suffix != ""){ Text(suffix) } },
         trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         modifier = modifier
     )
 }
@@ -194,7 +196,6 @@ fun StatelessDataliftFormPrivateTextField(
     isError: Boolean = false,
     imeAction: ImeAction = ImeAction.Unspecified,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    onImeAction: () -> Unit = {},
     supportingText: @Composable() (() -> Unit)? = null,
     changeText: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -300,6 +301,48 @@ fun StatelessDataliftDialogTextField(
 
     if(dialogVisible){
         content()
+    }
+}
+
+@Composable
+fun SemiStatelessDataliftMenu(
+    field: String,
+    text: String,
+    selectOption: (String) -> Unit,
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit)? = null,
+    options: List<String> = emptyList(),
+    modifier: Modifier = Modifier
+){
+    var menuVisible by remember { mutableStateOf(false) }
+
+    StatelessDataliftDialogTextField(
+        field = field,
+        text = text,
+        dialogVisible = menuVisible,
+        isError = isError,
+        supportingText = supportingText,
+        setVisibile = { menuVisible = true},
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            DropdownMenu(
+                expanded = menuVisible,
+                onDismissRequest = { menuVisible = false}
+            ) {
+                options.forEach{ option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            selectOption(option)
+                            menuVisible = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -40,6 +40,7 @@ import com.example.datalift.ui.theme.DataliftTheme
 fun FriendsScreen(
     friendsViewModel: FriendsViewModel = hiltViewModel(),
     navUp: () -> Unit,
+    navigateToProfile: (String) -> Unit,
 ){
     val uiState by friendsViewModel.searchFriendsUiState.collectAsStateWithLifecycle()
     val searchQuery by friendsViewModel.searchQuery.collectAsStateWithLifecycle()
@@ -47,6 +48,7 @@ fun FriendsScreen(
 
     FriendsScreen(
         navUp = navUp,
+        navigateToProfile = navigateToProfile,
         uiState = uiState,
         searchQuery = searchQuery,
         onChangeQuery = friendsViewModel::onSearchQueryChange,
@@ -59,6 +61,7 @@ fun FriendsScreen(
 @Composable
 internal fun FriendsScreen(
     navUp: () -> Unit = {},
+    navigateToProfile: (String) -> Unit = {},
     uiState: FriendsUiState = FriendsUiState.Loading,
     searchQuery: String = "",
     onChangeQuery: (String) -> Unit = {},
@@ -109,6 +112,7 @@ internal fun FriendsScreen(
                     FriendsSearchBody(
                         users = uiState.usersSearched,
                         currentlyFollowingUser = currentFollowingUser,
+                        navigateToProfile = navigateToProfile,
                         follow =  follow,
                         unfollow = unfollow
                     )
@@ -162,6 +166,7 @@ fun EmptyFriendsSearchBody(
 fun FriendsSearchBody(
     users: List<Muser> = emptyList(),
     currentlyFollowingUser: (Muser) -> Boolean,
+    navigateToProfile: (String) -> Unit,
     follow: (Muser) -> Unit,
     unfollow: (Muser) -> Unit
 ){
@@ -173,7 +178,8 @@ fun FriendsSearchBody(
                 isFollowing = currentlyFollowingUser(user),
                 follow = follow,
                 unfollow = unfollow,
-                user = user
+                user = user,
+                navigateToProfile = navigateToProfile
             )
             HorizontalDivider(
                 modifier = Modifier.padding(top = 8.dp),
@@ -191,6 +197,7 @@ fun DisplayUser(
     follow: (Muser) -> Unit,
     unfollow: (Muser) -> Unit,
     user: Muser,
+    navigateToProfile: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
 //    Log.d("Firebase", "isFollowing: $isFollowing")
@@ -199,7 +206,7 @@ fun DisplayUser(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.padding(horizontal = 8.dp),
     ) {
-        IconButton(onClick = {}) {
+        IconButton(onClick = { navigateToProfile(user.uid) } ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null
@@ -244,6 +251,7 @@ fun DisplayUserPreview(){
                follow = {},
                unfollow = {},
                user = Muser(),
+               navigateToProfile = {},
                modifier = Modifier.fillMaxWidth()
            )
        }

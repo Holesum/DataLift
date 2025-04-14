@@ -181,6 +181,7 @@ fun SettingsEntry(
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     navigateToDetail: (SettingDetail) -> Unit,
+    signOutUser: () -> Unit,
     onBackClick: () -> Unit,
 ){
     val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
@@ -189,6 +190,7 @@ fun SettingsScreen(
         onBackClick = onBackClick,
         uiState = uiState,
         navigateToDetail = navigateToDetail,
+        signOutUser = signOutUser
     )
 }
 
@@ -197,6 +199,7 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     uiState: SettingUiState,
     navigateToDetail: (SettingDetail) -> Unit,
+    signOutUser: () -> Unit = {},
     modifier: Modifier = Modifier
 ){
     Column(modifier = modifier.fillMaxWidth()) {
@@ -250,7 +253,8 @@ fun SettingsScreen(
                         }
                     )
                     SettingsEntry(
-                        entry = "Log out"
+                        entry = "Log out",
+                        action = signOutUser
                     )
                 }
             }

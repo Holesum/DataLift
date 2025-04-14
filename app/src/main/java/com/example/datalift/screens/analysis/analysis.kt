@@ -11,18 +11,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.datalift.screens.workout.StatelessSearchExerciseDialog
 import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.auto
+import com.patrykandpatrick.vico.compose.cartesian.axis.fraction
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.axis.BaseAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 
 
@@ -141,7 +146,7 @@ internal fun AnalysisScreen(
             AnalysisUiState.Loading -> item {
                 Text("Loading")
             }
-            AnalysisUiState.Error -> TODO()
+            AnalysisUiState.Error -> Unit
             is AnalysisUiState.Success -> {
                 item{
                     Text("Workout Analysis")
@@ -228,9 +233,16 @@ private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer, mo
     CartesianChartHost(
         chart =
         rememberCartesianChart(
-            rememberLineCartesianLayer(),
-            startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(),
+            rememberLineCartesianLayer(
+//                rangeProvider = CartesianLayerRangeProvider.fixed(minY = 0.5)
+            ),
+            startAxis = VerticalAxis.rememberStart(
+                guideline = null,
+
+            ),
+            bottomAxis = HorizontalAxis.rememberBottom(
+                guideline = null
+            ),
         ),
         modelProducer = modelProducer,
         modifier = modifier,
