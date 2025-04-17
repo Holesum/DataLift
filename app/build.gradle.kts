@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     id("com.google.gms.google-services")
+    alias(libs.plugins.roborazzi)
 }
 
 android {
@@ -17,7 +18,7 @@ android {
         minSdk = 34
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0"  // X.Y.Z, X = Major, Y = minor, Z = Patch level
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,6 +42,11 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -59,7 +65,7 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.testManifest)
 //    implementation("androidx.navigation:navigation-compose:2.5.3")
 //    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
@@ -97,8 +103,10 @@ dependencies {
 
     kspTest(libs.hilt.compiler)
 
-    testImplementation(libs.hilt.android.testing)
 
-    androidTestImplementation(libs.hilt.android.testing)
+
+    testImplementation(libs.robolectric)
+    testImplementation(libs.hilt.android.testing)
+    testImplementation(libs.roborazzi)
 
 }

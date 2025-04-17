@@ -1,3 +1,4 @@
+import com.android.utils.TraceUtils.simpleId
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -41,6 +42,10 @@ gradlePlugin{
         register("androidLibrary") {
             id = libs.plugins.datalift.android.library.asProvider().get().pluginId
             implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("hilt") {
+            id = libs.plugins.datalift.hilt.get().pluginId
+            implementationClass = "HiltConventionPlugin"
         }
     }
 }

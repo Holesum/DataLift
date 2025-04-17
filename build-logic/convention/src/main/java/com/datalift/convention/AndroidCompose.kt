@@ -25,6 +25,7 @@ internal fun Project.configureAndroidCompose(
 
         testOptions{
             unitTests{
+                // For Robolectric
                 isIncludeAndroidResources = true
             }
         }
@@ -38,7 +39,15 @@ internal fun Project.configureAndroidCompose(
             }.map { it.dir(dir) }
 
             project.providers.gradleProperty("enableComposeCompilerMetrics").onlyIfTrue()
-                .relativeToRootProject("compose-reports")
+                .relativeToRootProject("compose-metrics")
+                .let(metricsDestination::set)
+
+            project.providers.gradleProperty("enableComposeCompilerReports").onlyIfTrue()
+                .relativeToRootProject("compose-report")
+                .let(reportsDestination::set)
+
+            stabilityConfigurationFiles
+                .add(isolated.rootProject.projectDirectory.file("compose_compiler_config.conf"))
         }
     }
 }
