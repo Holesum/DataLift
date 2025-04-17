@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,4 +22,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Datalift"
 include(":app")
- 
+//include(":core")
+include(":core:ui")
+//include(":build-logic")
+//include(":build-logic:convention")
+//include(":build-logic:convention")
+//include(":build-logic:convention")
