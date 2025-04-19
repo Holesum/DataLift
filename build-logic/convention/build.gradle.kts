@@ -1,4 +1,3 @@
-import com.android.utils.TraceUtils.simpleId
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
