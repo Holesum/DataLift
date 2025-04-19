@@ -49,8 +49,8 @@ fun ProfileScreen(
 @Composable
 internal fun ProfileScreen(
     uiState: ProfileUiState,
-    navUp: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navUp: () -> Unit = {}
 ){
     Column {
         Row(modifier = modifier.fillMaxWidth()) {

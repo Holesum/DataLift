@@ -49,8 +49,8 @@ import com.example.datalift.ui.components.StatelessDataliftTwoButtonDialog
 
 @Composable
 fun WorkoutDetailsScreen(
-    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     navUp: () -> Unit = {},
     navNext: () -> Unit = {}
 ) {
@@ -233,8 +233,8 @@ fun WorkoutDetailsScreen(
 
 @Composable
 fun WorkoutDetailsEditScreen(
-    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    workoutViewModel: WorkoutViewModel = hiltViewModel(),
     workout: Mworkout?,
     navUp: () -> Unit = {},
     navNext: () -> Unit = {},

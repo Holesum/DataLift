@@ -60,6 +60,7 @@ fun FriendsScreen(
 
 @Composable
 internal fun FriendsScreen(
+    modifier: Modifier = Modifier,
     navUp: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
     uiState: FriendsUiState = FriendsUiState.Loading,
@@ -67,8 +68,7 @@ internal fun FriendsScreen(
     onChangeQuery: (String) -> Unit = {},
     currentFollowingUser: (Muser) -> Boolean = {_ -> false},
     follow: (Muser) -> Unit = {},
-    unfollow: (Muser) -> Unit = {},
-    modifier: Modifier = Modifier
+    unfollow: (Muser) -> Unit = {}
 ){
     Column {
         Row(modifier = modifier.fillMaxWidth()) {

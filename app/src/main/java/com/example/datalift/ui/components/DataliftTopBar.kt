@@ -26,6 +26,7 @@ fun DataliftTopBar(
     onFriendsClick: () -> Unit = {},
 ) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(title)
         },

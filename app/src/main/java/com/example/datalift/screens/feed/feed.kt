@@ -37,10 +37,10 @@ import java.util.Locale
 
 @Composable
 fun PostScreen(
-    navUp: () -> Unit = {},
-    navigateToProfile: (String) -> Unit = {},
     post: Mpost?,
     modifier: Modifier = Modifier,
+    navUp: () -> Unit = {},
+    navigateToProfile: (String) -> Unit = {},
 ) {
     Column {
         Row(modifier = modifier.fillMaxWidth()) {
