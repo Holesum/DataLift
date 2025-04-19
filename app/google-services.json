@@ -25,10 +25,30 @@
       }
     },
     {
+
       "client_info": {
         "mobilesdk_app_id": "1:657705169269:android:18c4934efb7fa9d656a33c",
         "android_client_info": {
           "package_name": "com.example.dataliftanalytica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLy0zlvItueYdlFLviajeK9Yzgr6daV8k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },{
+
+      "client_info": {
+        "mobilesdk_app_id": "1:657705169269:android:18c4934efb7fa9d656a33c",
+        "android_client_info": {
+          "package_name": "com.example.datalift.demo"
         }
       },
       "oauth_client": [],

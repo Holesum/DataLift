@@ -22,6 +22,7 @@ dependencies{
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
+    implementation(libs.truth)
     lintChecks(libs.androidx.lint.gradle)
 }
 
@@ -34,6 +35,16 @@ tasks {
 
 gradlePlugin{
     plugins {
+        register("androidApplicationCompose"){
+            id = libs.plugins.datalift.android.application.compose.get().pluginId
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+
+        register("androidApplication") {
+            id = libs.plugins.datalift.android.application.asProvider().get().pluginId
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+
         register("androidLibraryCompose"){
             id = libs.plugins.datalift.android.library.compose.get().pluginId
             implementationClass = "AndroidLibraryComposeConventionPlugin"
@@ -45,6 +56,10 @@ gradlePlugin{
         register("hilt") {
             id = libs.plugins.datalift.hilt.get().pluginId
             implementationClass = "HiltConventionPlugin"
+        }
+        register("androidFlavors"){
+            id = libs.plugins.datalift.android.application.flavors.get().pluginId
+            implementationClass = "AndroidApplicationFlavorsConventionPlugin"
         }
     }
 }

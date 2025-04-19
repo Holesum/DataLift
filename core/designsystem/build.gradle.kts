@@ -17,10 +17,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.compose.ui)
     implementation(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.runtime.android)
     implementation(libs.androidx.ui.tooling.preview.android)
 
 //    testImplementation(libs.junit)
@@ -30,7 +30,4 @@ dependencies {
     testImplementation(libs.hilt.android.testing)
     testImplementation(libs.robolectric)
     testImplementation(projects.core.screenshotTesting)
-
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
