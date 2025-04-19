@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.model.Muser
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.UserPreviewParameterProvider
-import com.example.datalift.ui.theme.DataliftTheme
 
 @Composable
 fun ProfileScreen(

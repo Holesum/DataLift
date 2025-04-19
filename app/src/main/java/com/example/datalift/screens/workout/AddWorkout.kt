@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mset
 import com.example.datalift.model.Mworkout
@@ -44,7 +45,6 @@ import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.example.datalift.ui.components.StatelessDataliftTwoButtonDialog
-import com.example.datalift.ui.theme.DataliftTheme
 
 
 @Composable
