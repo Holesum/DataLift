@@ -26,21 +26,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mpost
 import com.example.datalift.model.testPost
 import com.example.datalift.model.testPostList
 import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.theme.DataliftTheme
 import com.google.firebase.Timestamp
 import java.util.Locale
 
 @Composable
 fun PostScreen(
-    navUp: () -> Unit = {},
-    navigateToProfile: (String) -> Unit = {},
     post: Mpost?,
     modifier: Modifier = Modifier,
+    navUp: () -> Unit = {},
+    navigateToProfile: (String) -> Unit = {},
 ) {
     Column {
         Row(modifier = modifier.fillMaxWidth()) {

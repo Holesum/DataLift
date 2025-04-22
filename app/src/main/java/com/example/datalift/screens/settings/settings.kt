@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.navigation.SettingDetail
 import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.theme.DataliftTheme
 
 @Composable
 fun SettingsDialogRow(
@@ -149,9 +149,9 @@ internal fun SettingsDialogScreen(
 @Composable
 fun SettingsEntry(
     entry: String,
+    modifier: Modifier = Modifier,
     subtext: String? = null,
-    action: () -> Unit = {},
-    modifier: Modifier = Modifier
+    action: () -> Unit = {}
 ){
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -199,8 +199,8 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     uiState: SettingUiState,
     navigateToDetail: (SettingDetail) -> Unit,
-    signOutUser: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    signOutUser: () -> Unit = {}
 ){
     Column(modifier = modifier.fillMaxWidth()) {
         Row(modifier = modifier.fillMaxWidth()) {
