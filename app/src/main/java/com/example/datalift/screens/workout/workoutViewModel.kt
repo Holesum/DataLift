@@ -269,7 +269,9 @@ class WorkoutViewModel @Inject constructor(
      */
     fun editWorkout(workout: Mworkout) {
         _loading.value = true
-        workoutRepo.editWorkout(oRM(workout), uid)
+        workoutRepo.editWorkout(oRM(workout), uid) {
+
+        }
         _loading.value = false
     }
 
@@ -294,7 +296,7 @@ class WorkoutViewModel @Inject constructor(
     fun deleteWorkout(workout: Mworkout) {
         _loading.value = true
         _workouts.value -= workout
-        workoutRepo.deleteWorkout(workout, uid)
+        workoutRepo.deleteWorkout(workout, uid){}
         _loading.value = false
     }
 

@@ -3,13 +3,15 @@ package com.example.datalift.model
 import android.util.Log
 import com.example.datalift.data.repository.PostRepository
 import com.example.datalift.data.repository.WorkoutRepository
+import com.example.datalift.data.repository.AnalysisRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import javax.inject.Inject
 
 
 class WorkoutRepo @Inject constructor(
-    private val postRepo: PostRepository
+    private val postRepo: PostRepository,
+    private val analysisRepo: AnalysisRepository
 ) : WorkoutRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -75,6 +77,13 @@ class WorkoutRepo @Inject constructor(
                     .set(updatedWorkout)
                     .addOnSuccessListener {
                         Log.d("Firebase", "Workout docID set: ${updatedWorkout.docID}")
+                        analysisRepo.analyzeWorkouts(uid, onComplete = {
+                            // Callback with the updated workout after all operations are complete
+                            callback(updatedWorkout)
+                        }, onFailure = { error ->
+                            Log.d("Firebase", "Error analyzing workouts: ${error.message}")
+                            callback(null)  // Callback with null in case of failure
+                        })
                         callback(updatedWorkout)
 
                     }.addOnFailureListener{
@@ -90,23 +99,36 @@ class WorkoutRepo @Inject constructor(
     /**
      * Function to edit an existing workout
      */
-    override fun editWorkout(workout: Mworkout, uid: String) {
+    override fun editWorkout(workout: Mworkout, uid: String, callback: (Mworkout?) -> Unit) {
+        // Update the workout in Firestore
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
             .document(workout.docID)
             .set(workout)
             .addOnSuccessListener {
-                Log.d("Firebase", "Workout updated: ${workout.name}")
-            }.addOnFailureListener { e ->
+                // After successfully updating the workout, analyze the workouts
+                analysisRepo.analyzeWorkouts(uid, onComplete = {
+                    // Once the analysis is complete, invoke the callback with the updated workout
+                    Log.d("Firebase", "Workout updated and analysis complete: ${workout.name}")
+                    callback(workout)
+                }, onFailure = { error ->
+                    // If analysis fails, log the error and invoke callback with null
+                    Log.d("Firebase", "Error analyzing workouts: ${error.message}")
+                    callback(null)  // Callback with null in case of failure
+                })
+            }
+            .addOnFailureListener { e ->
+                // If the workout update fails, log the error and invoke callback with null
                 Log.d("Firebase", "Error updating workout: ${e.message}")
+                callback(null)  // Callback with null in case of failure
             }
     }
 
     /**
      * Function to delete an existing workout
      */
-    override fun deleteWorkout(workout: Mworkout, uid: String){
+    override fun deleteWorkout(workout: Mworkout, uid: String, callback: (Mworkout?) -> Unit){
         db.collection("Users")
             .document(uid)
             .collection("Workouts")
@@ -114,6 +136,15 @@ class WorkoutRepo @Inject constructor(
             .delete()
             .addOnSuccessListener {
                 Log.d("Firebase", "Workout deleted: ${workout.name}")
+                analysisRepo.analyzeWorkouts(uid, onComplete = {
+                    // Once the analysis is complete, invoke the callback with the updated workout
+                    Log.d("Firebase", "Workout updated and analysis complete: ${workout.name}")
+                    callback(workout)
+                }, onFailure = { error ->
+                    // If analysis fails, log the error and invoke callback with null
+                    Log.d("Firebase", "Error analyzing workouts: ${error.message}")
+                    callback(null)  // Callback with null in case of failure
+                })
             }.addOnFailureListener { e ->
                 Log.d("Firebase", "Error deleting workout: ${e.message}")
             }
