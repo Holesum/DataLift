@@ -1,4 +1,4 @@
-package com.datalift.designsystem
+package com.datalift.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -19,7 +19,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.compose.ui)
-    implementation(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.runtime.android)
     implementation(libs.androidx.ui.tooling.preview.android)
 

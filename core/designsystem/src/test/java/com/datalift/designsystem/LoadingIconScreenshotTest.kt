@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onRoot
 import com.datalift.screenshot_testing.DefaultRoborazziOptions
 import com.datalift.screenshot_testing.captureMultiTheme
 import com.datalift.designsystem.components.DataliftLoadingIcon
+import com.datalift.designsystem.theme.DataliftTheme
 import com.github.takahirom.roborazzi.captureRoboImage
 import dagger.hilt.android.testing.HiltTestApplication
 import org.junit.Rule

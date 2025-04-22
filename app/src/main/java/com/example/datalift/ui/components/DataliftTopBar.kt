@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.datalift.designsystem.DataliftTheme
+import com.datalift.designsystem.theme.DataliftTheme
 import com.example.datalift.R
 
 @OptIn(ExperimentalMaterial3Api::class)
