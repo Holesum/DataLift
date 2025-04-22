@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.model.Muser
 import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.theme.DataliftTheme
 
 @Composable
 fun FriendsScreen(
@@ -60,6 +60,7 @@ fun FriendsScreen(
 
 @Composable
 internal fun FriendsScreen(
+    modifier: Modifier = Modifier,
     navUp: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
     uiState: FriendsUiState = FriendsUiState.Loading,
@@ -67,8 +68,7 @@ internal fun FriendsScreen(
     onChangeQuery: (String) -> Unit = {},
     currentFollowingUser: (Muser) -> Boolean = {_ -> false},
     follow: (Muser) -> Unit = {},
-    unfollow: (Muser) -> Unit = {},
-    modifier: Modifier = Modifier
+    unfollow: (Muser) -> Unit = {}
 ){
     Column {
         Row(modifier = modifier.fillMaxWidth()) {
