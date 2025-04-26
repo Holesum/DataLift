@@ -2,6 +2,7 @@ package com.example.datalift.screens.challenges
 
 //Firebase
 import android.util.Log
+import com.example.datalift.data.repository.GoalRepository
 import com.example.datalift.model.GoalType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -26,7 +27,7 @@ class challengesViewModel {
     private val uid: String = auth.currentUser?.uid.toString()
     private val challengeRepo = challengeRepo()
     private val userRepo = userRepo()
-    private val goalRepo = goalRepo()
+    //private val goalRepo = GoalRepository()
 
     //State Flows
     private val _user = MutableStateFlow<DocumentReference?>(null)

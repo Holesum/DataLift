@@ -14,6 +14,7 @@ import com.example.datalift.model.Manalysis
 import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.analysisRepo
 import com.example.datalift.model.Mgoal
+import com.example.datalift.model.Mworkout
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,6 +72,9 @@ class analysisViewModel @Inject constructor(
     private val _workoutProgressions = MutableStateFlow<List<Manalysis>>(emptyList())
     val workoutProgressions: StateFlow<List<Manalysis>> get() = _workoutProgressions
 
+    private val _workouts = MutableStateFlow<List<Mworkout>>(emptyList())
+    val workouts: StateFlow<List<Mworkout>> get() = _workouts
+
     fun updateBodyPart(string: String){
         _chosenBodyPart.value = string
     }
@@ -99,6 +103,12 @@ class analysisViewModel @Inject constructor(
         workoutRepo.getExercises(query.lowercase()) { exerciseList ->
             _exercises.value = exerciseList
             Log.d("Firebase", "Exercises found: ${exerciseList.size}")
+        }
+    }
+
+    fun getWorkouts() {
+        workoutRepo.getWorkouts(uid) { workoutList ->
+            _workouts.value = workoutList
         }
     }
 
@@ -231,6 +241,7 @@ class analysisViewModel @Inject constructor(
     }
 
     fun analyzeWorkouts() {
+        getWorkouts()
         analysisRepo.analyzeWorkouts(
             uid = uid,
             onComplete = {
@@ -238,7 +249,7 @@ class analysisViewModel @Inject constructor(
                 analysisRepo.evaluateGoals(
                     uid = uid,
                     exerciseAnalysis = _exerciseAnalysis.value,
-                    workoutProgressions = _workoutProgressions.value,
+                    workouts = _workouts.value,
                     onComplete = {
                         Log.d("GoalEval", "Goal evaluation complete")
                     }

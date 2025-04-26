@@ -10,7 +10,9 @@ data class AnalysisExer(
 )
 
 data class MexerAnalysis(
+    val exerciseName: String = "",
     val bodyPart: String = "",
     val initialAvgORM: Double = 0.0,
-    val progression: List<AnalysisExer> = emptyList()
+    val progression: List<AnalysisExer> = emptyList(),
+    val repCount: Double = 0.0
 )
