@@ -96,13 +96,20 @@ class analysisRepo @Inject constructor(
                         val avgORM = exercise["avgORM"] as? Double ?: 0.0
                         val exerObject = exercise["exercise"] as? Map<String, Any> ?: emptyMap()
                         val bodyPart = exerObject["bodyPart"] as? String ?: "unknown"
+                        var repCount = 0.0
+                        Log.d("Firebase", "sets: ${exercise["sets"]}")
+                        for(set in exercise["sets"] as List<Map<String, Any>>){
+                            val rep = set["rep"] as? Long ?: 0;
+                            repCount += rep
+                        }
 
                         if (avgORM > 0) {
                             if (!exerciseData.containsKey(exerciseName)) {
                                 exerciseData[exerciseName] = mutableMapOf(
                                     "initialAvgORM" to avgORM,
                                     "progression" to mutableListOf<Map<String, Any>>(),
-                                    "bodyPart" to bodyPart
+                                    "bodyPart" to bodyPart,
+                                    "repCount" to repCount
                                 )
                             }
 
@@ -141,6 +148,7 @@ class analysisRepo @Inject constructor(
                 val exerciseRef = db.collection("Users").document(uid).collection("AnalyzedExercises")
                 exerciseData.forEach { (name, data) ->
                     val docRef = exerciseRef.document(name)
+                    data["exerciseName"] = name // 👈 Add this
                     batch.set(docRef, data)
                 }
 
@@ -151,7 +159,7 @@ class analysisRepo @Inject constructor(
             }.addOnFailureListener { onFailure(it) }
     }
 
-    fun evaluateGoals(uid: String, exerciseAnalysis: List<MexerAnalysis>, workoutProgressions: List<Manalysis>, onComplete: () -> Unit) {
+    fun evaluateGoals(uid: String, exerciseAnalysis: List<MexerAnalysis>, workouts: List<Mworkout>, onComplete: () -> Unit) {
         val goalRef = db.collection("Users").document(uid).collection("Goals")
 
         goalRef.get().addOnSuccessListener { snapshot ->
@@ -162,34 +170,54 @@ class analysisRepo @Inject constructor(
 
 
                 when (goal.type) {
-                    GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
-                        val analysis = exerciseAnalysis.find { it.bodyPart.equals(goal.bodyPart, ignoreCase = true) }
-                        if (analysis != null && goal.targetPercentage != null) {
-                            val latest = analysis.progression.lastOrNull()?.progressionMultiplier?.times(analysis.initialAvgORM)
-                            val required = analysis.initialAvgORM * (1 + goal.targetPercentage!! / 100.0)
-                            if (latest != null && latest >= required) {
+                    GoalType.INCREASE_ORM_BY_VALUE -> {
+                        val analysis = exerciseAnalysis.find { it.exerciseName.equals(goal.exerciseName, ignoreCase = true) }
+                        if (analysis != null && goal.targetValue != null) {
+                            val progression = analysis.progression.sortedByDescending { it.progressionMultiplier }
+                            val latest = progression.first().progressionMultiplier.times(analysis.initialAvgORM)
+                            val required = analysis.initialAvgORM + goal.targetValue
+                            if (latest >= required) {
                                 updatedGoal.isComplete = true
+                            } else {
+                                updatedGoal.currentValue = latest.toInt()
+                            }
+                        }
+                    }
+
+                    GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
+                        val analysis = exerciseAnalysis.find { it.exerciseName.equals(goal.exerciseName, ignoreCase = true) }
+                        if (analysis != null && goal.targetPercentage != null) {
+                            val progression = analysis.progression.sortedByDescending { it.progressionMultiplier }
+                            val latest = progression.first().progressionMultiplier.times(analysis.initialAvgORM)
+                            val required = analysis.initialAvgORM * (1 + goal.targetPercentage!! / 100.0)
+                            if (latest >= required) {
+                                updatedGoal.isComplete = true
+                            } else {
+                                val currVal = (progression.first().progressionMultiplier.toInt() * 100) - 100
+                                if(currVal >= 0){updatedGoal.currentValue}
+                                else{updatedGoal.currentValue = 0}
+
                             }
                         }
                     }
 
                     GoalType.COMPLETE_X_WORKOUTS -> {
                         val goalCreatedAt = goal.createdAt // assuming this is a Firebase Timestamp
-                        val count = workoutProgressions.count {
+                        val count = workouts.count {
                             it.date > goalCreatedAt // assuming 'date' is also a Firebase Timestamp
                         }
                         if (count >= goal.targetValue) {
                             updatedGoal.isComplete = true
                         } else {
-                            updatedGoal.currentValue = workoutProgressions.size
+                            updatedGoal.currentValue = workouts.size
                         }
                     }
 
                     GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> {
                         Log.d("Goal", "goal: $goal")
-                        Log.d("Goal", "workoutProgressions: $workoutProgressions")
+                        Log.d("Goal", "workoutProgressions: $workouts")
                         val goalCreatedAt = goal.createdAt // assuming this is a Firebase Timestamp
-                        val count = workoutProgressions.count {
+                        val count = workouts.count {
                             it.muscleGroup.equals(goal.bodyPart, ignoreCase = true) &&
                                     it.date > goalCreatedAt // assuming 'date' is also a Firebase Timestamp
                         }
@@ -203,7 +231,15 @@ class analysisRepo @Inject constructor(
                     }
 
                     GoalType.COMPLETE_X_REPS_OF_EXERCISE -> {
-                        // Implement rep tracking logic if needed
+                        val analysis = exerciseAnalysis.find { it.exerciseName.equals(goal.exerciseName, ignoreCase = true) }
+                        if (analysis != null) {
+                            val curr = analysis.repCount
+                            if (curr >= goal.targetValue) {
+                                updatedGoal.isComplete = true
+                            } else {
+                                updatedGoal.currentValue = curr.toInt()
+                            }
+                        }
                     }
 
                     else -> Unit
@@ -215,6 +251,6 @@ class analysisRepo @Inject constructor(
 
             onComplete()
         }
-    }
+    } //todo fix analysis of goals tied to exercises
 }
 
