@@ -42,6 +42,10 @@ class WorkoutViewModel @Inject constructor(
     private val workoutRepo: WorkoutRepository
 ) : ViewModel() {
 
+    fun getUnitSystem(): Boolean {
+        return userRepo.getCachedUnitType()
+    }
+
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
 

@@ -43,9 +43,6 @@ class analysisViewModel @Inject constructor(
 ) : ViewModel()  {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
-//    private val analysisRepo = analysisRepo()
-
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     //Exercise List stuffs
     private val _exercises = MutableStateFlow<List<ExerciseItem>>(emptyList())
@@ -56,6 +53,9 @@ class analysisViewModel @Inject constructor(
 
     private val _exercise = MutableStateFlow<String>("")
     val exercise: StateFlow<String> get() = _exercise
+
+    private val _chartExercise = MutableStateFlow<String>("")
+    val chartExercise: StateFlow<String> get() = _chartExercise
 
     private val _apiResponseName = MutableStateFlow<String>("")
     val apiResponseName: StateFlow<String> get() = _apiResponseName
@@ -74,6 +74,25 @@ class analysisViewModel @Inject constructor(
 
     private val _workouts = MutableStateFlow<List<Mworkout>>(emptyList())
     val workouts: StateFlow<List<Mworkout>> get() = _workouts
+
+    private val _tempFlag = MutableStateFlow(false)
+    val tempFlag: StateFlow<Boolean> get() = _tempFlag
+
+    private val _exerciseAnalysis = MutableStateFlow<List<MexerAnalysis>>(emptyList())
+
+    private val _type = MutableStateFlow("") // What data should be displayed
+    val type: StateFlow<String> get() = _type
+
+    private val _muscleGroup = MutableStateFlow("") //If user wants to see specific muscle group workouts
+    val muscleGroup: StateFlow<String> get() = _muscleGroup
+
+    val muscleGroups: List<String> = listOf("Push", "Pull", "Legs", "Chest", "Shoulder", "Arms", "Core", "Full Body")
+
+    private val _bodyPart = MutableStateFlow("") //If user wants to see specific body part workouts
+    val bodyPart: StateFlow<String> get() = _bodyPart
+
+    private val _bodyParts = MutableStateFlow<List<String>>(emptyList())
+    val bodyParts: StateFlow<List<String>> get() = _bodyParts
 
     fun updateBodyPart(string: String){
         _chosenBodyPart.value = string
@@ -96,16 +115,7 @@ class analysisViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Function to get search exercise in existing list of exercises
-     */
-    fun getExercises(query: String = ""){
-        workoutRepo.getExercises(query.lowercase()) { exerciseList ->
-            _exercises.value = exerciseList
-            Log.d("Firebase", "Exercises found: ${exerciseList.size}")
-        }
-    }
-
+    //gets workouts from repo
     fun getWorkouts() {
         workoutRepo.getWorkouts(uid) { workoutList ->
             _workouts.value = workoutList
@@ -118,7 +128,6 @@ class analysisViewModel @Inject constructor(
 
     //Volley API Call
     private val requestQueue = Volley.newRequestQueue(FirebaseApp.getInstance().applicationContext)
-
     fun fetchExternalData() {
         val url = "https://akrishnadas1.pythonanywhere.com/getrec?exercise=${_exercise.value}" // Replace with your URL
         val jsonObjectRequest = JsonObjectRequest(
@@ -160,6 +169,8 @@ class analysisViewModel @Inject constructor(
         requestQueue.add(jsonObjectRequest)
     }
 
+    //get workout progressions and get exercise analysis
+
     fun getWorkoutProgressions() : MutableStateFlow<List<Manalysis>>{
         val workoutProgressions = MutableStateFlow<List<Manalysis>>(emptyList())
         analysisRepo.getWorkoutProgression(uid) { progressionList ->
@@ -175,7 +186,6 @@ class analysisViewModel @Inject constructor(
         return workoutProgressions
     }
 
-    //
     fun getExerciseAnalysis() : MutableStateFlow<List<MexerAnalysis>>{
         val exerciseAnalysis = MutableStateFlow<List<MexerAnalysis>>(emptyList())
         analysisRepo.getAnalyzedExercises(uid) { analysisList ->
@@ -187,28 +197,7 @@ class analysisViewModel @Inject constructor(
         return exerciseAnalysis
     }
 
-    private val _exerciseAnalysis = MutableStateFlow<List<MexerAnalysis>>(emptyList())
-
-    private val _type = MutableStateFlow("") // What data should be displayed
-    val type: StateFlow<String> get() = _type
-
-    private val _muscleGroup = MutableStateFlow("") //If user wants to see specific muscle group workouts
-    val muscleGroup: StateFlow<String> get() = _muscleGroup
-
-    val muscleGroups: List<String> = listOf("Push", "Pull", "Legs", "Chest", "Shoulder", "Arms", "Core", "Full Body")
-
-    private val _bodyPart = MutableStateFlow("") //If user wants to see specific body part workouts
-    val bodyPart: StateFlow<String> get() = _bodyPart
-
-    private val _bodyParts = MutableStateFlow<List<String>>(emptyList())
-    val bodyParts: StateFlow<List<String>> get() = _bodyParts
-
-
-
-    private val _tempFlag = MutableStateFlow(false)
-    val tempFlag: StateFlow<Boolean> get() = _tempFlag
-
-
+    //ui state
 
     val uiState: StateFlow<AnalysisUiState> = combine(
         getWorkoutProgressions(),
@@ -226,18 +215,6 @@ class analysisViewModel @Inject constructor(
                 _bodyParts.value += analysis.bodyPart
             }
         }
-    }
-
-    fun setType(type: String) {
-        _type.value = type
-    }
-
-    fun setMuscleGroup(muscleGroup: String) {
-        _muscleGroup.value = muscleGroup
-    }
-
-    fun setBodyPart(bodyPart: String) {
-        _bodyPart.value = bodyPart
     }
 
     fun analyzeWorkouts() {

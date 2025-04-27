@@ -506,7 +506,8 @@ fun WorkoutListScreen(
 @Composable
 fun ExerciseCard(
     exercise: Mexercise,
-    modifier: Modifier = Modifier
+    isImperial: Boolean,
+    modifier: Modifier = Modifier,
 ){
     var expanded by remember { mutableStateOf(false) }
 
@@ -535,7 +536,7 @@ fun ExerciseCard(
                     exercise.sets.forEach { set ->
                         Row {
                             Spacer(modifier = Modifier.padding(15.dp))
-                            Text(text = set.getFormattedSet())
+                            Text(text = set.getFormattedSet(isImperial))
                         }
                     }
                     Spacer(modifier = Modifier.padding(vertical = 4.dp))
@@ -550,6 +551,7 @@ fun ExerciseCard(
 fun WorkoutScreen(
     workout: Mworkout?,
     navUp: () -> Unit,
+    isImperial: Boolean,
     modifier: Modifier = Modifier
 ){
     workout?.let {
@@ -570,7 +572,7 @@ fun WorkoutScreen(
             HorizontalDivider(thickness = 2.dp)
             LazyColumn {
                 items(workout.exercises) { exercise ->
-                    ExerciseCard(exercise)
+                    ExerciseCard(exercise, isImperial)
                 }
             }
         }
@@ -724,7 +726,7 @@ fun WorkoutScreenPreview() {
                 workout = Mworkout(
                     name = "Test Workout",
                     exercises = testExerciseList()
-                ),
+                ), isImperial = true,
                 navUp = {}
             )
         }
@@ -750,7 +752,7 @@ fun ExerciseCardPreview() {
                             weight = 30.0
                         )
                     )
-                )
+                ), true
             )
         }
     }

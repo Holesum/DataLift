@@ -1,5 +1,7 @@
 package com.example.datalift.screens.analysis
 
+
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,7 +10,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
@@ -23,12 +28,18 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.CartesianMeasuringContext
+import com.patrykandpatrick.vico.core.cartesian.axis.Axis
 import com.patrykandpatrick.vico.core.cartesian.axis.BaseAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 
 // Displays two different charts
@@ -69,7 +80,7 @@ fun AnalysisRoute(
 }
 
 
-@VisibleForTesting
+//@VisibleForTesting
 @Composable
 internal fun AnalysisScreen(
     uiState: AnalysisUiState,
@@ -85,125 +96,190 @@ internal fun AnalysisScreen(
     tempFlag: Boolean,  // We're keeping tempFlag to study performance with large # of data
     modifier: Modifier = Modifier
 ) {
+    val isImperial = true
     val workoutProgressionModelProducer = remember { CartesianChartModelProducer() }
     val exerciseProgressionModelProducer = remember { CartesianChartModelProducer() }
 
-    LaunchedEffect(uiState) {
-        if(uiState is AnalysisUiState.Success){
-            val progressionData: List<Double> = uiState.workoutProgression.map {
-                it.totalProgression
-            }
-            val exerciseProgression: List<Double> = uiState.exerciseAnalysis
-                .filter { it.bodyPart == chosenBodyPart }
-                .map { it.initialAvgORM }
-
-            if(progressionData.isNotEmpty()){
-                workoutProgressionModelProducer.runTransaction {
-                    lineSeries { series(progressionData) }
-                }
-            }
-
-            if(exerciseProgression.isNotEmpty()){
-                exerciseProgressionModelProducer.runTransaction {
-                    lineSeries { series(exerciseProgression) }
-                }
-            } else {
-                exerciseProgressionModelProducer.runTransaction {
-                    lineSeries { series(0,0,0,0) }
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(chosenBodyPart){
-        if (uiState is AnalysisUiState.Success){
-            val progression: List<Double> = uiState.exerciseAnalysis
-                .filter { it.bodyPart.equals(chosenBodyPart) }
-                .map { it.initialAvgORM }
-
-            if(progression.isNotEmpty()){
-                exerciseProgressionModelProducer.runTransaction {
-                    lineSeries { series(progression) }
-                }
-            } else {
-                exerciseProgressionModelProducer.runTransaction {
-                    lineSeries { series(0,0,0,0) }
-                }
-            }
-        }
-    }
-
-//    LaunchedEffect(Unit) {
-//        modelProducer.runTransaction {
-//            lineSeries { series(13, 8, 7, 12, 0, 1, 15, 14, 0, 11, 6, 12, 0, 11, 12, 11) }
-//        }[
-
+//
+//    //this is seems to be all of the data for the top chart
+//    LaunchedEffect(uiState) {
+//
+//        if(uiState is AnalysisUiState.Success){
+//            //I want to take the exerciseName field of each item in the list and put it into a list to let users choose from an exercise to view the progression of
+//            Log.d("testing", uiState.exerciseAnalysis.toString())
+//            //then I want to take the date of the progression and have that be the x value of the chart
+//            //then for each exercise there is an initialAvgORM and for each progression there is a progression multiplier that I can multiple the initialAvgORM by to get the weight value
+//            //I also will need to verify the metric or imperial with userRepo.getUnitSystem() tied to a variable called isImperial
+//            val progressionData: List<Double> = uiState.workoutProgression.map {
+//                it.totalProgression
+//            }
+//            val exerciseProgression: List<Double> = uiState.exerciseAnalysis
+//                .filter { it.bodyPart == chosenBodyPart }
+//                .map { it.initialAvgORM }
+//
+//            if(progressionData.isNotEmpty()){
+//                workoutProgressionModelProducer.runTransaction {
+//                    lineSeries { series(progressionData) }
+//                }
+//            }
+//
+//            if(exerciseProgression.isNotEmpty()){
+//                exerciseProgressionModelProducer.runTransaction {
+//                    lineSeries { series(exerciseProgression) }
+//                }
+//            } else {
+//                exerciseProgressionModelProducer.runTransaction {
+//                    lineSeries { series(0,0,0,0) }
+//                }
+//            }
+//        }
 //    }
+// State to store formatted dates and weight values
+    var formattedDates by remember { mutableStateOf<List<String>>(emptyList()) }
+    var weightValues by remember { mutableStateOf<List<Double>>(emptyList()) }
+    var timeInMillis by remember { mutableStateOf<List<Double>>(emptyList()) }
+    var exerciseMin by remember { mutableStateOf(0.0) }
 
 
+    // Handle data when UI state is successfully loaded
+    LaunchedEffect(uiState) {
+        if (uiState is AnalysisUiState.Success) {
+            // Extract the exercise names for user selection
+            val exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
+
+            // Dynamic value for selected exercise (replace with user selection logic)
+            val exerciseName = "bench press"
+
+            // Find the progression data for the selected exercise
+            val analysis = uiState.exerciseAnalysis.find { it.exerciseName.equals(exerciseName, ignoreCase = true) }
+
+            // Convert progression dates to Date objects
+            val exerciseDates = analysis?.progression?.map { it.date.toDate() } ?: emptyList()
+
+            // Convert timestamps to numeric values (e.g., milliseconds)
+            timeInMillis = exerciseDates.map { it.time.toDouble() }
+
+            // Create a SimpleDateFormat for formatting the dates
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            formattedDates = exerciseDates.map { dateFormat.format(it) }
+
+
+            // Get progression multipliers for Y-axis
+            val progressionMultipliers = analysis?.progression?.map { it.progressionMultiplier } ?: emptyList()
+            val initialAvgORM = analysis?.initialAvgORM ?: 0.0
+
+            // Calculate weight values for Y-axis based on user's unit system
+            weightValues = if (isImperial) {
+                progressionMultipliers.map { it * initialAvgORM }
+            } else {
+                progressionMultipliers.map { it * initialAvgORM * 0.453592 }
+            }
+
+            Log.d("test", "weight values ${weightValues.toString()}")
+            if(weightValues.isNotEmpty()){exerciseMin = weightValues.first()}
+            Log.d("test", "min ${exerciseMin.toString()}")
+            // Update chart data for workout progression
+            // Ensure the data isn't empty before updating the chart
+            if (timeInMillis.isNotEmpty() && weightValues.isNotEmpty()) {
+                workoutProgressionModelProducer.runTransaction {
+
+                    lineSeries { series(timeInMillis, weightValues) }
+                }
+            } else {
+                // Provide fallback data (0.0) if the data is empty
+                workoutProgressionModelProducer.runTransaction {
+                    lineSeries { series(0.0, 0.0) }
+                }
+            }
+        }
+    }
+
+    // Custom ValueFormatter for Date
+    val dateFormatter = remember {
+        CartesianValueFormatter { context, value, verticalAxisPosition ->
+            val index = value.toInt() // Convert to int for index
+            if (index < formattedDates.size) {
+                formattedDates[index]
+            } else {
+                ""
+            }
+        }
+    }
+
+    // Setup X-axis for time (dates)
+    val xAxis = HorizontalAxis.rememberBottom(
+        valueFormatter = dateFormatter,
+        guideline = null
+    )
+
+    // Update the chart with the data for exercise progression
+    LaunchedEffect(weightValues) {
+        // Ensure weightValues isn't empty before updating the chart
+        if (weightValues.isNotEmpty()) {
+            exerciseProgressionModelProducer.runTransaction {
+                lineSeries { series(weightValues) }
+            }
+        } else {
+            // Provide fallback data (0.0) if weightValues is empty
+            exerciseProgressionModelProducer.runTransaction {
+                lineSeries { series(0.0, 0.0, 0.0, 0.0) }
+            }
+        }
+    }
+
+    // LazyColumn for displaying the UI
     LazyColumn {
-        when(uiState) {
+        when (uiState) {
             AnalysisUiState.Loading -> item {
-                Text("Loading")
+                Text("Loading...")
             }
             AnalysisUiState.Error -> Unit
             is AnalysisUiState.Success -> {
-                item{
+                item {
                     Text("Workout Analysis")
                 }
+
                 item {
-                    ComposeBasicLineChart(
-                        modelProducer = workoutProgressionModelProducer,
-                        modifier = modifier.fillMaxWidth()
-                    )
+                    // Display the workout progression chart
+                    if(formattedDates.isNotEmpty()) {
+                        Log.d("test", "formattedDates ${formattedDates.toString()}")
+                        ComposeBasicLineChart(
+                            modelProducer = workoutProgressionModelProducer,
+                            formattedDates =  formattedDates,
+                            modifier = modifier.fillMaxWidth(),
+                            min = exerciseMin - 10
+                        )
+                    } else {
+                        Text("No data available")
+                    }
                 }
+
                 item {
                     Text("This graph displays how the user is progressing in their workouts over time")
                 }
 
-                item{
+                item {
+                    // Exercise body part selection
                     SemiStatelessRadioOptionFieldToModal(
                         field = "Body Part",
                         selectedOption = chosenBodyPart,
                         changeSelectedOption = updateChosenBodyPart,
                         options = listOf("Push", "Pull", "Legs", "Chest", "Arms", "Core", "Full Body"),
-                        modifier = modifier.padding(4.dp)
-                            .fillMaxWidth(0.75f)
+                        modifier = modifier.padding(4.dp).fillMaxWidth(0.75f)
                     )
                 }
-                item{
-                    ComposeBasicLineChart(
-                        modelProducer = exerciseProgressionModelProducer,
-                        modifier = modifier.fillMaxWidth()
-                    )
-                }
-//                item{
-//                    RadioOptionFieldToModal(
-//                        field = "Body Part",
-//                        options = listOf("Push", "Pull", "Legs", "Chest", "Arms", "Core", "Full Body"),
-//                        modifier = modifier.padding(4.dp)
-//                            .fillMaxWidth(0.75f)
+
+//                item {
+//                    // Display the exercise progression chart
+//                    ComposeBasicLineChart(
+//                        modelProducer = exerciseProgressionModelProducer,
+//                        modifier = modifier.fillMaxWidth()
 //                    )
 //                }
             }
         }
 
-        if(exerciseUiState.recommendationDisplayed){
-            fetchExternalData()
-            item {
-                Text(
-                    text = "The exercise you are getting recommendations for is: $exercise",
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-            }
-            item {
-                Text(
-                    text = "Your recommended workout is: $apiResponse"
-                )
-            }
-        }
-
-        item{
+        item {
             Button(
                 onClick = { updateDisplays(true, exerciseUiState.recommendationDisplayed) },
                 modifier = Modifier.padding(top = 10.dp)
@@ -213,38 +289,39 @@ internal fun AnalysisScreen(
         }
     }
 
+    // Search Exercise Dialog
     StatelessSearchExerciseDialog(
         query = exerciseUiState.query,
         changeQuery = updateQuery,
         isVisible = exerciseUiState.dialogDisplayed,
-        onDismiss = {
-            updateDisplays(false,false)
-        },
+        onDismiss = { updateDisplays(false, false) },
         onSelectExercise = { selectedExercise ->
             setExercise(selectedExercise.name)
-            updateDisplays(false,true)
+            updateDisplays(false, true)
         }
     )
-
 }
 
 @Composable
-private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer, modifier: Modifier) {
-    CartesianChartHost(
-        chart =
-        rememberCartesianChart(
-            rememberLineCartesianLayer(
-//                rangeProvider = CartesianLayerRangeProvider.fixed(minY = 0.5)
-            ),
-            startAxis = VerticalAxis.rememberStart(
-                guideline = null,
+private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,formattedDates: List<String>, min: Double = 0.0, modifier: Modifier) {
+    val dateFormatter = remember(formattedDates) {
+        CartesianValueFormatter { _, value, _ ->
+            val index = value.toInt().coerceIn(0, formattedDates.lastIndex)
+            formattedDates[index]
+        }
+    }
 
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            rememberLineCartesianLayer(
+                rangeProvider = CartesianLayerRangeProvider.fixed(minY = min)
             ),
-            bottomAxis = HorizontalAxis.rememberBottom(
-                guideline = null
-            ),
+            startAxis = VerticalAxis.rememberStart(guideline = null),
+            //bottomAxis = HorizontalAxis.rememberBottom(guideline = null)
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = dateFormatter,
+                guideline = null)
         ),
         modelProducer = modelProducer,
-        modifier = modifier,
+        modifier = modifier
     )
 }

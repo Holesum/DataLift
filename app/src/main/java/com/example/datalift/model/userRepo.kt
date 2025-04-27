@@ -8,6 +8,11 @@ import com.google.firebase.firestore.toObject
 
 class userRepo {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private var unitPreference: Boolean = true
+
+    fun getCachedUnitType(): Boolean {
+        return unitPreference ?: true // default fallback
+    }
 
     fun getUser(uid: String, callback: (Muser?) -> Unit) {
         db.collection("Users")
@@ -30,12 +35,15 @@ class userRepo {
             .addOnSuccessListener { snapshot ->
                 val user = Muser.fromDocument(snapshot)
                 if(user.imperial){
+                    unitPreference = true
                     callback("Imperial")
                 } else {
+                    unitPreference = false
                     callback("Metric")
                 }
             }.addOnFailureListener {
                 Log.d("Firebase", "Error updating privacy: ${it.message}")
+                unitPreference = true
                 callback("Imperial")
             }
     }

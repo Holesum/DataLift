@@ -29,7 +29,9 @@ class goalRepo @Inject constructor(
                         ignoreCase = true
                     )
                 }
-                goal.targetValue = (analysis!!.initialAvgORM + goal.targetValue).toInt()
+                val progression = analysis!!.progression.sortedByDescending { it.progressionMultiplier }
+                val multiplier = progression.first().progressionMultiplier
+                goal.targetValue = (analysis.initialAvgORM * multiplier + goal.targetValue).toInt()
             }
             val goalRef = db.collection("Users")
                 .document(uid)
@@ -55,6 +57,21 @@ class goalRepo @Inject constructor(
                     Log.e("Firebase", "Error creating goal: ${e.message}")
                     callback(null)
                 }
+        }
+    }
+
+    override fun deleteGoal(uid: String, goal: Mgoal, callback: (Boolean) -> Unit) {
+        db.collection("Users")
+            .document(uid)
+            .collection("Goals")
+            .document(goal.docID)
+            .delete()
+    }
+
+    override fun evaluateGoals(uid: String, exerciseAnalysis: List<MexerAnalysis>, workouts: List<Mworkout>, callback: (Boolean) -> Unit) {
+        analysisRepo.evaluateGoals(uid, exerciseAnalysis, workouts) {
+            Log.d("GoalRepo", "Goals evaluated")
+            callback(true)
         }
     }
 

@@ -49,9 +49,15 @@ class SettingsRepo @Inject constructor(
         if(unitType.contentEquals("Imperial")){
             _unitType.value = unitType
             userRepo.changeImperial(uid,true)
+            userRepo.getUnitType(uid){ unitType ->
+                _unitType.value = unitType
+            }
         } else if (unitType.contentEquals("Metric")){
             _unitType.value = unitType
             userRepo.changeImperial(uid,false)
+            userRepo.getUnitType(uid){ unitType ->
+                _unitType.value = unitType
+            }
         }
     }
 }

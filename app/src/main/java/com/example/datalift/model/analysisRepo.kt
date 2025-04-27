@@ -159,7 +159,7 @@ class analysisRepo @Inject constructor(
             }.addOnFailureListener { onFailure(it) }
     }
 
-    fun evaluateGoals(uid: String, exerciseAnalysis: List<MexerAnalysis>, workouts: List<Mworkout>, onComplete: () -> Unit) {
+    override fun evaluateGoals(uid: String, exerciseAnalysis: List<MexerAnalysis>, workouts: List<Mworkout>, onComplete: () -> Unit) {
         val goalRef = db.collection("Users").document(uid).collection("Goals")
 
         goalRef.get().addOnSuccessListener { snapshot ->

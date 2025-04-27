@@ -41,6 +41,7 @@ fun PostScreen(
     modifier: Modifier = Modifier,
     navUp: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
+    isImperial: Boolean
 ) {
     Column {
         Row(modifier = modifier.fillMaxWidth()) {
@@ -116,7 +117,8 @@ fun PostScreen(
                                     start = 8.dp,
                                     top = 8.dp,
                                     bottom = 8.dp
-                                )
+                                ),
+                                isImperial = isImperial
                             )
                         }
                     }
@@ -132,12 +134,13 @@ fun PostScreen(
 fun PostExerciseDisplay(
     exercise: Mexercise,
     modifier: Modifier = Modifier,
+    isImperial: Boolean
 ){
     Column(modifier = modifier) {
         Text(exercise.name)
         Column(modifier = Modifier.padding(start = 12.dp)){
             exercise.sets.forEach { set ->
-                Text(text = "${set.rep} reps at ${set.weight} lbs")
+                Text(text = set.getFormattedSet(isImperial))
             }
         }
     }
@@ -293,7 +296,7 @@ fun PostPreview(){
     DataliftTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val post = testPost()
-            PostScreen(post = post)
+            PostScreen(post = post, isImperial = false)
         }
     }
 }
