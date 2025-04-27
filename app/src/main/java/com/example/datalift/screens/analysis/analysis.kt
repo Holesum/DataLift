@@ -3,10 +3,13 @@ package com.example.datalift.screens.analysis
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,7 +31,10 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.fraction
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.core.cartesian.CartesianMeasuringContext
 import com.patrykandpatrick.vico.core.cartesian.axis.Axis
 import com.patrykandpatrick.vico.core.cartesian.axis.BaseAxis
@@ -37,6 +44,10 @@ import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.core.common.Insets
+import com.patrykandpatrick.vico.core.common.shape.Shape
+
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -62,6 +73,7 @@ fun AnalysisRoute(
     val apiResponse = analysisViewModel.apiResponseName.collectAsStateWithLifecycle().value
     val tempFlag = analysisViewModel.tempFlag.collectAsStateWithLifecycle().value
     val chosenBodyPart = analysisViewModel.chosenBodyPart.collectAsStateWithLifecycle().value
+    val exerciseName = analysisViewModel.chartExercise.collectAsStateWithLifecycle().value
 
     AnalysisScreen(
         uiState = uiState,
@@ -75,6 +87,8 @@ fun AnalysisRoute(
         updateDisplays = analysisViewModel::updateDisplays,
         setExercise = analysisViewModel::setExercise,
         tempFlag = tempFlag,
+        exerciseName = exerciseName,
+        updateExercise = analysisViewModel::updateExercise,
         modifier = Modifier
     )
 }
@@ -94,61 +108,28 @@ internal fun AnalysisScreen(
     updateQuery: (String) -> Unit,
     updateDisplays: (Boolean, Boolean?) -> Unit,
     tempFlag: Boolean,  // We're keeping tempFlag to study performance with large # of data
+    exerciseName: String,
+    updateExercise: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isImperial = true
     val workoutProgressionModelProducer = remember { CartesianChartModelProducer() }
     val exerciseProgressionModelProducer = remember { CartesianChartModelProducer() }
 
-//
-//    //this is seems to be all of the data for the top chart
-//    LaunchedEffect(uiState) {
-//
-//        if(uiState is AnalysisUiState.Success){
-//            //I want to take the exerciseName field of each item in the list and put it into a list to let users choose from an exercise to view the progression of
-//            Log.d("testing", uiState.exerciseAnalysis.toString())
-//            //then I want to take the date of the progression and have that be the x value of the chart
-//            //then for each exercise there is an initialAvgORM and for each progression there is a progression multiplier that I can multiple the initialAvgORM by to get the weight value
-//            //I also will need to verify the metric or imperial with userRepo.getUnitSystem() tied to a variable called isImperial
-//            val progressionData: List<Double> = uiState.workoutProgression.map {
-//                it.totalProgression
-//            }
-//            val exerciseProgression: List<Double> = uiState.exerciseAnalysis
-//                .filter { it.bodyPart == chosenBodyPart }
-//                .map { it.initialAvgORM }
-//
-//            if(progressionData.isNotEmpty()){
-//                workoutProgressionModelProducer.runTransaction {
-//                    lineSeries { series(progressionData) }
-//                }
-//            }
-//
-//            if(exerciseProgression.isNotEmpty()){
-//                exerciseProgressionModelProducer.runTransaction {
-//                    lineSeries { series(exerciseProgression) }
-//                }
-//            } else {
-//                exerciseProgressionModelProducer.runTransaction {
-//                    lineSeries { series(0,0,0,0) }
-//                }
-//            }
-//        }
-//    }
 // State to store formatted dates and weight values
     var formattedDates by remember { mutableStateOf<List<String>>(emptyList()) }
     var weightValues by remember { mutableStateOf<List<Double>>(emptyList()) }
     var timeInMillis by remember { mutableStateOf<List<Double>>(emptyList()) }
     var exerciseMin by remember { mutableStateOf(0.0) }
+    var dropDown by remember {mutableStateOf(false)}
+    var exerciseNames by remember {mutableStateOf<List<String>>(emptyList())}
 
 
     // Handle data when UI state is successfully loaded
-    LaunchedEffect(uiState) {
+    LaunchedEffect(uiState,exerciseName) {
         if (uiState is AnalysisUiState.Success) {
             // Extract the exercise names for user selection
-            val exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
-
-            // Dynamic value for selected exercise (replace with user selection logic)
-            val exerciseName = "bench press"
+            exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
 
             // Find the progression data for the selected exercise
             val analysis = uiState.exerciseAnalysis.find { it.exerciseName.equals(exerciseName, ignoreCase = true) }
@@ -160,8 +141,9 @@ internal fun AnalysisScreen(
             timeInMillis = exerciseDates.map { it.time.toDouble() }
 
             // Create a SimpleDateFormat for formatting the dates
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             formattedDates = exerciseDates.map { dateFormat.format(it) }
+            Log.w("test", "formattedDates ${formattedDates.toString()}")
 
 
             // Get progression multipliers for Y-axis
@@ -183,7 +165,7 @@ internal fun AnalysisScreen(
             if (timeInMillis.isNotEmpty() && weightValues.isNotEmpty()) {
                 workoutProgressionModelProducer.runTransaction {
 
-                    lineSeries { series(timeInMillis, weightValues) }
+                    lineSeries { series(weightValues) }
                 }
             } else {
                 // Provide fallback data (0.0) if the data is empty
@@ -193,6 +175,7 @@ internal fun AnalysisScreen(
             }
         }
     }
+
 
     // Custom ValueFormatter for Date
     val dateFormatter = remember {
@@ -238,6 +221,15 @@ internal fun AnalysisScreen(
                 item {
                     Text("Workout Analysis")
                 }
+                item {
+                SemiStatelessRadioOptionFieldToModal(
+                    field = "Exercise",
+                    selectedOption = exerciseName,
+                    changeSelectedOption = updateExercise,
+                    options = exerciseNames,
+                    modifier = modifier.padding(4.dp).fillMaxWidth(0.75f)
+                )
+            }
 
                 item {
                     // Display the workout progression chart
@@ -247,7 +239,8 @@ internal fun AnalysisScreen(
                             modelProducer = workoutProgressionModelProducer,
                             formattedDates =  formattedDates,
                             modifier = modifier.fillMaxWidth(),
-                            min = exerciseMin - 10
+                            min = exerciseMin - 10,
+                            title = exerciseName
                         )
                     } else {
                         Text("No data available")
@@ -303,13 +296,27 @@ internal fun AnalysisScreen(
 }
 
 @Composable
-private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,formattedDates: List<String>, min: Double = 0.0, modifier: Modifier) {
+private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,formattedDates: List<String>, min: Double = 0.0, title: String = "title check", modifier: Modifier) {
     val dateFormatter = remember(formattedDates) {
         CartesianValueFormatter { _, value, _ ->
             val index = value.toInt().coerceIn(0, formattedDates.lastIndex)
             formattedDates[index]
         }
     }
+
+    val labelComponent = rememberTextComponent(
+        margins = Insets(4F),
+        padding = Insets(8F, 2F, 8F, 4F),
+        background = rememberShapeComponent()
+    )
+
+
+Column {
+
+    Text(
+        text = title,
+        modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally)
+    )
 
     CartesianChartHost(
         chart = rememberCartesianChart(
@@ -318,10 +325,20 @@ private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,for
             ),
             startAxis = VerticalAxis.rememberStart(guideline = null),
             //bottomAxis = HorizontalAxis.rememberBottom(guideline = null)
-            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = dateFormatter,
-                guideline = null)
+            bottomAxis = HorizontalAxis.rememberBottom(
+                valueFormatter = dateFormatter,
+                guideline = null
+            ),
+            marker = rememberDefaultCartesianMarker(
+                label = labelComponent
+            ),
         ),
         modelProducer = modelProducer,
+
         modifier = modifier
     )
 }
+}
+
+
+

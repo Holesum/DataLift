@@ -80,7 +80,11 @@ class analysisRepo @Inject constructor(
 
                 for (workout in workouts.documents) {
                     val workoutData = workout.data ?: continue
-                    val workoutDate = workoutData["date"] as? Date ?: Date()
+                    val workoutTimestamp = workoutData["date"] as? Timestamp
+                    val workoutDate = workoutTimestamp?.toDate() ?: run {
+                        Log.w("WorkoutDateMissing", "Workout ${workout.id} missing date, using default")
+                        Date()
+                    }
                     val workoutType = workoutData["muscleGroup"] as? String ?: "Unknown Type"
 
                     workoutProgressions[workout.id] = mutableMapOf(
@@ -123,6 +127,7 @@ class analysisRepo @Inject constructor(
                                     "progressionMultiplier" to progressionMultiplier
                                 )
                             )
+                            Log.d("ProgressionDateCheck", "Adding progression for $exerciseName on $workoutDate")
 
                             workoutProgressions[workout.id]?.let {
                                 it["totalProgression"] = (it["totalProgression"] as Double) + progressionMultiplier

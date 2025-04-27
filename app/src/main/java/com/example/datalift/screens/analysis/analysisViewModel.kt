@@ -98,6 +98,10 @@ class analysisViewModel @Inject constructor(
         _chosenBodyPart.value = string
     }
 
+    fun updateExercise(string: String){
+        _chartExercise.value = string;
+    }
+
     fun updateQuery(newQuery: String){
         _searchExerciseUiState.update { currentState ->
             currentState.copy(
