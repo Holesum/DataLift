@@ -5,10 +5,18 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class Mchallenge(
-    val cname: String = "",
-    val details: String = "",
-    val members: List<DocumentReference> = emptyList(),
-    val owner: DocumentReference = FirebaseFirestore.getInstance().collection("Users").document("temp"),
-    val date: Timestamp = Timestamp.now(),//fix this to be a date object
-    val requests: List<DocumentReference> = emptyList()//may need to change this to a specific request object
+    var challengeId: String = "",
+    var creatorUid: String = "",
+    var title: String = "",
+    var description: String = "",
+    var startDate: Timestamp = Timestamp.now(),
+    var endDate: Timestamp = Timestamp.now(),
+    var goal: Mgoal = Mgoal(),
+    var participants: List<String> = listOf(),
+    var progress: Map<String, ChallengeProgress> = mapOf()
+)
+
+data class ChallengeProgress(
+    var currentValue: Int = 0,
+    var isComplete: Boolean = false
 )

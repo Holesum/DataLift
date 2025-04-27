@@ -9,9 +9,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.datalift.data.repository.WorkoutRepository
 import com.example.datalift.model.ExerciseItem
+import com.example.datalift.model.GoalType
 import com.example.datalift.model.Manalysis
 import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.analysisRepo
+import com.example.datalift.model.Mgoal
+import com.example.datalift.model.Mworkout
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +69,12 @@ class analysisViewModel @Inject constructor(
     private val _chosenBodyPart = MutableStateFlow<String>("Full Body")
     val chosenBodyPart: StateFlow<String> get() = _chosenBodyPart
 
+    private val _workoutProgressions = MutableStateFlow<List<Manalysis>>(emptyList())
+    val workoutProgressions: StateFlow<List<Manalysis>> get() = _workoutProgressions
+
+    private val _workouts = MutableStateFlow<List<Mworkout>>(emptyList())
+    val workouts: StateFlow<List<Mworkout>> get() = _workouts
+
     fun updateBodyPart(string: String){
         _chosenBodyPart.value = string
     }
@@ -94,6 +103,12 @@ class analysisViewModel @Inject constructor(
         workoutRepo.getExercises(query.lowercase()) { exerciseList ->
             _exercises.value = exerciseList
             Log.d("Firebase", "Exercises found: ${exerciseList.size}")
+        }
+    }
+
+    fun getWorkouts() {
+        workoutRepo.getWorkouts(uid) { workoutList ->
+            _workouts.value = workoutList
         }
     }
 
@@ -154,6 +169,7 @@ class analysisViewModel @Inject constructor(
                 Log.d("Firebase", "Workout progression found: ${progressionList.last()}")
             }
             workoutProgressions.value = progressionList
+            _workoutProgressions.value = progressionList
             _tempFlag.value = true
         }
         return workoutProgressions
@@ -224,103 +240,27 @@ class analysisViewModel @Inject constructor(
         _bodyPart.value = bodyPart
     }
 
-
-
-
     fun analyzeWorkouts() {
-        val tempUID = uid // Replace with dynamic user ID if needed
-        val dateRange = 30
-        val currentDate = LocalDateTime.now()
-        val startDate = currentDate.minusDays(dateRange.toLong())
-        val startDateTimestamp = Timestamp(startDate.atZone(ZoneId.systemDefault()).toInstant())
-
-        Log.d("WorkoutAnalyzer", "Analyzing workouts from $startDateTimestamp to $currentDate")
-
-        db.collection("Users")
-            .document(tempUID)
-            .collection("Workouts")
-            .whereGreaterThan("date", startDateTimestamp)
-            .get()
-            .addOnSuccessListener { workouts ->
-                Log.d("WorkoutAnalyzer", "Analyzing workouts from $startDate to $currentDate")
-                val exerciseData = mutableMapOf<String, MutableMap<String, Any>>()
-                val workoutProgressions = mutableMapOf<String, MutableMap<String, Any>>()
-
-
-
-                for (workout in workouts.documents) {
-                    val workoutData = workout.data ?: continue
-                    val workoutDate = workoutData["date"] as? Date ?: Date()
-                    val workoutType = workoutData["muscleGroup"] as? String ?: "Unknown Type"
-
-
-
-                    workoutProgressions[workout.id] = mutableMapOf(
-                        "totalProgression" to 0.0,
-                        "exerciseCount" to 0,
-                        "date" to workoutDate,
-                        "muscleGroup" to workoutType
-                    )
-
-                    val exercises = workoutData["exercises"] as? List<Map<String, Any>> ?: continue
-                    for (exercise in exercises) {
-                        val exerciseName = exercise["name"] as? String ?: "Unknown Exercise"
-                        val avgORM = exercise["avgORM"] as? Double ?: 0.0
-                        val exerObject = exercise["exercise"] as? Map<String, Any> ?: emptyMap()
-                        val bodyPart = exerObject["bodyPart"] as? String ?: "unknown"
-
-                        if (avgORM > 0) {
-                            if (!exerciseData.containsKey(exerciseName)) {
-                                exerciseData[exerciseName] = mutableMapOf(
-                                    "initialAvgORM" to avgORM,
-                                    "progression" to mutableListOf<Map<String, Any>>(),
-                                    "bodyPart" to bodyPart
-                                )
-                            }
-
-                            val initialAvgORM = exerciseData[exerciseName]?.get("initialAvgORM") as? Double ?: avgORM
-                            val progressionMultiplier = avgORM / initialAvgORM
-
-                            // Add progression data
-                            (exerciseData[exerciseName]?.get("progression") as? MutableList<Map<String, Any>>)?.add(
-                                mapOf(
-                                    "workoutId" to workout.id,
-                                    "date" to workoutDate,
-                                    "progressionMultiplier" to progressionMultiplier
-                                )
-                            )
-
-                            // Update workout progressions
-                            workoutProgressions[workout.id]?.let {
-                                it["totalProgression"] = (it["totalProgression"] as Double) + progressionMultiplier
-                                it["exerciseCount"] = (it["exerciseCount"] as Int + 1)
-                            }
-                        }
+        getWorkouts()
+        analysisRepo.analyzeWorkouts(
+            uid = uid,
+            onComplete = {
+                Log.d("WorkoutAnalyzer", "Analysis complete, now evaluating goals")
+                analysisRepo.evaluateGoals(
+                    uid = uid,
+                    exerciseAnalysis = _exerciseAnalysis.value,
+                    workouts = _workouts.value,
+                    onComplete = {
+                        Log.d("GoalEval", "Goal evaluation complete")
                     }
-                }
-
-                // Calculate average progression and save to Firestore
-                workoutProgressions.forEach { (workoutId, progressionData) ->
-                    val exerciseCount = progressionData["exerciseCount"] as Int
-                    if (exerciseCount > 0) {
-                        progressionData["totalProgression"] = (progressionData["totalProgression"] as Double) / exerciseCount
-                    }
-                    db.collection("Users").document(tempUID)
-                        .collection("WorkoutProgressions").document(workoutId)
-                        .set(progressionData)
-                }
-
-                // Analyze exercise progression
-                val exerciseRef = db.collection("Users").document(tempUID).collection("AnalyzedExercises")
-                exerciseData.forEach { (exerciseName, progressionData) ->
-                    exerciseRef.document(exerciseName).set(progressionData).addOnSuccessListener { Log.d("WorkoutAnalyzer", "progression added") }
-                        .addOnFailureListener { e -> Log.d("WorkoutAnalyzer", "Error adding progression: ${e.message}") }
-                }
-
-            }.addOnFailureListener { e ->
-                Log.d("WorkoutAnalyzer", "Error fetching workouts: ${e.message}")
+                )
+            },
+            onFailure = {
+                Log.e("WorkoutAnalyzer", "Failed to analyze workouts: ${it.message}")
             }
+        )
     }
+
 }
 
 //private fun analysisUiState() : Flow<AnalysisUiState> {
