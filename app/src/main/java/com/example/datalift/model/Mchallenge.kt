@@ -11,8 +11,7 @@ data class Mchallenge(
     var description: String = "",
     var startDate: Timestamp = Timestamp.now(),
     var endDate: Timestamp = Timestamp.now(),
-    //updating this so we can have more complex challenges
-    var goal: List<Mgoal> = listOf(),
+    var goal: Mgoal = Mgoal(),
     var participants: List<String> = listOf(),
     var progress: Map<String, ChallengeProgress> = mapOf()
 )
