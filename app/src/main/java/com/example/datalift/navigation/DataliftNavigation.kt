@@ -18,6 +18,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
+import com.example.datalift.screens.analysis.analysisViewModel
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.feed.FeedViewModel
 import com.example.datalift.screens.feed.PostScreen

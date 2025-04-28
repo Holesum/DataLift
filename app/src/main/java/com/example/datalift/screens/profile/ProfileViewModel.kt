@@ -189,21 +189,6 @@ class ProfileViewModel @Inject constructor(
         _selectedGoalType.value = goalType
     }
 
-//    fun tryGoals(){
-//        val newGoal = Mgoal(
-//            type = GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART,
-//            targetValue = 5,
-//            bodyPart = "Push"
-//        )
-//
-//        goalRepo.createGoal(profile.profileId, newGoal) { createdGoal ->
-//            if (createdGoal != null) {
-//                Log.d("Goal", "Goal created: $createdGoal")
-//            } else {
-//                Log.e("Goal", "Failed to create goal")
-//            }
-//        }
-//    }
 
 //    fun getUser() : MutableStateFlow<Muser?> {
 //        val _user = MutableStateFlow<Muser?>(null)

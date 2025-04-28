@@ -1,6 +1,7 @@
 package com.example.datalift.model
 
 import android.util.Log
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
@@ -300,6 +301,30 @@ class userRepo {
                 // Return the fetched exercises to the callback
                 callback(userList)
             }
+    }
+
+    fun logUserWeight(uid: String, weight: Double){
+        val userWeight = userWeights(weight = weight, date = Timestamp.now())
+        db.collection("Users")
+            .document(uid)
+            .update("weights", FieldValue.arrayUnion(userWeight))
+            .addOnSuccessListener {
+                Log.d("Firebase", "Weight logged")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error logging weight: ${it.message}")
+            }
+
+        db.collection("Users")
+            .document(uid)
+            .update("weight", weight)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Weight updated")
+            }
+            .addOnFailureListener {
+                Log.d("Firebase", "Error updating weight: ${it.message}")
+            }
+
     }
 
 }

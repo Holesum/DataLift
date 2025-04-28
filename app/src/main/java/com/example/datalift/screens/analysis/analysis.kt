@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,8 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.datalift.model.userWeights
 import com.example.datalift.screens.workout.StatelessSearchExerciseDialog
 import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
+import com.example.datalift.ui.components.StatelessDataliftNumberTextField
+import com.google.firebase.Timestamp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.auto
 import com.patrykandpatrick.vico.compose.cartesian.axis.fraction
@@ -74,6 +78,9 @@ fun AnalysisRoute(
     val tempFlag = analysisViewModel.tempFlag.collectAsStateWithLifecycle().value
     val chosenBodyPart = analysisViewModel.chosenBodyPart.collectAsStateWithLifecycle().value
     val exerciseName = analysisViewModel.chartExercise.collectAsStateWithLifecycle().value
+    val isImperial = analysisViewModel.getUnitSystem()
+    val userWeight = analysisViewModel.userWeight.collectAsStateWithLifecycle().value
+    val userWeights = analysisViewModel.userWeights.collectAsStateWithLifecycle().value
 
     AnalysisScreen(
         uiState = uiState,
@@ -89,6 +96,11 @@ fun AnalysisRoute(
         tempFlag = tempFlag,
         exerciseName = exerciseName,
         updateExercise = analysisViewModel::updateExercise,
+        isImperial = isImperial,
+        userWeight = userWeight,
+        changeUserWeight = analysisViewModel::setUserWeight,
+        saveWeight = analysisViewModel::logUserWeight,
+        userWeights = userWeights,
         modifier = Modifier
     )
 }
@@ -110,24 +122,37 @@ internal fun AnalysisScreen(
     tempFlag: Boolean,  // We're keeping tempFlag to study performance with large # of data
     exerciseName: String,
     updateExercise: (String) -> Unit,
+    isImperial: Boolean,
+    userWeight: String,
+    changeUserWeight: (String) -> Unit,
+    saveWeight: () -> Unit,
+    userWeights: List<userWeights>,
     modifier: Modifier = Modifier
 ) {
-    val isImperial = true
     val workoutProgressionModelProducer = remember { CartesianChartModelProducer() }
     val exerciseProgressionModelProducer = remember { CartesianChartModelProducer() }
+    val weightModelProducer = remember { CartesianChartModelProducer() }
 
 // State to store formatted dates and weight values
     var formattedDates by remember { mutableStateOf<List<String>>(emptyList()) }
     var weightValues by remember { mutableStateOf<List<Double>>(emptyList()) }
     var timeInMillis by remember { mutableStateOf<List<Double>>(emptyList()) }
-    var exerciseMin by remember { mutableStateOf(0.0) }
+    var exerciseMin by remember { mutableDoubleStateOf(0.0) }
+    var weightMin by remember { mutableDoubleStateOf(0.0) }
     var dropDown by remember {mutableStateOf(false)}
     var exerciseNames by remember {mutableStateOf<List<String>>(emptyList())}
+    var expandWeight by remember {mutableStateOf(false)}
+    var userWeightValues by remember {mutableStateOf<List<Double>>(emptyList())}
+    var userWeightDates by remember {mutableStateOf<List<Timestamp>>(emptyList())}
+    var formattedWeightDates by remember { mutableStateOf<List<String>>(emptyList()) }
+    var reloadUI by remember {mutableStateOf(false)}
+
 
 
     // Handle data when UI state is successfully loaded
-    LaunchedEffect(uiState,exerciseName) {
+    LaunchedEffect(uiState,exerciseName, reloadUI, userWeights) {
         if (uiState is AnalysisUiState.Success) {
+            reloadUI = false
             // Extract the exercise names for user selection
             exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
 
@@ -151,6 +176,7 @@ internal fun AnalysisScreen(
             val initialAvgORM = analysis?.initialAvgORM ?: 0.0
 
             // Calculate weight values for Y-axis based on user's unit system
+            Log.d("test", "imperial: $isImperial")
             weightValues = if (isImperial) {
                 progressionMultipliers.map { it * initialAvgORM }
             } else {
@@ -174,26 +200,23 @@ internal fun AnalysisScreen(
                 }
             }
         }
-    }
+        //End of first chart data manipulation
 
+        //Step one take list of user weights
 
-    // Custom ValueFormatter for Date
-    val dateFormatter = remember {
-        CartesianValueFormatter { context, value, verticalAxisPosition ->
-            val index = value.toInt() // Convert to int for index
-            if (index < formattedDates.size) {
-                formattedDates[index]
-            } else {
-                ""
+        userWeightValues = userWeights.map { it.weight }
+        userWeightDates = userWeights.map { it.date }
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        formattedWeightDates = userWeightDates.map { dateFormat.format(it.toDate()) }
+
+        if(userWeightValues.isNotEmpty()){
+            weightMin = userWeightValues.minOrNull()!!
+            weightModelProducer.runTransaction {
+                lineSeries { series(userWeightValues) }
             }
         }
     }
-
-    // Setup X-axis for time (dates)
-    val xAxis = HorizontalAxis.rememberBottom(
-        valueFormatter = dateFormatter,
-        guideline = null
-    )
 
     // Update the chart with the data for exercise progression
     LaunchedEffect(weightValues) {
@@ -211,7 +234,7 @@ internal fun AnalysisScreen(
     }
 
     // LazyColumn for displaying the UI
-    LazyColumn {
+    LazyColumn(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
         when (uiState) {
             AnalysisUiState.Loading -> item {
                 Text("Loading...")
@@ -232,47 +255,70 @@ internal fun AnalysisScreen(
             }
 
                 item {
-                    // Display the workout progression chart
-                    if(formattedDates.isNotEmpty()) {
+                    // Exercise Progression Chart
+                    if(formattedDates.isNotEmpty() && exerciseName != "") {
                         Log.d("test", "formattedDates ${formattedDates.toString()}")
                         ComposeBasicLineChart(
                             modelProducer = workoutProgressionModelProducer,
                             formattedDates =  formattedDates,
                             modifier = modifier.fillMaxWidth(),
-                            min = exerciseMin - 10,
+                            min = weightValues.minOrNull()!! - 10,
                             title = exerciseName
                         )
                     } else {
                         Text("No data available")
                     }
                 }
-
+                //User Weight Chart, null check allows for non null assertion
                 item {
-                    Text("This graph displays how the user is progressing in their workouts over time")
+                    if(formattedWeightDates.isNotEmpty()) {
+                        ComposeBasicLineChart(
+                            modelProducer = weightModelProducer,
+                            formattedDates = formattedWeightDates,
+                            modifier = modifier.fillMaxWidth(),
+                            min = userWeightValues.minOrNull()!! - 10,
+                            title = "User Weights"
+                        )
+                    }
                 }
 
                 item {
-                    // Exercise body part selection
-                    SemiStatelessRadioOptionFieldToModal(
-                        field = "Body Part",
-                        selectedOption = chosenBodyPart,
-                        changeSelectedOption = updateChosenBodyPart,
-                        options = listOf("Push", "Pull", "Legs", "Chest", "Arms", "Core", "Full Body"),
-                        modifier = modifier.padding(4.dp).fillMaxWidth(0.75f)
-                    )
+                    if(expandWeight) {
+                        StatelessDataliftNumberTextField(
+                            field = "User Weight",
+                            text = userWeight,
+                            changeText = changeUserWeight
+                        )
+                        Button(onClick = {
+                            saveWeight()
+                            expandWeight = false
+                            reloadUI = true
+                        }) {
+                            Text(text = "Save Weight")
+                        }
+                    } else {
+                        Button(onClick = { expandWeight = true }) {(Text(text = "Log New Weight"))}
+                    }
                 }
-
-//                item {
-//                    // Display the exercise progression chart
-//                    ComposeBasicLineChart(
-//                        modelProducer = exerciseProgressionModelProducer,
-//                        modifier = modifier.fillMaxWidth()
-//                    )
-//                }
             }
         }
 
-        item {
+        if(exerciseUiState.recommendationDisplayed){
+            fetchExternalData()
+            item {
+                Text(
+                    text = "The exercise you are getting recommendations for is: $exercise",
+                    modifier = Modifier.padding(top = 20.dp)
+                )
+            }
+            item {
+                Text(
+                    text = "Your recommended workout is: $apiResponse"
+                )
+            }
+        }
+
+        item{
             Button(
                 onClick = { updateDisplays(true, exerciseUiState.recommendationDisplayed) },
                 modifier = Modifier.padding(top = 10.dp)
@@ -309,7 +355,6 @@ private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,for
         padding = Insets(8F, 2F, 8F, 4F),
         background = rememberShapeComponent()
     )
-
 
 Column {
 

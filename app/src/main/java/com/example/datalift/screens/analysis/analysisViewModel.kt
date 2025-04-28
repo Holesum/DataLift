@@ -15,6 +15,8 @@ import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.analysisRepo
 import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Mworkout
+import com.example.datalift.model.userRepo
+import com.example.datalift.model.userWeights
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,8 @@ import javax.inject.Inject
 @HiltViewModel
 class analysisViewModel @Inject constructor(
     private val analysisRepo: analysisRepo,
-    private val workoutRepo: WorkoutRepository
+    private val workoutRepo: WorkoutRepository,
+    private val userRepo: userRepo
 ) : ViewModel()  {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
@@ -93,6 +96,31 @@ class analysisViewModel @Inject constructor(
 
     private val _bodyParts = MutableStateFlow<List<String>>(emptyList())
     val bodyParts: StateFlow<List<String>> get() = _bodyParts
+
+    private val _userWeight = MutableStateFlow("")
+    val userWeight: StateFlow<String> get() = _userWeight
+
+    private val _userWeights = MutableStateFlow<List<userWeights>>(emptyList())
+    val userWeights: StateFlow<List<userWeights>> get() = _userWeights
+
+    fun setUserWeight(weight: String){
+        _userWeight.value = weight
+    }
+
+    fun logUserWeight(){
+        userRepo.logUserWeight(uid, _userWeight.value.toDouble())
+        getUserWeights()
+    }
+
+    fun getUserWeights(){
+        userRepo.getUser(uid){
+            _userWeights.value = it?.weights ?: emptyList()
+        }
+    }
+
+    fun getUnitSystem(): Boolean {
+        return userRepo.getCachedUnitType()
+    }
 
     fun updateBodyPart(string: String){
         _chosenBodyPart.value = string
@@ -191,6 +219,7 @@ class analysisViewModel @Inject constructor(
     }
 
     fun getExerciseAnalysis() : MutableStateFlow<List<MexerAnalysis>>{
+        getUserWeights()
         val exerciseAnalysis = MutableStateFlow<List<MexerAnalysis>>(emptyList())
         analysisRepo.getAnalyzedExercises(uid) { analysisList ->
             exerciseAnalysis.value = analysisList
@@ -222,6 +251,7 @@ class analysisViewModel @Inject constructor(
     }
 
     fun analyzeWorkouts() {
+        userRepo.getUnitType(uid){}
         getWorkouts()
         analysisRepo.analyzeWorkouts(
             uid = uid,

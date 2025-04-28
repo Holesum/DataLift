@@ -155,12 +155,15 @@ internal fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
-                FollowDisplay(
-                    followingCount = uiState.user.following.size,
-                    followerCount = uiState.user.followers.size,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                )
+                Row {
+                    FollowDisplay(
+                        followingCount = uiState.user.following.size,
+                        followerCount = uiState.user.followers.size,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                    )
+
+                }
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
