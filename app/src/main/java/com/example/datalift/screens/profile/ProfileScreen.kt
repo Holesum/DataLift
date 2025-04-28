@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.datalift.designsystem.DataliftTheme
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.GoalType
 import com.example.datalift.model.Mexercise
@@ -59,7 +60,8 @@ import com.example.datalift.screens.workout.WorkoutViewModel
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.UserPreviewParameterProvider
 import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
-import com.example.datalift.ui.theme.DataliftTheme
+
+
 
 sealed class GoalInputState {
     data class IncreaseORMByValue(val exerciseName: String, val targetValue: Int) : GoalInputState()
