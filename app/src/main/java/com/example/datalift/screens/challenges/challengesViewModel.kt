@@ -1,5 +1,5 @@
 package com.example.datalift.screens.challenges
-
+/*
 //Firebase
 import android.util.Log
 import com.example.datalift.data.repository.GoalRepository
@@ -62,3 +62,4 @@ class challengesViewModel {
         }
     }
 }
+*/
