@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -36,7 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -47,6 +52,8 @@ import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mgoal
 import com.example.datalift.screens.workout.WorkoutViewModel
 import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
+import com.example.datalift.ui.components.StatelessDataliftNumberTextField
+import com.example.datalift.utils.*
 
 @Composable
 fun GoalSection(
@@ -55,7 +62,9 @@ fun GoalSection(
     onAddGoalClicked: () -> Unit,
     createGoal: (Mgoal) -> Unit,
     exercises: List<ExerciseItem>,
-    getQuery: (String) -> Unit
+    getQuery: (String) -> Unit,
+    removeGoal: (Mgoal) -> Unit,
+    isImperial: Boolean
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -71,9 +80,19 @@ fun GoalSection(
         if (goals.isEmpty()) {
             Text("No goals yet. Add one to start tracking!", style = MaterialTheme.typography.bodySmall)
         } else {
-            goals.forEach { goal ->
-                GoalCard(goal = goal)
-                Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn(){
+                items(goals) { goal ->
+                    Column {
+                        Row { GoalCard(goal = goal, isImperial) }
+                        IconButton(
+                            onClick = { removeGoal(goal) },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
             }
         }
         if (isDialogVisible) {
@@ -84,19 +103,27 @@ fun GoalSection(
                     onAddGoalClicked() ; // Close dialog after goal creation
                 },
                 exercises = exercises,
-                getQuery = getQuery
+                getQuery = getQuery,
+                isImperial = isImperial
             )
         }
     }
 }
 
 @Composable
-fun GoalCard(goal: Mgoal) {
+fun GoalCard(goal: Mgoal,
+             isImperial: Boolean) {
     val title = when (goal.type) {
-        GoalType.INCREASE_ORM_BY_PERCENTAGE -> "Increase ORM by ${goal.targetPercentage?.toInt()}%"
-        GoalType.INCREASE_ORM_BY_VALUE -> "Increase ORM to ${goal.targetValue}"
+        GoalType.INCREASE_ORM_BY_PERCENTAGE -> "Increase ${goal.exerciseName} one rep maximum by ${goal.targetPercentage?.toInt()}%"
+        GoalType.INCREASE_ORM_BY_VALUE ->
+            if(isImperial){
+                "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} lbs"
+            }else{
+                "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} kgs"
+            }
+
         GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.targetValue} workouts"
-        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.targetValue} ${goal.bodyPart} workouts"
+        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.targetValue} of ${goal.bodyPart} workouts"
         GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.targetValue} reps of ${goal.exerciseName}"
         else -> "Unknown Goal"
     }
@@ -110,7 +137,7 @@ fun GoalCard(goal: Mgoal) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
             if (!goal.isComplete) {
-                Text("${goal.currentValue} / ${goal.targetValue}")
+                Text("${goal.currentValue.toDisplayWeight(isImperial)} / ${goal.targetValue.toDisplayWeight(isImperial)}")
             } else {
                 Text("✅ Completed!", color = Color.Green)
             }
@@ -123,7 +150,8 @@ fun GoalCreationDialog(
     onDismiss: () -> Unit,
     onCreateGoal: (Mgoal) -> Unit,
     exercises: List<ExerciseItem>,
-    getQuery: (String) -> Unit
+    getQuery: (String) -> Unit,
+    isImperial: Boolean
 ) {
     var selectedType by remember { mutableStateOf(GoalType.UNKNOWN) }
     var targetValue by remember { mutableStateOf("") }
@@ -144,12 +172,24 @@ fun GoalCreationDialog(
                     GoalType.INCREASE_ORM_BY_VALUE -> {
                         if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
                         Text("Exercise Name: $exerciseName")
-                        OutlinedTextField(
-                            value = targetValue,
-                            onValueChange = { targetValue = it },
-                            label = { Text("Target Increase (kg)") },
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                        )
+                        //use statelessdataliftnumberfield
+                        if(isImperial) {
+                            StatelessDataliftNumberTextField(
+                                field = "Weight (lb)",
+                                suffix = "lbs",
+                                text = targetValue,
+                                changeText = { targetValue = it },
+                                isError = false
+                            )
+                        } else {
+                            StatelessDataliftNumberTextField(
+                                field = "Weight (kg)",
+                                suffix = "kgs",
+                                text = targetValue,
+                                changeText = { targetValue = it },
+                                isError = false
+                            )
+                        }
                     }
 
                     GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
@@ -187,11 +227,20 @@ fun GoalCreationDialog(
             TextButton(
                 onClick = {
                     val goal = when (selectedType) {
-                        GoalType.INCREASE_ORM_BY_VALUE -> Mgoal(
-                            type = selectedType,
-                            exerciseName = exerciseName,
-                            targetValue = targetValue.toIntOrNull() ?: 0
-                        )
+                        GoalType.INCREASE_ORM_BY_VALUE ->
+                            if(isImperial){
+                                Mgoal(
+                                    type = selectedType,
+                                    exerciseName = exerciseName,
+                                    targetValue = targetValue.toIntOrNull() ?: 0
+                                )
+                            } else {
+                                Mgoal(
+                                    type = selectedType,
+                                    exerciseName = exerciseName,
+                                    targetValue = (targetValue.toDouble() * 2.20462).toInt() ?: 0
+                                )
+                            }
 
                         GoalType.INCREASE_ORM_BY_PERCENTAGE -> Mgoal(
                             type = selectedType,
@@ -213,8 +262,9 @@ fun GoalCreationDialog(
                         else -> null
                     }
 
-                    goal?.let { onCreateGoal(it) }
-                    onDismiss()
+                    goal?.let { onCreateGoal(it)
+                        onDismiss()
+                    }
                 }
             ) {
                 Text("Create")

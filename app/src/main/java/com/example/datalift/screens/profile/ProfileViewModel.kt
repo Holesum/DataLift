@@ -64,7 +64,8 @@ class ProfileViewModel @Inject constructor(
     init {
         loadUserProfile(profile.profileId)
         loadGoals(profile.profileId)
-        analyzeWorkouts()
+        getWorkouts()
+        getExerciseAnalysis()
 //        viewModelScope.launch {
 //            _uiState.value = ProfileUiState.Loading
 //
@@ -77,6 +78,11 @@ class ProfileViewModel @Inject constructor(
 //            }
 //        }
     }
+
+    fun getUnitSystem(): Boolean {
+        return userRepo.getCachedUnitType()
+    }
+
     private fun getWorkouts() {
         workoutRepo.getWorkouts(profile.profileId) { workoutList ->
             _workouts.value = workoutList
@@ -139,8 +145,12 @@ class ProfileViewModel @Inject constructor(
 
     fun loadGoals(uid: String) {
         viewModelScope.launch {
-            goalRepo.getGoalsForUser(uid) { loadedGoals ->
-                _goals.value = loadedGoals
+            getWorkouts()
+            getExerciseAnalysis()
+            goalRepo.evaluateGoals(uid, _exerciseAnalysis.value, _workouts.value) {
+                goalRepo.getGoalsForUser(uid) { loadedGoals ->
+                    _goals.value = loadedGoals
+                }
             }
         }
     }
@@ -157,32 +167,28 @@ class ProfileViewModel @Inject constructor(
                 }
             }
         }
+    }
 
+    fun deleteGoal(goal: Mgoal) {
+        goalRepo.deleteGoal(profile.profileId, goal) {}
     }
 
     fun toggleDialogVisibility() {
         _isDialogVisible.value = !_isDialogVisible.value
     }
+    fun showDialog() {
+        _isDialogVisible.value = true
+    }
+
+    fun hideDialog() {
+        _isDialogVisible.value = false
+    }
+
 
     fun updateSelectedGoalType(goalType: GoalType) {
         _selectedGoalType.value = goalType
     }
 
-//    fun tryGoals(){
-//        val newGoal = Mgoal(
-//            type = GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART,
-//            targetValue = 5,
-//            bodyPart = "Push"
-//        )
-//
-//        goalRepo.createGoal(profile.profileId, newGoal) { createdGoal ->
-//            if (createdGoal != null) {
-//                Log.d("Goal", "Goal created: $createdGoal")
-//            } else {
-//                Log.e("Goal", "Failed to create goal")
-//            }
-//        }
-//    }
 
 //    fun getUser() : MutableStateFlow<Muser?> {
 //        val _user = MutableStateFlow<Muser?>(null)

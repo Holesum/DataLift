@@ -66,6 +66,8 @@ fun WorkoutDetailsScreen(
         workout = workoutViewModel.workout.collectAsState().value!!
     }
 
+    val isImperial = workoutViewModel.getUnitSystem()
+
 
     Column(
         modifier = Modifier
@@ -126,7 +128,7 @@ fun WorkoutDetailsScreen(
                         if (selectedExercise == exercise) {
                             exercise.sets.forEach { set ->
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(text = set.getFormattedSet(),
+                                    Text(text = set.getFormattedSet(isImperial),
                                         modifier = Modifier.weight(1f))
                                     IconButton(onClick = {workoutViewModel.removeSet(exercise, set)}) {
                                         Icon(Icons.Default.Delete, contentDescription = "Delete set")
@@ -247,6 +249,8 @@ fun WorkoutDetailsEditScreen(
     var isWorkoutAdded by remember { mutableStateOf(false) }
     var saveWorkout by remember { mutableStateOf(true) }
 
+    val isImperial = workoutViewModel.getUnitSystem()
+
 
 
     workout?.let{
@@ -314,7 +318,7 @@ fun WorkoutDetailsEditScreen(
                                 exercise.sets.forEach { set ->
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            text = set.getFormattedSet(),
+                                            text = set.getFormattedSet(isImperial),
                                             modifier = Modifier.weight(1f)
                                         )
                                         IconButton(onClick = { removeSet(exercise, set) }) {
@@ -440,22 +444,40 @@ fun AddSetDialog(
     workoutViewModel: WorkoutViewModel,
     modifier: Modifier = Modifier,
 ){
+    val isImperial = workoutViewModel.getUnitSystem()
+
     Column(modifier = modifier.fillMaxHeight(1F).fillMaxWidth(1F),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Column(modifier = Modifier.fillMaxHeight(1F)) {
-            StatelessDataliftNumberTextField(
-                field = "Weight (lb)",
-                suffix = "lbs",
+            if (isImperial) {
+                StatelessDataliftNumberTextField(
+                    field = "Weight (lb)",
+                    suffix = "lbs",
+                    text = workoutViewModel.weight,
+                    changeText = workoutViewModel.updateWeight,
+                    isError = workoutViewModel.weightInvalid,
+                    supportingText = {
+                        if (workoutViewModel.weightInvalid) {
+                            Text("Weight needs to be an un-empty field")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
+                )
+            }
+         else {
+             StatelessDataliftNumberTextField(
+                field = "Weight (kg)",
+                suffix = "kgs",
                 text = workoutViewModel.weight,
-                changeText =  workoutViewModel.updateWeight ,
+                changeText = workoutViewModel.updateWeight,
                 isError = workoutViewModel.weightInvalid,
                 supportingText = {
-                    if(workoutViewModel.weightInvalid) {
+                    if (workoutViewModel.weightInvalid) {
                         Text("Weight needs to be an un-empty field")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
-            )
+            )}
 
             StatelessDataliftNumberTextField(
                 field = "Reps",
@@ -471,7 +493,7 @@ fun AddSetDialog(
                 modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
             )
             Button(
-                onClick = { onAddSet(Mset(workoutViewModel.reps.toLong(), workoutViewModel.weight.toDouble()))
+                onClick = { onAddSet(Mset(workoutViewModel.reps.toLong(), workoutViewModel.weight.toDouble() * 2.20462))
                           workoutViewModel.weight = ""; workoutViewModel.reps = ""},
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
