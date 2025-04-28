@@ -100,7 +100,8 @@ fun ProfileScreen(
         getQuery = { query: String -> profileViewModel.getExercises(query) },
         isDialogVisible = isDialogVisible,
         removeGoal = { goal: Mgoal -> profileViewModel.deleteGoal(goal) },
-        isImperial = profileViewModel.getUnitSystem()
+        isImperial = profileViewModel.getUnitSystem(),
+        currUser = uid
     )
 }
 
@@ -116,6 +117,7 @@ internal fun ProfileScreen(
     getQuery: (String) -> Unit = {},
     removeGoal: (Mgoal) -> Unit = {},
     isImperial: Boolean = true,
+    currUser: String = "",
     modifier: Modifier = Modifier
 ){
 
@@ -166,20 +168,21 @@ internal fun ProfileScreen(
                     )
 
                 }
+                Spacer(modifier = Modifier.height(24.dp))
+                if(currUser == uiState.user.uid)
+                    GoalSection(
+                        goals = goals,
+                        isDialogVisible = isDialogVisible,
+                        onAddGoalClicked =  onAddGoalClicked,
+                        createGoal = createGoal,
+                        exercises = exercises,
+                        getQuery = getQuery,
+                        removeGoal = removeGoal,
+                        isImperial = isImperial
+                    )
             }
         }
-        Spacer(modifier = Modifier.height(24.dp))
 
-        GoalSection(
-            goals = goals,
-            isDialogVisible = isDialogVisible,
-            onAddGoalClicked =  onAddGoalClicked,
-            createGoal = createGoal,
-            exercises = exercises,
-            getQuery = getQuery,
-            removeGoal = removeGoal,
-            isImperial = isImperial
-        )
     }
 }
 
