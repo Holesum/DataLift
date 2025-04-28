@@ -16,7 +16,8 @@ data class Muser(
     var dob: Timestamp = Timestamp.now(),
     var weights: List<userWeights> = emptyList(),
     var followers: List<String> = emptyList(),
-    var following: List<String> = emptyList()
+    var following: List<String> = emptyList(),
+    var challenges: List<Mchallenge> = emptyList()
 ) {
     companion object {
         fun fromDocument(document: DocumentSnapshot): Muser {
