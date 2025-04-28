@@ -172,8 +172,6 @@ class analysisRepo @Inject constructor(
 
             goals.forEach { goal ->
                 var updatedGoal = goal.copy()
-
-
                 when (goal.type) {
                     GoalType.INCREASE_ORM_BY_VALUE -> {
                         val analysis = exerciseAnalysis.find { it.exerciseName.equals(goal.exerciseName, ignoreCase = true) }

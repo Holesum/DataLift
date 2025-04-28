@@ -88,9 +88,6 @@ class challengeRepo @Inject constructor() : ChallengeRepository {
             .set(challenge)
     }
 
-    fun evaluateChallenges(uid: String, callback: (List<Mchallenge>) -> Unit) {
-
-    }
 
     //Add user to challenge
     fun addUserToChallenge(uid: String, challengeId: String, callback: (Boolean) -> Unit) {

@@ -40,24 +40,34 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun addLike(post: Mpost){
-        postRepo.addLike(uid, post)
-    }
+    fun addLike(post: Mpost) {
+        val updatedPosts = _posts.value.toMutableList()
+        val index = updatedPosts.indexOfFirst { it.docID == post.docID }
 
-    fun removeLike(post: Mpost){
-        postRepo.removeLike(uid, post)
-    }
+        if (index != -1 && !post.likes.contains(uid)) {
+            val newLikes = post.likes + uid // adds current user
+            val updatedPost = post.copy(likes = newLikes)
+            updatedPosts[index] = updatedPost
+            _posts.value = updatedPosts
 
-    fun updateCurrentViewedPost(postID: String, uid: String){
-        postRepo.getPost(uid,postID) { post ->
-            _currentPost.value = post
+            postRepo.addLike(uid, post)
         }
     }
 
-    fun getPosts() {
-        postRepo.getPosts(uid){ posts ->
-            _posts.value = posts
+        fun removeLike(post: Mpost) {
+            postRepo.removeLike(uid, post)
         }
-    }
+
+        fun updateCurrentViewedPost(postID: String, uid: String) {
+            postRepo.getPost(uid, postID) { post ->
+                _currentPost.value = post
+            }
+        }
+
+        fun getPosts() {
+            postRepo.getPosts(uid) { posts ->
+                _posts.value = posts
+            }
+        }
 
 }
