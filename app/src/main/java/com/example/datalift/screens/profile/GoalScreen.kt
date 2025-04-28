@@ -2,6 +2,7 @@ package com.example.datalift.screens.profile
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -113,6 +114,7 @@ fun GoalSection(
 @Composable
 fun GoalCard(goal: Mgoal,
              isImperial: Boolean) {
+    Log.d("test", "GoalCard called $goal")
     val title = when (goal.type) {
         GoalType.INCREASE_ORM_BY_PERCENTAGE -> "Increase ${goal.exerciseName} one rep maximum by ${goal.targetPercentage?.toInt()}%"
         GoalType.INCREASE_ORM_BY_VALUE ->
@@ -136,9 +138,14 @@ fun GoalCard(goal: Mgoal,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            if (!goal.isComplete) {
+            if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_VALUE) {
                 Text("${goal.currentValue.toDisplayWeight(isImperial)} / ${goal.targetValue.toDisplayWeight(isImperial)}")
-            } else {
+                } else if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
+                Text("${goal.currentValue}% / ${goal.targetValue}%")
+            } else if (!goal.isComplete) {
+                Text("${goal.currentValue} / ${goal.targetValue}")
+            }
+            else {
                 Text("✅ Completed!", color = Color.Green)
             }
         }
@@ -175,7 +182,7 @@ fun GoalCreationDialog(
                         //use statelessdataliftnumberfield
                         if(isImperial) {
                             StatelessDataliftNumberTextField(
-                                field = "Weight (lb)",
+                                field = "Increase Weight by (lb)",
                                 suffix = "lbs",
                                 text = targetValue,
                                 changeText = { targetValue = it },
@@ -183,7 +190,7 @@ fun GoalCreationDialog(
                             )
                         } else {
                             StatelessDataliftNumberTextField(
-                                field = "Weight (kg)",
+                                field = "Increase Weight by (kg)",
                                 suffix = "kgs",
                                 text = targetValue,
                                 changeText = { targetValue = it },
@@ -244,7 +251,7 @@ fun GoalCreationDialog(
 
                         GoalType.INCREASE_ORM_BY_PERCENTAGE -> Mgoal(
                             type = selectedType,
-                            bodyPart = bodyPart,
+                            exerciseName = exerciseName,
                             targetPercentage = percentage.toDoubleOrNull() ?: 0.0
                         )
 

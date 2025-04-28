@@ -21,6 +21,7 @@ class goalRepo @Inject constructor(
 
             if (goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
                 goal.targetValue = 100 + goal.targetPercentage!!.toInt()
+                goal.currentValue = 100
             }
             if (goal.type == GoalType.INCREASE_ORM_BY_VALUE) {
                 val analysis = exerciseList.value.find {

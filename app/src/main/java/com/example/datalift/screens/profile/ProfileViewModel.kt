@@ -170,6 +170,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun deleteGoal(goal: Mgoal) {
+        _goals.value = _goals.value.filter { it != goal }
         goalRepo.deleteGoal(profile.profileId, goal) {}
     }
 
