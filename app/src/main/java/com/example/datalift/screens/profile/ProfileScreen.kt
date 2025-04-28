@@ -60,6 +60,7 @@ import com.example.datalift.screens.workout.WorkoutViewModel
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.UserPreviewParameterProvider
 import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
+import com.datalift.designsystem.DataliftTheme
 
 
 
@@ -93,10 +94,13 @@ fun ProfileScreen(
         navUp = navUp,
         goals = goals,
         onAddGoalClicked = { profileViewModel.toggleDialogVisibility() },
-        createGoal = { goal: Mgoal -> profileViewModel.createGoal(goal) },
+        createGoal = { goal: Mgoal -> profileViewModel.createGoal(goal)
+                     profileViewModel.hideDialog()},
         exercises = exercises,
         getQuery = { query: String -> profileViewModel.getExercises(query) },
-        isDialogVisible = isDialogVisible
+        isDialogVisible = isDialogVisible,
+        removeGoal = { goal: Mgoal -> profileViewModel.deleteGoal(goal) },
+        isImperial = profileViewModel.getUnitSystem()
     )
 }
 
@@ -110,6 +114,8 @@ internal fun ProfileScreen(
     createGoal: (Mgoal) -> Unit = {},
     exercises: List<ExerciseItem> = emptyList(),
     getQuery: (String) -> Unit = {},
+    removeGoal: (Mgoal) -> Unit = {},
+    isImperial: Boolean = true,
     modifier: Modifier = Modifier
 ){
 
@@ -151,12 +157,15 @@ internal fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
-                FollowDisplay(
-                    followingCount = uiState.user.following.size,
-                    followerCount = uiState.user.followers.size,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                )
+                Row {
+                    FollowDisplay(
+                        followingCount = uiState.user.following.size,
+                        followerCount = uiState.user.followers.size,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                    )
+
+                }
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -167,7 +176,9 @@ internal fun ProfileScreen(
             onAddGoalClicked =  onAddGoalClicked,
             createGoal = createGoal,
             exercises = exercises,
-            getQuery = getQuery
+            getQuery = getQuery,
+            removeGoal = removeGoal,
+            isImperial = isImperial
         )
     }
 }

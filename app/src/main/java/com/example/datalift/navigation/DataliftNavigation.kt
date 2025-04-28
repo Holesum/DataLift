@@ -18,6 +18,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
+import com.example.datalift.screens.analysis.analysisViewModel
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.feed.FeedViewModel
 import com.example.datalift.screens.feed.PostScreen
@@ -241,11 +242,13 @@ fun NavGraphBuilder.workoutGraph(
             val workoutDetail: WorkoutDetail = backStackEntry.toRoute()
 
             val workoutViewModel: WorkoutViewModel = hiltViewModel(parentEntry)
+            val isImperial = workoutViewModel.getUnitSystem()
             workoutViewModel.getWorkout(workoutDetail.id)
             val workout = workoutViewModel.workout.collectAsStateWithLifecycle().value
             WorkoutScreen(
                 workout = workout,
-                navUp = { navController.navigateUp() }
+                navUp = { navController.navigateUp() },
+                isImperial = isImperial
             )
         }
 
@@ -318,13 +321,14 @@ fun NavGraphBuilder.feedSection(
 
             val postDetail: PostDetail = backStackEntry.toRoute()
             val feedViewModel: FeedViewModel = hiltViewModel(parentEntry)
-
+            val isImperial = feedViewModel.getUnitSystem()
             feedViewModel.updateCurrentViewedPost(postDetail.postId, postDetail.uid)
             val currentPost = feedViewModel.currentPost.collectAsStateWithLifecycle().value
             PostScreen(
                 navUp = { navController.navigateUp() },
                 navigateToProfile = navController::navigateToProfile,
                 post = currentPost,
+                isImperial = isImperial
             )
 
         }

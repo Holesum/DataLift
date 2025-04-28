@@ -3,6 +3,7 @@ package com.example.datalift.screens.feed
 import androidx.lifecycle.ViewModel
 import com.example.datalift.data.repository.PostRepository
 import com.example.datalift.model.Mpost
+import com.example.datalift.model.userRepo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,10 +14,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    private val postRepo: PostRepository
+    private val postRepo: PostRepository,
+    private val userRepo: userRepo
 ): ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
     private val uid: String = auth.currentUser?.uid.toString()
+
+    fun getUnitSystem(): Boolean {
+        return userRepo.getCachedUnitType()
+    }
 
 //    private val postRepo = PostRepo()
 
@@ -27,6 +33,8 @@ class FeedViewModel @Inject constructor(
     val currentPost: StateFlow<Mpost?> get() = _currentPost
 
     init{
+        userRepo.getUnitType(uid){}
+
         postRepo.getPosts(uid){ posts ->
             _posts.value = posts
         }
