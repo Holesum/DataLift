@@ -14,8 +14,6 @@ import com.example.datalift.model.MexerAnalysis
 import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
 import com.example.datalift.model.Mworkout
-import com.example.datalift.model.analysisRepo
-import com.example.datalift.model.GoalRepo
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.ProfileDetail
 import dagger.hilt.android.lifecycle.HiltViewModel

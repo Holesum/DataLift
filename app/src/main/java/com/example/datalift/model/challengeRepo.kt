@@ -6,7 +6,6 @@ import com.example.datalift.data.repository.ChallengeRepository
 import com.example.datalift.navigation.getCurrentUserId
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject

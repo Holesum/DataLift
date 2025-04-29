@@ -60,8 +60,8 @@ import kotlinx.serialization.Serializable
 @Serializable object ProfileBaseRoute
 @Serializable object ChallengesBaseRoute
 @Serializable object ChallengesFeed
-@Serializable object ChallengeRoute
 
+@Serializable data class ChallengeRoute(val id: String)
 @Serializable data class WorkoutDetail(val id: String)
 @Serializable data class WorkoutDetailEdit(val id: String)
 @Serializable data class SettingDetail(
