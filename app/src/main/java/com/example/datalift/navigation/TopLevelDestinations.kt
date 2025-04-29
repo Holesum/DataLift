@@ -32,5 +32,12 @@ enum class TopLevelDestinations(
         unselectedIcon = DataliftIcons.MagnifierBorder,
         iconTextId = R.string.analysis_title,
         route = AnalysisRoute::class
+    ),
+    CHALLENGES(
+        selectedIcon = DataliftIcons.Trophy,
+        unselectedIcon = DataliftIcons.TrophyOutlined,
+        iconTextId = R.string.challenges_title,
+        route = ChallengesFeed::class,
+        baseRoute = ChallengesBaseRoute::class
     )
 }

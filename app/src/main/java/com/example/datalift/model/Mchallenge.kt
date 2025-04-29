@@ -1,25 +1,142 @@
 package com.example.datalift.model
 
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 
 data class Mchallenge(
-    var challengeId: String = "",
-    var creatorUid: String = "",
-    var title: String = "",
-    var description: String = "",
-    var startDate: Timestamp = Timestamp.now(),
-    var endDate: Timestamp = Timestamp.now(),
-    var goal: Mgoal = Mgoal(),
-    var participants: List<String> = listOf(),
-    var progress: Map<String, ChallengeProgress> = mapOf()
+    val challengeId: String = "",
+    val creatorUid: String = "",
+    val title: String = "",
+    val description: String = "",
+    val startDate: Timestamp = Timestamp.now(),
+    val endDate: Timestamp = Timestamp.now(),
+    val goal: Mgoal = Mgoal(),
+    val participants: List<Muser> = listOf(),
+    val progress: Map<String, ChallengeProgress> = mapOf()
 )
 
 data class ChallengeProgress(
     var currentValue: Int = 0,
-    var isComplete: Boolean = false
+    var isComplete: Boolean = false,
+    val completionTimestamp: Timestamp = Timestamp.now()
 )
+
+fun smallTestChallenge() : Mchallenge {
+    return Mchallenge(
+        challengeId = "12",
+        creatorUid = "999",
+        title = "Datalift ORM Lift Challenge",
+        description = "Test Challenge Workout",
+//        participants = listOf("999","132","44"),
+        goal = Mgoal(
+            type = GoalType.INCREASE_ORM_BY_VALUE,
+            targetValue = 185
+        ),
+        startDate = Timestamp(Date(1745812800000)),
+        endDate = Timestamp(Date(1745985600000)),
+        progress = mapOf(
+            "999" to ChallengeProgress(
+                currentValue = 180
+            ),
+            "132" to ChallengeProgress(
+                currentValue = 120
+            ),
+            "44" to ChallengeProgress(
+                currentValue = 150
+            ),
+            "172" to ChallengeProgress(
+                currentValue = 70
+            ),
+        ),
+        participants = listOf(
+            Muser(
+                uid = "999",
+                name = "Mr 999"
+            ),
+            Muser(
+                uid = "132",
+                name = "Mrs. 132"
+            ),
+            Muser(
+                uid = "44",
+                name = "Mc 44"
+            ),
+            Muser(
+                uid = "172",
+                name = "Mrs. 172"
+            ),
+        )
+    )
+}
+
+fun testChallenge() : Mchallenge {
+    return Mchallenge(
+        challengeId = "12",
+        creatorUid = "999",
+        title = "Datalift ORM Lift Challenge",
+        description = "Test Challenge Workout",
+//        participants = listOf("999","132","44"),
+        goal = Mgoal(
+            type = GoalType.INCREASE_ORM_BY_VALUE,
+            targetValue = 185
+        ),
+        startDate = Timestamp(Date(1745812800000)),
+        endDate = Timestamp(Date(1745985600000)),
+        progress = mapOf(
+            "999" to ChallengeProgress(
+                currentValue = 180
+            ),
+            "132" to ChallengeProgress(
+                currentValue = 120
+            ),
+            "44" to ChallengeProgress(
+                currentValue = 150
+            ),
+            "172" to ChallengeProgress(
+                currentValue = 70
+            ),
+            "69" to ChallengeProgress(
+                currentValue = 69
+            ),
+            "392" to ChallengeProgress(
+                currentValue = 0
+            ),
+            "094" to ChallengeProgress(
+                currentValue = 20
+            )
+        ),
+        participants = listOf(
+            Muser(
+                uid = "999",
+                name = "Mr 999"
+            ),
+            Muser(
+                uid = "132",
+                name = "Mrs. 132"
+            ),
+            Muser(
+                uid = "44",
+                name = "Mc 44"
+            ),
+            Muser(
+                uid = "172",
+                name = "Mrs. 172"
+            ),
+            Muser(
+                uid = "69",
+                name = "Mr. 69"
+            ),
+            Muser(
+                uid = "392",
+                name = "Ms. 392"
+            ),
+            Muser(
+                uid = "094",
+                name = "Mc 094"
+            )
+        )
+    )
+}
 
 /*
 package com.example.datalift.model

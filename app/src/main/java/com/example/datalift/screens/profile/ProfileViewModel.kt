@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.datalift.data.repository.AnalysisRepository
+import com.example.datalift.data.repository.GoalRepository
 import com.example.datalift.data.repository.WorkoutRepository
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.GoalType
@@ -13,12 +15,9 @@ import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
 import com.example.datalift.model.Mworkout
 import com.example.datalift.model.analysisRepo
-import com.example.datalift.model.goalRepo
+import com.example.datalift.model.GoalRepo
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.ProfileDetail
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,9 +29,9 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val userRepo: userRepo,
-    private val goalRepo: goalRepo,
+    private val goalRepo: GoalRepository,
     private val workoutRepo: WorkoutRepository,
-    private val analysisRepo: analysisRepo
+    private val analysisRepo: AnalysisRepository
 ) : ViewModel() {
 //    private var auth: FirebaseAuth = Firebase.auth
 //    private val uid: String = auth.currentUser?.uid.toString()

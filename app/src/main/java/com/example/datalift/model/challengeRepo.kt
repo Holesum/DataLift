@@ -3,13 +3,17 @@ package com.example.datalift.model
 import android.util.Log
 import com.example.datalift.data.repository.AnalysisRepository
 import com.example.datalift.data.repository.ChallengeRepository
+import com.example.datalift.navigation.getCurrentUserId
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class challengeRepo @Inject constructor(
-    private val analysisRepo: AnalysisRepository
+    private val analysisRepo: AnalysisRepository,
+    private val userRepo: userRepo,
 ) : ChallengeRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -52,6 +56,15 @@ class challengeRepo @Inject constructor(
                 Log.e("ChallengeRepo", "Failed to fetch challenges: ${e.message}")
                 callback(emptyList())
             }
+    }
+
+    override fun getChallengesForCurrentUser(): StateFlow<List<Mchallenge>> {
+        val uid = getCurrentUserId()
+        val _challenges = MutableStateFlow<List<Mchallenge>>(emptyList())
+        getChallengesForUser(uid){ list ->
+            _challenges.value = list
+        }
+        return _challenges
     }
 
 

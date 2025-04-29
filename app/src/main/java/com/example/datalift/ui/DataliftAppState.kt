@@ -15,9 +15,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.example.datalift.navigation.TopLevelDestinations
 import com.example.datalift.navigation.TopLevelDestinations.ANALYSIS
+import com.example.datalift.navigation.TopLevelDestinations.CHALLENGES
 import com.example.datalift.navigation.TopLevelDestinations.FEED
 import com.example.datalift.navigation.TopLevelDestinations.WORKOUTS
 import com.example.datalift.navigation.navigateToAnalysis
+import com.example.datalift.navigation.navigateToChallengesFeed
 import com.example.datalift.navigation.navigateToFeed
 import com.example.datalift.navigation.navigateToWorkout
 import com.google.firebase.auth.FirebaseAuth
@@ -87,6 +89,7 @@ class DataliftAppState(
                 FEED -> navController.navigateToFeed(topLevelNavOptions)
                 WORKOUTS -> navController.navigateToWorkout(topLevelNavOptions)
                 ANALYSIS -> navController.navigateToAnalysis(topLevelNavOptions)
+                CHALLENGES -> navController.navigateToChallengesFeed(topLevelNavOptions)
             }
         }
     }

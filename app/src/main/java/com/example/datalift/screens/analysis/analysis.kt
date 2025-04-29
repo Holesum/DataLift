@@ -155,6 +155,7 @@ internal fun AnalysisScreen(
             reloadUI = false
             // Extract the exercise names for user selection
             exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
+            Log.d("test", exerciseNames.toString())
 
             // Find the progression data for the selected exercise
             val analysis = uiState.exerciseAnalysis.find { it.exerciseName.equals(exerciseName, ignoreCase = true) }
@@ -211,6 +212,9 @@ internal fun AnalysisScreen(
         formattedWeightDates = userWeightDates.map { dateFormat.format(it.toDate()) }
 
         if(userWeightValues.isNotEmpty()){
+            if(!isImperial) {
+                userWeightValues = userWeightValues.map { it * 0.453592 }
+            }
             weightMin = userWeightValues.minOrNull()!!
             weightModelProducer.runTransaction {
                 lineSeries { series(userWeightValues) }

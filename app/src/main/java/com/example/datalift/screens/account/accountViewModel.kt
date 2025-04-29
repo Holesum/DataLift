@@ -11,7 +11,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.example.datalift.model.userRepo
 import com.example.datalift.model.Muser
-import com.example.datalift.model.goalRepo
+import com.example.datalift.model.GoalRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.google.firebase.firestore.FirebaseFirestore
