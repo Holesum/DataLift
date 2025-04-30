@@ -41,8 +41,8 @@ class ProfileViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    private val _goals = MutableStateFlow<List<Mgoal>>(emptyList())
-    val goals: StateFlow<List<Mgoal>> = _goals
+//    private val _goals = MutableStateFlow<List<Mgoal>>(emptyList())
+//    val goals: StateFlow<List<Mgoal>> = _goals
 
     // State for goal creation dialog visibility
     private val _isDialogVisible = MutableStateFlow(false)
@@ -89,7 +89,7 @@ class ProfileViewModel @Inject constructor(
         return exerciseAnalysis
     }
 
-    fun analyzeWorkouts() {
+    private fun analyzeWorkouts() {
         getWorkouts()
         getExerciseAnalysis()
         analysisRepo.analyzeWorkouts(
@@ -144,19 +144,19 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun loadGoals(uid: String) {
-        viewModelScope.launch {
-            getWorkouts()
-            getExerciseAnalysis()
-            goalRepo.evaluateGoals(uid, _exerciseAnalysis.value, _workouts.value) {
-                goalRepo.getGoalsForUser(uid) { loadedGoals ->
-                    _goals.value = loadedGoals
-                }
-            }
-        }
-    }
+//    fun loadGoals(uid: String) {
+//        viewModelScope.launch {
+//            getWorkouts()
+//            getExerciseAnalysis()
+//            goalRepo.evaluateGoals(uid, _exerciseAnalysis.value, _workouts.value) {
+//                goalRepo.getGoalsForUser(uid) { loadedGoals ->
+//                    _goals.value = loadedGoals
+//                }
+//            }
+//        }
+//    }
 
-    fun updateGoals(id: String){
+    private fun updateGoals(id: String){
         viewModelScope.launch {
             getWorkouts()
             getExerciseAnalysis()
