@@ -51,6 +51,7 @@ import com.example.datalift.model.GoalType
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mgoal
 import com.example.datalift.screens.workout.WorkoutViewModel
+import com.example.datalift.ui.components.DataliftDialogTextField
 import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.example.datalift.utils.*
@@ -172,6 +173,9 @@ fun GoalCreationDialog(
                     GoalType.INCREASE_ORM_BY_VALUE -> {
                         if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
                         Text("Exercise Name: $exerciseName")
+                        Button(onClick = {search = true}){
+                            Text("Change Exercise")
+                        }
                         //use statelessdataliftnumberfield
                         if(isImperial) {
                             StatelessDataliftNumberTextField(
@@ -195,6 +199,9 @@ fun GoalCreationDialog(
                     GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
                         if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
                         Text("Exercise Name: $exerciseName")
+                        Button(onClick = {search = true}){
+                            Text("Change Exercise")
+                        }
                         OutlinedTextField(
                             value = percentage,
                             onValueChange = { percentage = it },

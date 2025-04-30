@@ -34,6 +34,9 @@ class ProfileViewModel @Inject constructor(
 //    private var auth: FirebaseAuth = Firebase.auth
 //    private val uid: String = auth.currentUser?.uid.toString()
 
+    private var auth: FirebaseAuth = Firebase.auth
+    private val uid: String = auth.currentUser?.uid.toString()
+
     private val profile = savedStateHandle.toRoute<ProfileDetail>()
 
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState.Loading)
@@ -74,6 +77,13 @@ class ProfileViewModel @Inject constructor(
 //                _uiState.value = ProfileUiState.Error
 //            }
 //        }
+    }
+
+    fun isCurrUser(s: String): Boolean{
+        if(s == uid){
+            return true
+        }
+        return false
     }
 
     fun getUnitSystem(): Boolean {
