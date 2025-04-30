@@ -16,6 +16,7 @@ import com.example.datalift.model.Muser
 import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.ProfileDetail
+import com.example.datalift.navigation.getCurrentUserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,9 +34,6 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 //    private var auth: FirebaseAuth = Firebase.auth
 //    private val uid: String = auth.currentUser?.uid.toString()
-
-    private var auth: FirebaseAuth = Firebase.auth
-    private val uid: String = auth.currentUser?.uid.toString()
 
     private val profile = savedStateHandle.toRoute<ProfileDetail>()
 
@@ -64,26 +62,10 @@ class ProfileViewModel @Inject constructor(
     init {
         loadUserProfile(profile.profileId)
         loadGoals(profile.profileId)
-        getWorkouts()
-        getExerciseAnalysis()
-//        viewModelScope.launch {
-//            _uiState.value = ProfileUiState.Loading
-//
-//            val user = getUser().value
-//
-//            if(user != null){
-//                _uiState.value = ProfileUiState.Success(user)
-//            } else {
-//                _uiState.value = ProfileUiState.Error
-//            }
-//        }
     }
 
-    fun isCurrUser(s: String): Boolean{
-        if(s == uid){
-            return true
-        }
-        return false
+    fun isCurrUser(): Boolean{
+        return profile.profileId == getCurrentUserId()
     }
 
     fun getUnitSystem(): Boolean {
@@ -142,7 +124,18 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = ProfileUiState.Loading
             userRepo.getUser(id){ user ->
                 if(user!=null){
-                    _uiState.value = ProfileUiState.Success(user)
+                    if(id == getCurrentUserId()){
+                        getWorkouts()
+                        getExerciseAnalysis()
+                        goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
+                            goalRepo.getGoalsForUser(id) { loadedGoals ->
+                                _uiState.value = ProfileUiState.Success(user,loadedGoals)
+                            }
+                        }
+                    } else {
+                        _uiState.value = ProfileUiState.Success(user, emptyList())
+                    }
+
                 } else {
                     _uiState.value = ProfileUiState.Error
                 }
@@ -213,8 +206,10 @@ sealed interface ProfileUiState{
     data object Loading : ProfileUiState
 
     data class Success(
-        val user: Muser
+        val user: Muser,
+        val goals: List<Mgoal>,
     ) : ProfileUiState
 
     data object Error : ProfileUiState
 }
+

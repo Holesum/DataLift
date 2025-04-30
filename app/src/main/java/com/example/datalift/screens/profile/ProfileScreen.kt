@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,7 +35,6 @@ import com.datalift.designsystem.theme.DataliftTheme
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
-import com.example.datalift.navigation.getCurrentUserId
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.UserPreviewParameterProvider
 
@@ -56,29 +54,25 @@ fun ProfileScreen(
     navUp: () -> Unit = {}
 ){
     val uiState by profileViewModel.uiState.collectAsStateWithLifecycle()
-
-    val uid = getCurrentUserId()
-    val goals by profileViewModel.goals.collectAsStateWithLifecycle()
+//    val goals by profileViewModel.goals.collectAsStateWithLifecycle()
     val isDialogVisible by profileViewModel.isDialogVisible.collectAsState()
     val exercises by profileViewModel.exercises.collectAsState()
 
-    LaunchedEffect(uid) {
-        profileViewModel.loadGoals(uid)
-    }
 
     ProfileScreen(
         uiState = uiState,
         navUp = navUp,
-        goals = goals,
+//        goals = goals,
         onAddGoalClicked = { profileViewModel.toggleDialogVisibility() },
         createGoal = { goal: Mgoal -> profileViewModel.createGoal(goal)
                      profileViewModel.hideDialog()},
         exercises = exercises,
-        getQuery = { query: String -> profileViewModel.getExercises(query) },
+        getQuery = profileViewModel::getExercises,
         isDialogVisible = isDialogVisible,
-        removeGoal = { goal: Mgoal -> profileViewModel.deleteGoal(goal) },
+        removeGoal = profileViewModel::deleteGoal,
         isImperial = profileViewModel.getUnitSystem(),
-        currUser = uid
+        isCurrentUser = profileViewModel.isCurrUser()
+//        currUser =
     )
 }
 
@@ -86,7 +80,7 @@ fun ProfileScreen(
 internal fun ProfileScreen(
     uiState: ProfileUiState,
     navUp: () -> Unit = {},
-    goals: List<Mgoal> = emptyList(),
+//    goals: List<Mgoal> = emptyList(),
     isDialogVisible: Boolean = false,
     onAddGoalClicked: () -> Unit = {},
     createGoal: (Mgoal) -> Unit = {},
@@ -94,7 +88,8 @@ internal fun ProfileScreen(
     getQuery: (String) -> Unit = {},
     removeGoal: (Mgoal) -> Unit = {},
     isImperial: Boolean = true,
-    currUser: String = "",
+    isCurrentUser: Boolean = false,
+//    currUser: String = "",
     modifier: Modifier = Modifier
 ){
 
@@ -143,23 +138,35 @@ internal fun ProfileScreen(
                         modifier = Modifier
                             .padding(start = 8.dp)
                     )
-
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                if(currUser == uiState.user.uid)
+                if(isCurrentUser){
                     GoalSection(
-                        goals = goals,
+    //                    isVisibile = ,
+                        goals = uiState.goals,
                         isDialogVisible = isDialogVisible,
-                        onAddGoalClicked =  onAddGoalClicked,
+                        onAddGoalClicked = onAddGoalClicked,
                         createGoal = createGoal,
                         exercises = exercises,
                         getQuery = getQuery,
                         removeGoal = removeGoal,
                         isImperial = isImperial
                     )
+                }
             }
         }
-
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        GoalSection(
+//            goals = goals,
+//            isDialogVisible = isDialogVisible,
+//            onAddGoalClicked =  onAddGoalClicked,
+//            createGoal = createGoal,
+//            exercises = exercises,
+//            getQuery = getQuery,
+//            removeGoal = removeGoal,
+//            isImperial = isImperial
+//        )
     }
 }
 
@@ -260,9 +267,9 @@ fun ProfileScreenSuccessPreview(
     user: Muser
 ){
     DataliftTheme {
-        Surface() {
+        Surface(modifier = Modifier.fillMaxSize()) {
             ProfileScreen(
-                uiState = ProfileUiState.Success(user)
+                uiState = ProfileUiState.Success(user, emptyList())
             )
         }
     }
