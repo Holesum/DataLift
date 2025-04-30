@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,7 +62,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadUserProfile(profile.profileId)
-        loadGoals(profile.profileId)
+//        loadGoals(profile.profileId)
     }
 
     fun isCurrUser(): Boolean{
@@ -155,12 +156,30 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun updateGoals(id: String){
+        viewModelScope.launch {
+            getWorkouts()
+            getExerciseAnalysis()
+            goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
+                goalRepo.getGoalsForUser(id) { loadedGoals ->
+                    _uiState.update { currentState ->
+                        if(currentState is ProfileUiState.Success){
+                            currentState.copy(
+                                goals = loadedGoals
+                            )
+                        } else currentState
+                    }
+                }
+            }
+        }
+    }
+
     fun createGoal(goal: Mgoal) {
         viewModelScope.launch {
             goalRepo.createGoal(profile.profileId, goal) { createdGoal ->
                 if (createdGoal != null) {
                     analyzeWorkouts()
-                    loadGoals(profile.profileId)
+                    updateGoals(profile.profileId)
                     Log.d("Goal", "Goal created: $createdGoal")
                 } else {
                     Log.e("Goal", "Failed to create goal")
