@@ -16,6 +16,7 @@ import com.example.datalift.model.Muser
 import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.ProfileDetail
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,9 +34,6 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 //    private var auth: FirebaseAuth = Firebase.auth
 //    private val uid: String = auth.currentUser?.uid.toString()
-
-    private var auth: FirebaseAuth = Firebase.auth
-    private val uid: String = auth.currentUser?.uid.toString()
 
     private val profile = savedStateHandle.toRoute<ProfileDetail>()
 
@@ -64,26 +62,6 @@ class ProfileViewModel @Inject constructor(
     init {
         loadUserProfile(profile.profileId)
         loadGoals(profile.profileId)
-        getWorkouts()
-        getExerciseAnalysis()
-//        viewModelScope.launch {
-//            _uiState.value = ProfileUiState.Loading
-//
-//            val user = getUser().value
-//
-//            if(user != null){
-//                _uiState.value = ProfileUiState.Success(user)
-//            } else {
-//                _uiState.value = ProfileUiState.Error
-//            }
-//        }
-    }
-
-    fun isCurrUser(s: String): Boolean{
-        if(s == uid){
-            return true
-        }
-        return false
     }
 
     fun getUnitSystem(): Boolean {

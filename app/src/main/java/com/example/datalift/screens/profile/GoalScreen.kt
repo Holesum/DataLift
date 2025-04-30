@@ -125,9 +125,9 @@ fun GoalCard(goal: Mgoal,
                 "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} kgs"
             }
 
-        GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.targetValue} workouts"
-        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.targetValue} of ${goal.bodyPart} workouts"
-        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.targetValue} reps of ${goal.exerciseName}"
+        GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.trueTargetValue} workouts"
+        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.trueTargetValue} of ${goal.bodyPart} workouts"
+        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.trueTargetValue} reps of ${goal.exerciseName}"
         else -> "Unknown Goal"
     }
 
@@ -144,7 +144,7 @@ fun GoalCard(goal: Mgoal,
                 } else if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
                 Text("${goal.currentValue}% / ${goal.targetValue}%")
             } else if (!goal.isComplete) {
-                Text("${goal.currentValue} / ${goal.targetValue}")
+                Text("${goal.targetValue - goal.currentValue - goal.trueTargetValue} / ${goal.trueTargetValue}")
             }
             else {
                 Text("✅ Completed!", color = Color.Green)
@@ -233,6 +233,20 @@ fun GoalCreationDialog(
                         )
                     }
 
+                    GoalType.COMPLETE_X_REPS_OF_EXERCISE -> {
+                        if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
+                        Text("Exercise Name: $exerciseName")
+                        Button(onClick = {search = true}){
+                            Text("Change Exercise")
+                        }
+                        OutlinedTextField(
+                            value = targetValue,
+                            onValueChange = { targetValue = it },
+                            label = { Text("Number of Reps") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                        )
+                    }
+
                     else -> Unit
                 }
             }
@@ -270,6 +284,12 @@ fun GoalCreationDialog(
                         GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> Mgoal(
                             type = selectedType,
                             bodyPart = bodyPart,
+                            targetValue = targetValue.toIntOrNull() ?: 0
+                        )
+
+                        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> Mgoal(
+                            type = selectedType,
+                            exerciseName = exerciseName,
                             targetValue = targetValue.toIntOrNull() ?: 0
                         )
 
