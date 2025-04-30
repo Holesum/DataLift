@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val userRepo: userRepo,
     private val goalRepo: GoalRepository,
     private val workoutRepo: WorkoutRepository,
