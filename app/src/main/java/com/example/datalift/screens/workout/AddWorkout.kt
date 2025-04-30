@@ -492,12 +492,36 @@ fun AddSetDialog(
                 },
                 modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
             )
-            Button(
-                onClick = { onAddSet(Mset(workoutViewModel.reps.toLong(), workoutViewModel.weight.toDouble() * 2.20462))
-                          workoutViewModel.weight = ""; workoutViewModel.reps = ""},
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text("Confirm Set")
+            if(isImperial) {
+                Button(
+                    onClick = {
+                        onAddSet(
+                            Mset(
+                                workoutViewModel.reps.toLong(),
+                                workoutViewModel.weight.toDouble()
+                            )
+                        )
+                        workoutViewModel.weight = ""; workoutViewModel.reps = ""
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Confirm Set")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        onAddSet(
+                            Mset(
+                                workoutViewModel.reps.toLong(),
+                                workoutViewModel.weight.toDouble() * 2.20462
+                            )
+                        )
+                        workoutViewModel.weight = ""; workoutViewModel.reps = ""
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Confirm Set")
+                }
             }
         }
     }

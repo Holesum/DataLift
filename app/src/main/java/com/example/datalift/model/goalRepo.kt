@@ -10,7 +10,7 @@ import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
-class goalRepo @Inject constructor(
+class GoalRepo @Inject constructor(
     private val analysisRepo: AnalysisRepository,
     private val workoutRepository: WorkoutRepository
 ) : GoalRepository {
