@@ -2,14 +2,11 @@ package com.example.datalift.screens.analysis
 
 
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,9 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.datalift.model.userWeights
@@ -30,8 +25,6 @@ import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.google.firebase.Timestamp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.auto
-import com.patrykandpatrick.vico.compose.cartesian.axis.fraction
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
@@ -39,22 +32,15 @@ import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesi
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
-import com.patrykandpatrick.vico.core.cartesian.CartesianMeasuringContext
-import com.patrykandpatrick.vico.core.cartesian.axis.Axis
-import com.patrykandpatrick.vico.core.cartesian.axis.BaseAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
-import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.core.common.Insets
-import com.patrykandpatrick.vico.core.common.shape.Shape
-
 import java.text.SimpleDateFormat
 import java.util.Locale
-
 
 
 // Displays two different charts
@@ -155,6 +141,7 @@ internal fun AnalysisScreen(
             reloadUI = false
             // Extract the exercise names for user selection
             exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
+            Log.d("test", exerciseNames.toString())
 
             // Find the progression data for the selected exercise
             val analysis = uiState.exerciseAnalysis.find { it.exerciseName.equals(exerciseName, ignoreCase = true) }
@@ -211,6 +198,9 @@ internal fun AnalysisScreen(
         formattedWeightDates = userWeightDates.map { dateFormat.format(it.toDate()) }
 
         if(userWeightValues.isNotEmpty()){
+            if(!isImperial) {
+                userWeightValues = userWeightValues.map { it * 0.453592 }
+            }
             weightMin = userWeightValues.minOrNull()!!
             weightModelProducer.runTransaction {
                 lineSeries { series(userWeightValues) }

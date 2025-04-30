@@ -3,13 +3,11 @@ package com.example.datalift.model
 import android.util.Log
 import com.example.datalift.data.repository.AnalysisRepository
 import com.example.datalift.data.repository.GoalRepository
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
-class goalRepo @Inject constructor(
+class GoalRepo @Inject constructor(
     private val analysisRepo: AnalysisRepository
 ) : GoalRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()

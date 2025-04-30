@@ -1,4 +1,4 @@
-package com.datalift.designsystem
+package com.datalift.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf

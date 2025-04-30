@@ -1,20 +1,16 @@
 package com.example.datalift.screens.account
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.datalift.model.GoalType
-import com.example.datalift.model.Mgoal
+import com.example.datalift.model.Muser
+import com.example.datalift.model.userRepo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
-import com.example.datalift.model.userRepo
-import com.example.datalift.model.Muser
-import com.example.datalift.model.goalRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.google.firebase.firestore.FirebaseFirestore
 
 class accountViewModel: ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth

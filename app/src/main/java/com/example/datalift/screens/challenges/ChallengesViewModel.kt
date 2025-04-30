@@ -1,4 +1,47 @@
 package com.example.datalift.screens.challenges
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.datalift.data.repository.ChallengeRepository
+import com.example.datalift.model.Mchallenge
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class ChallengesViewModel @Inject constructor(
+    private val challengeRepository: ChallengeRepository
+) : ViewModel() {
+    private val _uiState: MutableStateFlow<ChallengesUiState> = MutableStateFlow(ChallengesUiState.Loading)
+    val uiState: StateFlow<ChallengesUiState> = _uiState.asStateFlow()
+
+    init {
+        loadChallenges()
+    }
+
+    private fun loadChallenges(){
+        viewModelScope.launch {
+            _uiState.value = ChallengesUiState.Loading
+            val challenges = challengeRepository.getChallengesForCurrentUser()
+            _uiState.value = ChallengesUiState.Success(challenges = challenges.value)
+        }
+//        challengeRepository.getChallengesForCurrentUser()
+    }
+}
+
+sealed interface ChallengesUiState{
+    data object Loading : ChallengesUiState
+
+    data class Success(
+        val challenges: List<Mchallenge>
+    ) : ChallengesUiState
+
+    data object Error : ChallengesUiState
+}
+
 /*
 //Firebase
 import android.util.Log

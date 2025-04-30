@@ -18,7 +18,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
-import com.example.datalift.screens.analysis.analysisViewModel
+import com.example.datalift.screens.challenges.ChallengesScreen
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.feed.FeedViewModel
 import com.example.datalift.screens.feed.PostScreen
@@ -58,7 +58,10 @@ import kotlinx.serialization.Serializable
 @Serializable object WorkoutListRoute
 @Serializable object AnalysisRoute
 @Serializable object ProfileBaseRoute
+@Serializable object ChallengesBaseRoute
+@Serializable object ChallengesFeed
 
+@Serializable data class ChallengeRoute(val id: String)
 @Serializable data class WorkoutDetail(val id: String)
 @Serializable data class WorkoutDetailEdit(val id: String)
 @Serializable data class SettingDetail(
@@ -442,8 +445,22 @@ fun NavGraphBuilder.profileRoute(
 
         }
     }
-
 }
+
+
+fun NavController.navigateToChallengesFeed(navOptions: NavOptions) =
+    navigate(route = ChallengesFeed, navOptions)
+
+fun NavGraphBuilder.challengesRoute(
+
+) {
+    navigation<ChallengesBaseRoute>(startDestination = ChallengesFeed){
+       composable<ChallengesFeed> {
+           ChallengesScreen()
+       }
+    }
+}
+
 //object DataliftDestinations {
 //    const val LOGIN = "signin"
 //    const val SIGNUP = "signin/signup"
