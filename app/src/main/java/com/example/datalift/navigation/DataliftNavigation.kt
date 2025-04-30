@@ -331,7 +331,8 @@ fun NavGraphBuilder.feedSection(
                 navUp = { navController.navigateUp() },
                 navigateToProfile = navController::navigateToProfile,
                 post = currentPost,
-                isImperial = isImperial
+                isImperial = isImperial,
+                addLike = feedViewModel::addLike
             )
 
         }

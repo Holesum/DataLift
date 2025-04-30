@@ -95,6 +95,7 @@ class analysisRepo @Inject constructor(
                     )
 
                     val exercises = workoutData["exercises"] as? List<Map<String, Any>> ?: continue
+
                     for (exercise in exercises) {
                         val exerciseName = exercise["name"] as? String ?: "Unknown Exercise"
                         val avgORM = exercise["avgORM"] as? Double ?: 0.0
@@ -102,7 +103,14 @@ class analysisRepo @Inject constructor(
                         val bodyPart = exerObject["bodyPart"] as? String ?: "unknown"
                         var repCount = 0.0
                         Log.d("Firebase", "sets: ${exercise["sets"]}")
-                        for(set in exercise["sets"] as List<Map<String, Any>>){
+                        val setsRaw = exercise["sets"]
+
+                        val sets: List<Map<String, Any>> = when (setsRaw) {
+                            is List<*> -> setsRaw.filterIsInstance<Map<String, Any>>()  // Normal case
+                            is Map<*, *> -> listOf(setsRaw.filterKeys { it is String } as Map<String, Any>)  // Single set stored as map
+                            else -> emptyList()
+                        }
+                        for(set in sets){
                             val rep = set["rep"] as? Long ?: 0;
                             repCount += rep
                         }
@@ -172,12 +180,10 @@ class analysisRepo @Inject constructor(
 
             goals.forEach { goal ->
                 var updatedGoal = goal.copy()
-
-
                 when (goal.type) {
                     GoalType.INCREASE_ORM_BY_VALUE -> {
                         val analysis = exerciseAnalysis.find { it.exerciseName.equals(goal.exerciseName, ignoreCase = true) }
-                        if (analysis != null && goal.targetValue != null) {
+                        if (analysis != null) {
                             val progression = analysis.progression.sortedByDescending { it.progressionMultiplier }
                             val latest = progression.first().progressionMultiplier.times(analysis.initialAvgORM)
                             val required = analysis.initialAvgORM + goal.targetValue

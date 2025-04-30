@@ -2,6 +2,7 @@ package com.example.datalift.screens.profile
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -112,6 +113,7 @@ fun GoalSection(
 @Composable
 fun GoalCard(goal: Mgoal,
              isImperial: Boolean) {
+    Log.d("test", "GoalCard called $goal")
     val title = when (goal.type) {
         GoalType.INCREASE_ORM_BY_PERCENTAGE -> "Increase ${goal.exerciseName} one rep maximum by ${goal.targetPercentage?.toInt()}%"
         GoalType.INCREASE_ORM_BY_VALUE ->
@@ -121,9 +123,9 @@ fun GoalCard(goal: Mgoal,
                 "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} kgs"
             }
 
-        GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.targetValue} workouts"
-        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.targetValue} of ${goal.bodyPart} workouts"
-        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.targetValue} reps of ${goal.exerciseName}"
+        GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.trueTargetValue} workouts"
+        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.trueTargetValue} of ${goal.bodyPart} workouts"
+        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.trueTargetValue} reps of ${goal.exerciseName}"
         else -> "Unknown Goal"
     }
 
@@ -135,9 +137,14 @@ fun GoalCard(goal: Mgoal,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            if (!goal.isComplete) {
+            if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_VALUE) {
                 Text("${goal.currentValue.toDisplayWeight(isImperial)} / ${goal.targetValue.toDisplayWeight(isImperial)}")
-            } else {
+                } else if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
+                Text("${goal.currentValue}% / ${goal.targetValue}%")
+            } else if (!goal.isComplete) {
+                Text("${goal.targetValue - goal.currentValue - goal.trueTargetValue} / ${goal.trueTargetValue}")
+            }
+            else {
                 Text("✅ Completed!", color = Color.Green)
             }
         }
@@ -177,7 +184,7 @@ fun GoalCreationDialog(
                         //use statelessdataliftnumberfield
                         if(isImperial) {
                             StatelessDataliftNumberTextField(
-                                field = "Weight (lb)",
+                                field = "Increase Weight by (lb)",
                                 suffix = "lbs",
                                 text = targetValue,
                                 changeText = { targetValue = it },
@@ -185,7 +192,7 @@ fun GoalCreationDialog(
                             )
                         } else {
                             StatelessDataliftNumberTextField(
-                                field = "Weight (kg)",
+                                field = "Increase Weight by (kg)",
                                 suffix = "kgs",
                                 text = targetValue,
                                 changeText = { targetValue = it },
@@ -224,6 +231,20 @@ fun GoalCreationDialog(
                         )
                     }
 
+                    GoalType.COMPLETE_X_REPS_OF_EXERCISE -> {
+                        if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
+                        Text("Exercise Name: $exerciseName")
+                        Button(onClick = {search = true}){
+                            Text("Change Exercise")
+                        }
+                        OutlinedTextField(
+                            value = targetValue,
+                            onValueChange = { targetValue = it },
+                            label = { Text("Number of Reps") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                        )
+                    }
+
                     else -> Unit
                 }
             }
@@ -249,7 +270,7 @@ fun GoalCreationDialog(
 
                         GoalType.INCREASE_ORM_BY_PERCENTAGE -> Mgoal(
                             type = selectedType,
-                            bodyPart = bodyPart,
+                            exerciseName = exerciseName,
                             targetPercentage = percentage.toDoubleOrNull() ?: 0.0
                         )
 
@@ -261,6 +282,12 @@ fun GoalCreationDialog(
                         GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> Mgoal(
                             type = selectedType,
                             bodyPart = bodyPart,
+                            targetValue = targetValue.toIntOrNull() ?: 0
+                        )
+
+                        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> Mgoal(
+                            type = selectedType,
+                            exerciseName = exerciseName,
                             targetValue = targetValue.toIntOrNull() ?: 0
                         )
 

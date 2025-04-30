@@ -41,7 +41,8 @@ fun PostScreen(
     modifier: Modifier = Modifier,
     navUp: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
-    isImperial: Boolean
+    isImperial: Boolean,
+    addLike: (Mpost) -> Unit
 ) {
     Column {
         Row(modifier = modifier.fillMaxWidth()) {
@@ -91,7 +92,7 @@ fun PostScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { addLike(post) }) {
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
                             contentDescription = null
@@ -162,6 +163,7 @@ fun PostCard(
     navigateToPost: (String, String) -> Unit,
     navigateToProfile: (String) -> Unit,
     post: Mpost,
+    addLike: (Mpost) -> Unit,
     modifier: Modifier = Modifier,
 ){
     Card(
@@ -200,7 +202,7 @@ fun PostCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {addLike(post)}) {
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
                         contentDescription = null
@@ -248,7 +250,8 @@ fun FeedScreen(
     FeedScreen(
         posts = posts,
         navigateToPost = navigateToPost,
-        navigateToProfile = navigateToProfile
+        navigateToProfile = navigateToProfile,
+        addLike = feedViewModel::addLike
     )
 }
 
@@ -257,6 +260,7 @@ internal fun FeedScreen(
     posts: List<Mpost>,
     navigateToPost: (String, String) -> Unit,
     navigateToProfile: (String) -> Unit = {},
+    addLike: (Mpost) -> Unit
 ){
 //    Text("Feed Screen placeholder")
     LazyColumn(
@@ -267,6 +271,7 @@ internal fun FeedScreen(
                 navigateToPost = navigateToPost,
                 post = post,
                 navigateToProfile = navigateToProfile,
+                addLike = addLike,
                 modifier = Modifier.fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
             )
@@ -284,7 +289,8 @@ fun FeedPreview(){
             val testPosts = testPostList()
             FeedScreen(
                 posts = testPosts,
-                navigateToPost = {_,_ ->}
+                navigateToPost = {_,_ ->},
+                addLike = {}
             )
         }
     }
@@ -296,7 +302,7 @@ fun PostPreview(){
     DataliftTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val post = testPost()
-            PostScreen(post = post, isImperial = false)
+            PostScreen(post = post, isImperial = false, addLike = {})
         }
     }
 }

@@ -11,7 +11,8 @@ data class Mgoal(
     var exerciseName: String? = null,
     var currentValue: Int = 0,
     var isComplete: Boolean = false,
-    var createdAt: Timestamp = Timestamp.now()
+    var createdAt: Timestamp = Timestamp.now(),
+    var trueTargetValue: Int = 0
 )
 
 enum class GoalType {

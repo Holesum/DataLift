@@ -3,22 +3,31 @@ package com.example.datalift.model
 import android.util.Log
 import com.example.datalift.data.repository.AnalysisRepository
 import com.example.datalift.data.repository.GoalRepository
+import com.example.datalift.data.repository.WorkoutRepository
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class GoalRepo @Inject constructor(
-    private val analysisRepo: AnalysisRepository
+    private val analysisRepo: AnalysisRepository,
+    private val workoutRepository: WorkoutRepository
 ) : GoalRepository {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     override fun createGoal(uid: String, goal: Mgoal, callback: (Mgoal?) -> Unit) {
         val exerciseList = MutableStateFlow<List<MexerAnalysis>>(emptyList())
+        val workoutList = MutableStateFlow<List<Mworkout>>(emptyList())
+        workoutRepository.getWorkouts(uid) { workouts ->
+            workoutList.value = workouts
+        }
         analysisRepo.getAnalyzedExercises(uid) { exercises ->
             exerciseList.value = exercises
 
             if (goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
                 goal.targetValue = 100 + goal.targetPercentage!!.toInt()
+                goal.currentValue = 100
             }
             if (goal.type == GoalType.INCREASE_ORM_BY_VALUE) {
                 val analysis = exerciseList.value.find {
@@ -31,6 +40,34 @@ class GoalRepo @Inject constructor(
                 val multiplier = progression.first().progressionMultiplier
                 goal.targetValue = (analysis.initialAvgORM * multiplier + goal.targetValue).toInt()
             }
+            if (goal.type == GoalType.COMPLETE_X_REPS_OF_EXERCISE) {
+                val analysis = exerciseList.value.find {
+                    it.exerciseName.equals(
+                        goal.exerciseName,
+                        ignoreCase = true
+                    )
+                }
+                goal.trueTargetValue = goal.targetValue
+                goal.targetValue += analysis!!.repCount.toInt()
+            }
+            if (goal.type == GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART) {
+                val analysisList = workoutList.value.filter {
+                    it.muscleGroup.equals(
+                        goal.bodyPart,
+                        ignoreCase = true
+                    )
+                }
+                val numWorkouts = analysisList.size
+                goal.trueTargetValue = goal.targetValue
+                goal.targetValue += numWorkouts
+            }
+
+            if (goal.type == GoalType.COMPLETE_X_WORKOUTS) {
+                val numWorkouts = workoutList.value.size
+                goal.trueTargetValue = goal.targetValue
+                goal.targetValue += numWorkouts
+            }
+
             val goalRef = db.collection("Users")
                 .document(uid)
                 .collection("Goals")

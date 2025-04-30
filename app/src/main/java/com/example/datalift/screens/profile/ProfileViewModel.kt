@@ -65,10 +65,6 @@ class ProfileViewModel @Inject constructor(
 //        loadGoals(profile.profileId)
     }
 
-    fun isCurrUser(): Boolean{
-        return profile.profileId == getCurrentUserId()
-    }
-
     fun getUnitSystem(): Boolean {
         return userRepo.getCachedUnitType()
     }
@@ -189,6 +185,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun deleteGoal(goal: Mgoal) {
+        _goals.value = _goals.value.filter { it != goal }
         goalRepo.deleteGoal(profile.profileId, goal) {}
     }
 
