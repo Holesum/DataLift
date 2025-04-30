@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -35,30 +33,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.GoalType
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mgoal
-import com.example.datalift.screens.workout.WorkoutViewModel
-import com.example.datalift.ui.components.DataliftDialogTextField
-import com.example.datalift.ui.components.StatelessDataliftCloseCardDialog
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
-import com.example.datalift.utils.*
+import com.example.datalift.utils.toDisplayWeight
 
 @Composable
 fun GoalSection(
+    isVisibile: Boolean = true,
     goals: List<Mgoal>,
     isDialogVisible: Boolean = false,
     onAddGoalClicked: () -> Unit,
@@ -68,46 +61,51 @@ fun GoalSection(
     removeGoal: (Mgoal) -> Unit,
     isImperial: Boolean
 ) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Your Goals", style = MaterialTheme.typography.titleMedium)
-            IconButton(onClick = onAddGoalClicked) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Goal")
+    if(isVisibile) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Your Goals", style = MaterialTheme.typography.titleMedium)
+                IconButton(onClick = onAddGoalClicked) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Goal")
+                }
             }
-        }
 
-        if (goals.isEmpty()) {
-            Text("No goals yet. Add one to start tracking!", style = MaterialTheme.typography.bodySmall)
-        } else {
-            LazyColumn(){
-                items(goals) { goal ->
-                    Column {
-                        Row { GoalCard(goal = goal, isImperial) }
-                        IconButton(
-                            onClick = { removeGoal(goal) },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
+            if (goals.isEmpty()) {
+                Text(
+                    "No goals yet. Add one to start tracking!",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            } else {
+                LazyColumn() {
+                    items(goals) { goal ->
+                        Column {
+                            Row { GoalCard(goal = goal, isImperial) }
+                            IconButton(
+                                onClick = { removeGoal(goal) },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete Workout")
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
-        }
-        if (isDialogVisible) {
-            GoalCreationDialog(
-                onDismiss =  onAddGoalClicked ,
-                onCreateGoal = { goal ->
-                    createGoal(goal)
-                    onAddGoalClicked() ; // Close dialog after goal creation
-                },
-                exercises = exercises,
-                getQuery = getQuery,
-                isImperial = isImperial
-            )
+            if (isDialogVisible) {
+                GoalCreationDialog(
+                    onDismiss = onAddGoalClicked,
+                    onCreateGoal = { goal ->
+                        createGoal(goal)
+                        onAddGoalClicked() // Close dialog after goal creation
+                    },
+                    exercises = exercises,
+                    getQuery = getQuery,
+                    isImperial = isImperial
+                )
+            }
         }
     }
 }
@@ -266,7 +264,7 @@ fun GoalCreationDialog(
                                 Mgoal(
                                     type = selectedType,
                                     exerciseName = exerciseName,
-                                    targetValue = (targetValue.toDouble() * 2.20462).toInt() ?: 0
+                                    targetValue = (targetValue.toDouble() * 2.20462).toInt()
                                 )
                             }
 

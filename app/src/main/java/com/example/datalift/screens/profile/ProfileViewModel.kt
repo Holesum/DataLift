@@ -16,17 +16,18 @@ import com.example.datalift.model.Muser
 import com.example.datalift.model.Mworkout
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.ProfileDetail
-import com.google.firebase.auth.FirebaseAuth
+import com.example.datalift.navigation.getCurrentUserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val userRepo: userRepo,
     private val goalRepo: GoalRepository,
     private val workoutRepo: WorkoutRepository,
@@ -40,8 +41,8 @@ class ProfileViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    private val _goals = MutableStateFlow<List<Mgoal>>(emptyList())
-    val goals: StateFlow<List<Mgoal>> = _goals
+//    private val _goals = MutableStateFlow<List<Mgoal>>(emptyList())
+//    val goals: StateFlow<List<Mgoal>> = _goals
 
     // State for goal creation dialog visibility
     private val _isDialogVisible = MutableStateFlow(false)
@@ -61,7 +62,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadUserProfile(profile.profileId)
-        loadGoals(profile.profileId)
+//        loadGoals(profile.profileId)
     }
 
     fun getUnitSystem(): Boolean {
@@ -84,7 +85,7 @@ class ProfileViewModel @Inject constructor(
         return exerciseAnalysis
     }
 
-    fun analyzeWorkouts() {
+    private fun analyzeWorkouts() {
         getWorkouts()
         getExerciseAnalysis()
         analysisRepo.analyzeWorkouts(
@@ -120,7 +121,18 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = ProfileUiState.Loading
             userRepo.getUser(id){ user ->
                 if(user!=null){
-                    _uiState.value = ProfileUiState.Success(user)
+                    if(id == getCurrentUserId()){
+                        getWorkouts()
+                        getExerciseAnalysis()
+                        goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
+                            goalRepo.getGoalsForUser(id) { loadedGoals ->
+                                _uiState.value = ProfileUiState.Success(user,loadedGoals)
+                            }
+                        }
+                    } else {
+                        _uiState.value = ProfileUiState.Success(user, emptyList())
+                    }
+
                 } else {
                     _uiState.value = ProfileUiState.Error
                 }
@@ -128,13 +140,31 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun loadGoals(uid: String) {
+//    fun loadGoals(uid: String) {
+//        viewModelScope.launch {
+//            getWorkouts()
+//            getExerciseAnalysis()
+//            goalRepo.evaluateGoals(uid, _exerciseAnalysis.value, _workouts.value) {
+//                goalRepo.getGoalsForUser(uid) { loadedGoals ->
+//                    _goals.value = loadedGoals
+//                }
+//            }
+//        }
+//    }
+
+    private fun updateGoals(id: String){
         viewModelScope.launch {
             getWorkouts()
             getExerciseAnalysis()
-            goalRepo.evaluateGoals(uid, _exerciseAnalysis.value, _workouts.value) {
-                goalRepo.getGoalsForUser(uid) { loadedGoals ->
-                    _goals.value = loadedGoals
+            goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
+                goalRepo.getGoalsForUser(id) { loadedGoals ->
+                    _uiState.update { currentState ->
+                        if(currentState is ProfileUiState.Success){
+                            currentState.copy(
+                                goals = loadedGoals
+                            )
+                        } else currentState
+                    }
                 }
             }
         }
@@ -145,7 +175,7 @@ class ProfileViewModel @Inject constructor(
             goalRepo.createGoal(profile.profileId, goal) { createdGoal ->
                 if (createdGoal != null) {
                     analyzeWorkouts()
-                    loadGoals(profile.profileId)
+                    updateGoals(profile.profileId)
                     Log.d("Goal", "Goal created: $createdGoal")
                 } else {
                     Log.e("Goal", "Failed to create goal")
@@ -192,8 +222,10 @@ sealed interface ProfileUiState{
     data object Loading : ProfileUiState
 
     data class Success(
-        val user: Muser
+        val user: Muser,
+        val goals: List<Mgoal>,
     ) : ProfileUiState
 
     data object Error : ProfileUiState
 }
+
