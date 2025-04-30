@@ -54,5 +54,7 @@ fun DataliftNavHost(
         profileRoute(
             navUp = navController::navigateUp
         )
+
+        challengesRoute()
     }
 }

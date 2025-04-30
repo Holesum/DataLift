@@ -1,4 +1,4 @@
-package com.datalift.designsystem
+package com.datalift.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
