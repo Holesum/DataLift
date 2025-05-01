@@ -140,6 +140,10 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun isCurrUser() : Boolean{
+        return (profile.profileId == getCurrentUserId())
+    }
+
 //    fun loadGoals(uid: String) {
 //        viewModelScope.launch {
 //            getWorkouts()
@@ -185,8 +189,9 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun deleteGoal(goal: Mgoal) {
-        _goals.value = _goals.value.filter { it != goal }
+//        _goals.value = _goals.value.filter { it != goal }
         goalRepo.deleteGoal(profile.profileId, goal) {}
+        updateGoals(profile.profileId)
     }
 
     fun toggleDialogVisibility() {
