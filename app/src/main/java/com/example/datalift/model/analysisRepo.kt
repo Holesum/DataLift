@@ -262,6 +262,6 @@ class analysisRepo @Inject constructor(
 
             onComplete()
         }
-    } //todo fix analysis of goals tied to exercises
+    }
 }
 

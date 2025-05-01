@@ -91,7 +91,7 @@ class challengeRepo @Inject constructor(
     }
 
 
-    override fun getChallenge(challengeId: String, callback: (Mchallenge?) -> Unit) { //Todo Make Override
+    override fun getChallenge(challengeId: String, callback: (Mchallenge?) -> Unit) {
         db.collection("Challenges")
             .document(challengeId)
             .get()
