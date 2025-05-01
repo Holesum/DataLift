@@ -10,6 +10,11 @@ import com.google.firebase.firestore.toObject
 class userRepo {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var unitPreference: Boolean = true
+    private val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+
+    fun getCurrentUserId(): String {
+        return auth.currentUser?.uid.toString()
+    }
 
     fun getCachedUnitType(): Boolean {
         return unitPreference ?: true // default fallback
