@@ -161,7 +161,7 @@ class analysisRepo @Inject constructor(
                 val exerciseRef = db.collection("Users").document(uid).collection("AnalyzedExercises")
                 exerciseData.forEach { (name, data) ->
                     val docRef = exerciseRef.document(name)
-                    data["exerciseName"] = name // 👈 Add this
+                    data["exerciseName"] = name
                     batch.set(docRef, data)
                 }
 

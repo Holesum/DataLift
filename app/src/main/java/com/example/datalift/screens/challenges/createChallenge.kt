@@ -48,9 +48,39 @@ import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.google.android.play.core.integrity.i
 import com.google.firebase.Timestamp
 import java.time.Duration
+import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
 
+
+@Composable
+fun CreateChallengeScreen(
+    onChallengeCreated: () -> Unit,
+    exercises: List<ExerciseItem>,
+    onCreateGoal: (Mgoal) -> Unit,
+    getQuery: (String) -> Unit,
+    isImperial: Boolean,
+    currUserID: String,
+    uiState: ChallengesUiState,
+
+){
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf(Date()) }
+    var endDate by remember { mutableStateOf(Date()) }
+    var selectedGoal by remember { mutableStateOf<Mgoal?>(null) }
+    var isGoalDialogVisible by remember { mutableStateOf(false) }
+
+    //build challenge object in screen
+    var challenge = Mchallenge()
+    //First select the goal of the challenge
+        //prebuilt just call the SelectGoalDialog
+    //choose title, description
+    //add in other users
+        //Steal lookup from profile screen
+    //save challenge
+
+}
 
 
 /*
@@ -66,7 +96,6 @@ import kotlin.math.abs
     isImperial = profileViewModel.getUnitSystem(),
     isCurrentUser = profileViewModel.isCurrUser()
  */
-
 @Composable
 fun SelectGoalDialog(
     onDismiss: () -> Unit,

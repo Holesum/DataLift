@@ -3,23 +3,34 @@ package com.example.datalift.screens.challenges
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.datalift.data.repository.ChallengeRepository
+import com.example.datalift.model.ChallengeProgress
 import com.example.datalift.model.Mchallenge
+import com.example.datalift.model.Mgoal
+import com.example.datalift.model.Muser
+import com.example.datalift.model.userRepo
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class ChallengesViewModel @Inject constructor(
-    private val challengeRepository: ChallengeRepository
+    private val challengeRepository: ChallengeRepository,
+    private val userRepo: userRepo
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<ChallengesUiState> = MutableStateFlow(ChallengesUiState.Loading)
     val uiState: StateFlow<ChallengesUiState> = _uiState.asStateFlow()
 
+    private val uid: MutableStateFlow<String?> = MutableStateFlow("")
+    val uidState: StateFlow<String?> = uid.asStateFlow()
+
     init {
         loadChallenges()
+        getCurrentUserId()
     }
 
     private fun loadChallenges(){
@@ -30,6 +41,51 @@ class ChallengesViewModel @Inject constructor(
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }
+
+    private fun getCurrentUserId(){
+        uid.value = userRepo.getCurrentUserId()
+    }
+
+
+
+    fun createChallenge(
+        title: String,
+        description: String,
+        goal: Mgoal,
+        startDate: Date,
+        endDate: Date,
+        participants: List<Muser>
+    ) {
+        val uid = getCurrentUserId()
+        if (uid == null) {
+            _uiState.value = ChallengesUiState.Error("User not logged in")
+            return
+        }
+
+        val challenge = Mchallenge(
+            challengeId = "", // Will be overwritten
+            creatorUid = uidState.value?: "",
+            title = title,
+            description = description,
+            startDate = Timestamp(startDate),
+            endDate = Timestamp(endDate),
+            goal = goal,
+            participants = participants,
+            progress = participants.associate { it.uid to ChallengeProgress() }
+        )
+
+        _uiState.value = ChallengesUiState.Loading
+
+        challengeRepository.createChallenge(uidState.value?: "", challenge) { result ->
+            _uiState.value = if (result != null) {
+                ChallengesUiState.CreationSuccess(result)
+            } else {
+                ChallengesUiState.Error("Failed to create challenge")
+            }
+        }
+    }
+
+
 }
 
 sealed interface ChallengesUiState{
@@ -39,7 +95,9 @@ sealed interface ChallengesUiState{
         val challenges: List<Mchallenge>
     ) : ChallengesUiState
 
-    data object Error : ChallengesUiState
+    data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
+
+    data class Error(val message: String) : ChallengesUiState
 }
 
 /*
