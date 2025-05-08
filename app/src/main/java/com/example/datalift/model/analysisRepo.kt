@@ -63,7 +63,7 @@ class analysisRepo @Inject constructor(
         onFailure: (Exception) -> Unit
     ) {
         val db = FirebaseFirestore.getInstance()
-        val dateRange = 30
+        val dateRange = 60
         val currentDate = LocalDateTime.now()
         val startDate = currentDate.minusDays(dateRange.toLong())
         val startDateTimestamp = Timestamp(startDate.atZone(ZoneId.systemDefault()).toInstant())
@@ -110,8 +110,12 @@ class analysisRepo @Inject constructor(
                             is Map<*, *> -> listOf(setsRaw.filterKeys { it is String } as Map<String, Any>)  // Single set stored as map
                             else -> emptyList()
                         }
-                        for(set in sets){
-                            val rep = set["rep"] as? Long ?: 0;
+                        for (set in sets) {
+                            val rep = when (val repValue = set["rep"]) {
+                                is Number -> repValue.toDouble()
+                                is String -> repValue.toDoubleOrNull() ?: 0.0
+                                else -> 0.0
+                            }
                             repCount += rep
                         }
 
@@ -123,6 +127,9 @@ class analysisRepo @Inject constructor(
                                     "bodyPart" to bodyPart,
                                     "repCount" to repCount
                                 )
+                            } else {
+                                val existingReps = exerciseData[exerciseName]?.get("repCount") as? Double ?: 0.0
+                                exerciseData[exerciseName]?.set("repCount", existingReps + repCount)
                             }
 
                             val initialAvgORM = exerciseData[exerciseName]?.get("initialAvgORM") as? Double ?: avgORM
@@ -186,7 +193,7 @@ class analysisRepo @Inject constructor(
                         if (analysis != null) {
                             val progression = analysis.progression.sortedByDescending { it.progressionMultiplier }
                             val latest = progression.first().progressionMultiplier.times(analysis.initialAvgORM)
-                            val required = analysis.initialAvgORM + goal.targetValue
+                            val required = goal.targetValue
                             if (latest >= required) {
                                 updatedGoal.isComplete = true
                             } else {
@@ -215,12 +222,12 @@ class analysisRepo @Inject constructor(
                     GoalType.COMPLETE_X_WORKOUTS -> {
                         val goalCreatedAt = goal.createdAt // assuming this is a Firebase Timestamp
                         val count = workouts.count {
-                            it.date > goalCreatedAt // assuming 'date' is also a Firebase Timestamp
+                            it.date > goalCreatedAt
                         }
-                        if (count >= goal.targetValue) {
+                        if (count >= goal.trueTargetValue) {
                             updatedGoal.isComplete = true
                         } else {
-                            updatedGoal.currentValue = workouts.size
+                            updatedGoal.currentValue = count
                         }
                     }
 
@@ -233,7 +240,7 @@ class analysisRepo @Inject constructor(
                                     it.date > goalCreatedAt // assuming 'date' is also a Firebase Timestamp
                         }
                         Log.d("Goal", "count: $count")
-                        if (count >= goal.targetValue) {
+                        if (count >= goal.trueTargetValue) {
                             updatedGoal.isComplete = true
                             updatedGoal.currentValue = count
                         } else {

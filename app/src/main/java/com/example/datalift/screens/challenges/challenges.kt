@@ -325,6 +325,9 @@ internal fun ChallengesScreen(
                     modifier = Modifier.padding(8.dp)
                 )
             }
+
+            is ChallengesUiState.CreationSuccess -> TODO()
+            is ChallengesUiState.Error -> TODO()
         }
 
     }

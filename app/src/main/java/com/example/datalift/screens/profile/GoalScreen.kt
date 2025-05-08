@@ -136,7 +136,7 @@ fun GoalCard(
 
         else -> "Unknown Goal"
     }
-
+    Log.d("Goaltest", "goal: $goal")
     val progressText = when {
         goal.isComplete -> "✅ Completed!"
         goal.type == GoalType.INCREASE_ORM_BY_VALUE -> {
@@ -145,9 +145,17 @@ fun GoalCard(
             "$current / $target"
         }
         goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE ->
-            "${goal.currentValue}% / ${goal.targetPercentage?.toInt()}%"
-        else ->
+            "${goal.currentValue - 100}% / ${goal.targetPercentage?.toInt()}%"
+
+        goal.type == GoalType.COMPLETE_X_WORKOUTS ->
             "${goal.currentValue} / ${goal.trueTargetValue}"
+
+        goal.type == GoalType.COMPLETE_X_REPS_OF_EXERCISE ->
+            "${goal.targetValue - goal.currentValue - goal.trueTargetValue} / ${goal.trueTargetValue}"
+
+
+        else ->
+             "${goal.currentValue} / ${goal.trueTargetValue}"
     }
 
     Card(

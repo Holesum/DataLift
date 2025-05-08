@@ -17,10 +17,12 @@ espressoCore = "3.5.1"
 hilt = "2.51.1"
 hiltExt = "1.2.0"
 kotlin = "2.1.10"
+kotlinxCoroutinesTest = "1.6.4"
 ksp = "2.1.10-1.0.31"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 lifecycleRuntimeKtx = "2.6.1"
+mockk = "1.14.2"
 mpandroidchartVersion = "3.1.0"
 navigation = "2.8.5"
 serialization = "1.7.3"
@@ -70,6 +72,8 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin"}
 
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation"}
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment-compose", version.ref = "navigation"}
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization"}

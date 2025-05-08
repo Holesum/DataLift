@@ -81,11 +81,12 @@ class challengeRepo @Inject constructor(
             }
     }
 
-    override fun getChallengesForCurrentUser(): StateFlow<List<Mchallenge>> {
+    override fun getChallengesForCurrentUser(): /*StateFlow<*/List<Mchallenge>/*>*/ {
         val uid = getCurrentUserId()
-        val challenges = MutableStateFlow<List<Mchallenge>>(emptyList())
+        //val challenges = MutableStateFlow<List<Mchallenge>>(emptyList())
+        var challenges: List<Mchallenge> = emptyList()
         getChallengesForUser(uid) { list ->
-            challenges.value = list
+            challenges/*.value*/ = list
         }
         return challenges
     }

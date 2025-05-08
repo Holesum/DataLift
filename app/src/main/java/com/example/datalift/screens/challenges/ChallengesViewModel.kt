@@ -25,7 +25,7 @@ class ChallengesViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<ChallengesUiState> = MutableStateFlow(ChallengesUiState.Loading)
     val uiState: StateFlow<ChallengesUiState> = _uiState.asStateFlow()
 
-    private val uid: MutableStateFlow<String?> = MutableStateFlow("")
+    val uid: MutableStateFlow<String?> = MutableStateFlow("")
     val uidState: StateFlow<String?> = uid.asStateFlow()
 
     init {
@@ -37,13 +37,16 @@ class ChallengesViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = ChallengesUiState.Loading
             val challenges = challengeRepository.getChallengesForCurrentUser()
-            _uiState.value = ChallengesUiState.Success(challenges = challenges.value)
+            _uiState.value = ChallengesUiState.Success(challenges = challenges)
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }
 
     private fun getCurrentUserId(){
-        uid.value = userRepo.getCurrentUserId()
+        viewModelScope.launch {
+            val currentUserId = userRepo.getCurrentUserId()
+            uid.value = currentUserId
+        }
     }
 
 
@@ -58,7 +61,7 @@ class ChallengesViewModel @Inject constructor(
     ) {
         val uid = getCurrentUserId()
         if (uid == null) {
-            _uiState.value = ChallengesUiState.Error("User not logged in")
+            _uiState.value = ChallengesUiState.Error
             return
         }
 
@@ -80,7 +83,7 @@ class ChallengesViewModel @Inject constructor(
             _uiState.value = if (result != null) {
                 ChallengesUiState.CreationSuccess(result)
             } else {
-                ChallengesUiState.Error("Failed to create challenge")
+                ChallengesUiState.Error
             }
         }
     }
@@ -97,7 +100,7 @@ sealed interface ChallengesUiState{
 
     data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
 
-    data class Error(val message: String) : ChallengesUiState
+    data object Error: ChallengesUiState
 }
 
 /*

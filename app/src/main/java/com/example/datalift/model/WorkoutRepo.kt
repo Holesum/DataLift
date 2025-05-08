@@ -90,7 +90,6 @@ class WorkoutRepo @Inject constructor(
                             Log.d("Firebase", "Error analyzing workouts: ${error.message}")
                             callback(null)  // Callback with null in case of failure
                         })
-                        callback(updatedWorkout)
 
                     }.addOnFailureListener{
                         Log.d("Firebase", "Error setting docID: ${it.message}")
@@ -117,9 +116,8 @@ class WorkoutRepo @Inject constructor(
                 analysisRepo.analyzeWorkouts(uid, onComplete = {
                     var workouts : List<Mworkout> = emptyList()
                     getWorkouts(uid){ workoutList ->
-                        workouts = workoutList
+                        challengeRepo.evaluateChallenges(uid, workoutList) {}
                     }
-                    challengeRepo.evaluateChallenges(uid, workouts) {}
                     // Once the analysis is complete, invoke the callback with the updated workout
                     Log.d("Firebase", "Workout updated and analysis complete: ${workout.name}")
                     callback(workout)
@@ -148,11 +146,10 @@ class WorkoutRepo @Inject constructor(
             .addOnSuccessListener {
                 Log.d("Firebase", "Workout deleted: ${workout.name}")
                 analysisRepo.analyzeWorkouts(uid, onComplete = {
-                    var workouts : List<Mworkout> = emptyList()
                     getWorkouts(uid){ workoutList ->
-                        workouts = workoutList
+                        challengeRepo.evaluateChallenges(uid, workoutList) {}
                     }
-                    challengeRepo.evaluateChallenges(uid, workouts) {}
+
                     // Once the analysis is complete, invoke the callback with the updated workout
                     Log.d("Firebase", "Workout updated and analysis complete: ${workout.name}")
                     callback(workout)
