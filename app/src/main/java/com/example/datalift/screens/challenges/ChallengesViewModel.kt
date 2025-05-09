@@ -79,13 +79,13 @@ class ChallengesViewModel @Inject constructor(
 
         _uiState.value = ChallengesUiState.Loading
 
-        challengeRepository.createChallenge(uidState.value?: "", challenge) { result ->
-            _uiState.value = if (result != null) {
-                ChallengesUiState.CreationSuccess(result)
-            } else {
-                ChallengesUiState.Error
-            }
-        }
+//        challengeRepository.createChallenge(uidState.value?: "", challenge) { result ->
+//            _uiState.value = if (result != null) {
+//                ChallengesUiState.CreationSuccess(result)
+//            } else {
+//                ChallengesUiState.Error
+//            }
+//        }
     }
 
     fun RetrieveChallenge(id: String) : Mchallenge =
@@ -101,7 +101,7 @@ sealed interface ChallengesUiState{
         val challenges: List<Mchallenge>
     ) : ChallengesUiState
 
-    data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
+//    data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
 
     data object Error: ChallengesUiState
 }

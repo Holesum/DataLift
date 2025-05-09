@@ -56,6 +56,7 @@ fun ChallengeCreationScreen(
         canCreateChallenge = uiState.canCreateChallenge,
         startDate = uiState.startDate,
         endDate = uiState.endDate,
+        createChallenge = challengeCreationViewModel::createChallenge,
         updateDateRange = challengeCreationViewModel::updateDates,
         updateGoal = challengeCreationViewModel::updateGoal,
         updateTitle = challengeCreationViewModel::updateTitle,
@@ -76,6 +77,7 @@ private fun ChallengeCreationScreen(
     canCreateChallenge: Boolean,
     startDate: Long?,
     endDate: Long?,
+    createChallenge: () -> Boolean,
     updateDateRange: (Long?, Long?) -> Unit,
     updateTitle: (String) -> Unit,
     updateDescription: (String) -> Unit,
@@ -168,7 +170,10 @@ private fun ChallengeCreationScreen(
             )
             Button(
                 onClick = {
-                     navigateToChallengeFeed()
+                    if (createChallenge()){
+                        navigateToChallengeFeed()
+                    }
+
                 },
                 enabled = canCreateChallenge
             ) {
@@ -253,6 +258,7 @@ fun ChallengeCreationScreenPreview(){
                 goal = null,
                 startDate = null,
                 endDate = null,
+                createChallenge = { true },
                 canCreateChallenge = false,
                 updateDateRange = {_,_ ->},
                 updateGoal = {_ ->},

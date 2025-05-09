@@ -3,12 +3,18 @@ package com.example.datalift.screens.challenges
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.datalift.data.repository.ChallengeRepository
 import com.example.datalift.data.repository.GoalRepository
 import com.example.datalift.data.repository.WorkoutRepository
+import com.example.datalift.model.ChallengeProgress
 import com.example.datalift.model.ExerciseItem
+import com.example.datalift.model.Mchallenge
 import com.example.datalift.model.Mgoal
+import com.example.datalift.model.Muser
+import com.example.datalift.model.challengeRepo
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.getCurrentUserId
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ChallengeCreationViewModel @Inject constructor(
     private val userRepo: userRepo,
+    private val challengeRepo: ChallengeRepository,
     private val workoutRepo: WorkoutRepository,
     private val goalRepo: GoalRepository
 ) : ViewModel() {
@@ -100,10 +107,36 @@ class ChallengeCreationViewModel @Inject constructor(
         }
     }
 
-    fun createChallenge(){
+    fun createChallenge() : Boolean{
         if (_uiState.value.goal != null){
-
+            createGoal(_uiState.value.goal!!)
         }
+
+        val challenge = Mchallenge(
+            challengeId = "",
+            creatorUid = getCurrentUserId(),
+            title = _uiState.value.title,
+            description = _uiState.value.description,
+            startDate = Timestamp(
+                time = Instant.ofEpochMilli(_uiState.value.startDate!!)
+            ),
+            endDate = Timestamp(
+                time = Instant.ofEpochMilli(_uiState.value.endDate!!)
+            ),
+            goal = _uiState.value.goal!!,
+            participants = _uiState.value.participants,
+            progress = _uiState.value.participants.associate { it.uid to ChallengeProgress() }
+        )
+
+        var wasSuccessful = false
+        challengeRepo.createChallenge(getCurrentUserId(), challenge){ challenge ->
+            if (challenge != null){
+                wasSuccessful = true
+            } else {
+                wasSuccessful = false
+            }
+        }
+        return wasSuccessful
     }
 
     private fun createGoal(goal: Mgoal){
@@ -112,7 +145,9 @@ class ChallengeCreationViewModel @Inject constructor(
                 uid = getCurrentUserId(),
                 goal = goal
             ) { createdGoal ->
-
+                if(createdGoal != null){
+                    updateGoal(createdGoal)
+                }
             }
         }
     }
@@ -179,6 +214,7 @@ data class ChallengeCreationUiState(
     val startDate: Long? = null,
     val endDate: Long? = null,
     val goal: Mgoal? = null,
+    val participants: List<Muser> = emptyList(),
 
     val titleHasError: Boolean = false,
     val dateError: Boolean = false,
