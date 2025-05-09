@@ -67,12 +67,21 @@ class challengeRepo @Inject constructor(
     }
 
 
-    fun getChallenge(challengeId: String, callback: (Mchallenge?) -> Unit) {
+    private fun getChallenge(challengeId: String, callback: (Mchallenge?) -> Unit) {
         db.collection("Challenges")
             .document(challengeId)
             .get()
 
     }
+
+    override fun getChallenge(challengeId: String) : StateFlow<Mchallenge>{
+        val _challenge = MutableStateFlow(Mchallenge(creatorUid = "error"))
+        getChallenge(challengeId){ challenge ->
+            _challenge.value = challenge ?: _challenge.value
+        }
+        return _challenge
+    }
+
 
     override fun deleteChallenge(uid: String, challengeId: String, callback: (Boolean) -> Unit) {
         getChallenge(challengeId){
