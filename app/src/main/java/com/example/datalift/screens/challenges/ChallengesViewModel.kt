@@ -32,16 +32,25 @@ class ChallengesViewModel @Inject constructor(
         loadChallenges()
         getCurrentUserId()
     }
+//    val uiState: StateFlow<ChallengesUiState> = combine(
+//        challengeRepository.getChallengesForCurrentUser(),
+//        ChallengesUiState::Success,
+//    ).
 
     private fun loadChallenges(){
         viewModelScope.launch {
             _uiState.value = ChallengesUiState.Loading
-            val challenges = challengeRepository.getChallengesForCurrentUser()
-            _uiState.value = ChallengesUiState.Success(challenges = challenges)
+            challengeRepository.getChallengesForCurrentUser().collect{ challenges ->
+                _uiState.value = ChallengesUiState.Success(challenges = challenges)
+
+            }
+//            _uiState.value = ChallengesUiState.Success(
+//                challenges = challengeRepository.getChallengesForCurrentUser().value
+//            )
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }
-
+    
     private fun getCurrentUserId(){
         viewModelScope.launch {
             val currentUserId = userRepo.getCurrentUserId()
@@ -79,14 +88,17 @@ class ChallengesViewModel @Inject constructor(
 
         _uiState.value = ChallengesUiState.Loading
 
-        challengeRepository.createChallenge(uidState.value?: "", challenge) { result ->
-            _uiState.value = if (result != null) {
-                ChallengesUiState.CreationSuccess(result)
-            } else {
-                ChallengesUiState.Error
-            }
-        }
+//        challengeRepository.createChallenge(uidState.value?: "", challenge) { result ->
+//            _uiState.value = if (result != null) {
+//                ChallengesUiState.CreationSuccess(result)
+//            } else {
+//                ChallengesUiState.Error
+//            }
+//        }
     }
+
+    fun RetrieveChallenge(id: String) : Mchallenge =
+        challengeRepository.getChallenge(id).value
 
 
 }
@@ -98,7 +110,7 @@ sealed interface ChallengesUiState{
         val challenges: List<Mchallenge>
     ) : ChallengesUiState
 
-    data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
+//    data class CreationSuccess(val challenge: Mchallenge) : ChallengesUiState
 
     data object Error: ChallengesUiState
 }

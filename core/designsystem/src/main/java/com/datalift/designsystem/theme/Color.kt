@@ -11,9 +11,11 @@ internal val Pink40 = Color(0xFF7D5260)
 internal val Pink80 = Color(0xFFEFB8C8)
 internal val Purple40 = Color(0xFF6650a4)
 internal val Purple80 = Color(0xFFD0BCFF)
+internal val PurpleGrey30 = Color(0xFF4D444C)
 internal val PurpleGrey40 = Color(0xFF625b71)
+internal val PurpleGrey60 = Color(0xFF998D96)
 internal val PurpleGrey80 = Color(0xFFCCC2DC)
-
+internal val PurpleGrey90 = Color(0xFFEDDEE8)
 
 
 

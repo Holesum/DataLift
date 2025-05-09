@@ -55,6 +55,12 @@ fun DataliftNavHost(
             navUp = navController::navigateUp
         )
 
-        challengesRoute()
+        challengesRoute(
+            navUp = navController::navigateUp,
+            getBackStackEntry = navController::getBackStackEntry,
+            navigateToChallengeFeed = navController::navigateToChallengesFeed,
+            navigateToChallenge = navController::navigateToChallenge,
+            navigateToChallengeCreation = navController::navigateToChallengeCreation
+        )
     }
 }
