@@ -6,11 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.datalift.data.repository.GoalRepository
 import com.example.datalift.data.repository.WorkoutRepository
 import com.example.datalift.model.ExerciseItem
-import com.example.datalift.model.GoalRepo
 import com.example.datalift.model.Mgoal
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.getCurrentUserId
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

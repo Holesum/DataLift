@@ -1,15 +1,12 @@
 package com.example.datalift.screens.challenges
 
 import android.icu.text.SimpleDateFormat
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -25,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,13 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.datalift.designsystem.theme.DataliftTheme
 import com.example.datalift.model.ExerciseItem
-import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mgoal
 import com.example.datalift.screens.profile.GoalCreationDialog
 import com.example.datalift.ui.DevicePreviews
-import com.example.datalift.ui.components.DataliftFormTextField
 import com.example.datalift.ui.components.DataliftIcons
-import com.example.datalift.ui.components.DataliftTextField
 import com.example.datalift.ui.components.DateRangePickerModal
 import com.example.datalift.ui.components.StatelessDataliftFormTextField
 import com.google.firebase.Timestamp
