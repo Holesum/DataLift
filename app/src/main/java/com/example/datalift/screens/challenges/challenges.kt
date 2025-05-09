@@ -523,7 +523,7 @@ internal fun ChallengesScreen(
 
 @Composable
 fun ChallengeDetailScreen(
-    challenge: Mchallenge,
+    challenge: Mchallenge?,
     currentUser: String,
     navigateUp: () -> Unit,
     error: Boolean,
@@ -537,7 +537,7 @@ fun ChallengeDetailScreen(
                 )
             }
             Text(
-                text = challenge.title,
+                text = challenge?.title ?: "Challenge",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -549,7 +549,7 @@ fun ChallengeDetailScreen(
             modifier = Modifier.padding(top = 8.dp),
             thickness = 1.dp
         )
-        if (error){
+        if (error || challenge == null){
             Text("An error has occurred whilst trying to load this screen")
         } else {
             Column(modifier = Modifier.fillMaxWidth()) {
