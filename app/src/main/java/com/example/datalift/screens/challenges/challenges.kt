@@ -2,24 +2,44 @@ package com.example.datalift.screens.challenges
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.datalift.designsystem.theme.DataliftTheme
@@ -32,10 +52,13 @@ import com.example.datalift.model.smallTestChallenge
 import com.example.datalift.model.testChallenge
 import com.example.datalift.screens.profile.LoadingIcon
 import com.example.datalift.ui.DevicePreviews
+import com.example.datalift.ui.components.DataliftIcons
 import com.google.firebase.Timestamp
 import java.time.Duration
 import java.util.Locale
 import kotlin.math.abs
+
+const val LEADERBOARD_CARD_MAX_USERS = 5
 
 @Composable
 fun ChallengeCard(
@@ -52,7 +75,8 @@ fun ChallengeCard(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
            Column(
-               modifier = Modifier.padding(vertical = 8.dp)
+               modifier = Modifier
+                   .padding(vertical = 8.dp)
                    .weight(1f)
            ) {
                ChallengesTitle(challenge.title)
@@ -98,7 +122,7 @@ fun LeaderBoardDisplay(
         val ind = sortedMap.indexOfFirst { it.key == currentUser }
 
         LeaderboardDisplay(
-            variant = if(sortedMap.size <= 5 || ind <= 5) 0 else 1,
+            variant = if(sortedMap.size <= LEADERBOARD_CARD_MAX_USERS || ind <= 5) 0 else 1,
             participants = participants,
             leaderboardList = sortedMap,
             currentUserIndex = ind,
@@ -121,7 +145,7 @@ fun LeaderboardDisplay(
     currentUserIndex: Int,
 ) {
     if(variant == 0){
-        for(i in 0 until minOf(5,leaderboardList.size)){
+        for(i in 0 until minOf(LEADERBOARD_CARD_MAX_USERS,leaderboardList.size)){
             LeaderboardRow(
                 rank = i+1,
                 name = participants.first { it.uid == leaderboardList[i].key }.name,
@@ -130,11 +154,11 @@ fun LeaderboardDisplay(
                 isCurrentUser = i == currentUserIndex,
             )
         }
-        if (leaderboardList.size > 5){
+        if (leaderboardList.size > LEADERBOARD_CARD_MAX_USERS){
             Text("...")
         }
     } else {
-        for(i in 0 until 4){
+        for(i in 0 until LEADERBOARD_CARD_MAX_USERS-1){
             LeaderboardRow(
                 rank = i+1,
                 name = participants.first { it.uid == leaderboardList[i].key }.name,
@@ -144,7 +168,7 @@ fun LeaderboardDisplay(
             )
         }
         Text("...")
-        if (leaderboardList.size > 5){
+        if (leaderboardList.size > LEADERBOARD_CARD_MAX_USERS){
             LeaderboardRow(
                 rank = currentUserIndex+1,
                 name = participants
@@ -240,7 +264,8 @@ fun ChallengesTitle(
 ){
     Text(
         text = title,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        modifier = modifier
     )
 }
 
@@ -258,7 +283,8 @@ fun ChallengeTypeDescription(
     )
 
     Text(
-        text = challengeDescriptionText
+        text = challengeDescriptionText,
+        modifier = modifier,
     )
 }
 
@@ -284,15 +310,162 @@ fun returnChallengeDescriptionText(
     }
 
 @Composable
+fun LeaderboardProgressBar(
+    target: Int,
+    currentProgress: Int,
+    modifier: Modifier = Modifier,
+){
+    val progress = currentProgress.toFloat() / target.toFloat()
+
+    LinearProgressIndicator(
+        progress = { progress },
+        color = MaterialTheme.colorScheme.secondary,
+        trackColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        strokeCap = StrokeCap.Square,
+        gapSize = 0.dp,
+        modifier = modifier,
+        drawStopIndicator = {
+            drawStopIndicator(
+                drawScope = this,
+                stopSize = 0.dp,
+                color = Color.White,
+                strokeCap = StrokeCap.Butt
+            )
+        }
+    )
+}
+
+@Composable
+fun LeaderboardDetailRow(
+    rank: Int,
+    name: String,
+    target: Int,
+    currentProgress: Int,
+    isCurrentUser: Boolean,
+    modifier: Modifier = Modifier,
+){
+    val fontWeight = if(isCurrentUser) FontWeight.Bold else null
+
+    Row(modifier = modifier) {
+        Text(
+            text = "$rank. $name",
+            softWrap = false,
+            fontWeight = fontWeight,
+            overflow = TextOverflow.Ellipsis,
+//            text = "123456789!@#$%^&",
+            modifier = Modifier
+                .padding(8.dp)
+                .weight(0.75f)
+        )
+        LeaderboardProgressBar(
+            target = target,
+            currentProgress = currentProgress,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .weight(0.70f)
+        )
+//        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "$currentProgress/$target",
+            fontWeight = fontWeight,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .padding(8.dp)
+                .weight(0.55f)
+        )
+    }
+}
+
+@Composable
+fun DetailLeaderBoard(
+    goal: Mgoal,
+    currentUser: String,
+    participants: List<Muser>,
+    progress: Map<String, ChallengeProgress>,
+    modifier: Modifier = Modifier
+){
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+        val sortedMap = progress.entries.sortedByDescending {
+            it.value.currentValue + it.value.completionTimestamp.nanoseconds
+        }
+        val ind = sortedMap.indexOfFirst { it.key == currentUser }
+
+        DetailLeaderboard(
+            variant = if(sortedMap.size <= 20 || ind <= 20) 0 else 1,
+            participants = participants,
+            leaderboardList = sortedMap,
+            currentUserIndex = ind,
+            goal = goal
+        )
+
+
+        // Need a function that sorts the progress map by
+        //  ChallengeProgress.currentValue
+        // Then we decided the current user's location
+        // on the leaderboard and display that leaderboard type
+    }
+}
+
+
+@Composable
+fun DetailLeaderboard(
+    variant: Int,
+    goal: Mgoal,
+    participants: List<Muser>,
+    leaderboardList: List<Map.Entry<String, ChallengeProgress>>,
+    currentUserIndex: Int,
+){
+    if(variant == 0){
+        for(i in 0 until minOf(20,leaderboardList.size)){
+            LeaderboardDetailRow(
+                rank = i+1,
+                name = participants.first { it.uid == leaderboardList[i].key }.name,
+                target = goal.targetValue,
+                currentProgress = leaderboardList[i].value.currentValue,
+                isCurrentUser = i == currentUserIndex,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        if (leaderboardList.size > 20){
+            Text("...")
+        }
+    } else {
+        for(i in 0 until 19){
+            LeaderboardDetailRow(
+                rank = i+1,
+                name = participants.first { it.uid == leaderboardList[i].key }.name,
+                currentProgress = leaderboardList[i].value.currentValue,
+                target = goal.targetValue,
+                isCurrentUser = false
+            )
+        }
+        Text("...")
+        if (leaderboardList.size > 20){
+            LeaderboardDetailRow(
+                rank = currentUserIndex+1,
+                name = participants
+                    .first { it.uid == leaderboardList[currentUserIndex].key }
+                    .name,
+                currentProgress = leaderboardList[currentUserIndex].value.currentValue,
+                target = goal.targetValue,
+                isCurrentUser = true
+            )
+        }
+    }
+}
+
+@Composable
 fun ChallengesScreen(
     challengesViewModel: ChallengesViewModel = hiltViewModel(),
     navigateToChallenge: (String) -> Unit = { _ -> },
+    navigateToChallengeCreation: () -> Unit,
 ){
     val uiState by challengesViewModel.uiState.collectAsStateWithLifecycle()
 
     ChallengesScreen(
         uiState = uiState,
-        navigateToChallenge = navigateToChallenge
+        navigateToChallenge = navigateToChallenge,
+        navigateToChallengeCreation = navigateToChallengeCreation
     )
 }
 
@@ -300,37 +473,149 @@ fun ChallengesScreen(
 internal fun ChallengesScreen(
     uiState: ChallengesUiState,
     navigateToChallenge: (String) -> Unit = {_ -> },
+    navigateToChallengeCreation: () -> Unit = {},
 ){
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier.padding(8.dp)
     ) {
-        when(uiState){
-            ChallengesUiState.Error -> item {
-                Text("Failed to load screen")
-            }
-            ChallengesUiState.Loading -> item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LoadingIcon()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            when (uiState) {
+                ChallengesUiState.Error -> item {
+                    Text("Failed to load screen")
+                }
+
+                ChallengesUiState.Loading -> item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LoadingIcon()
+                    }
+                }
+
+                is ChallengesUiState.Success -> items(uiState.challenges) { challenge ->
+                    ChallengeCard(
+                        navigateToChallenge = navigateToChallenge,
+                        currentUser = "999",
+                        challenge = challenge,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
             }
-            is ChallengesUiState.Success -> items(uiState.challenges){ challenge ->
-                ChallengeCard(
-                    navigateToChallenge = navigateToChallenge,
-                    currentUser = "999",
-                    challenge = challenge,
-                    modifier = Modifier.padding(8.dp)
+        }
+        IconButton(
+            onClick = navigateToChallengeCreation,
+            modifier = Modifier
+                .padding(12.dp)
+                .clip(CircleShape)
+                .align(Alignment.BottomEnd)
+                .size(64.dp)
+        ) {
+            Icon(
+                imageVector = DataliftIcons.Add,
+                contentDescription = null,
+            )
+        }
+    }
+}
+
+@Composable
+fun ChallengeDetailScreen(
+    challenge: Mchallenge,
+    currentUser: String,
+    navigateUp: () -> Unit,
+    error: Boolean,
+){
+    Column {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            IconButton(onClick = navigateUp) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
                 )
             }
-
-            is ChallengesUiState.CreationSuccess -> TODO()
-            is ChallengesUiState.Error -> TODO()
+            Text(
+                text = challenge.title,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(start = 16.dp)
+            )
         }
-
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 8.dp),
+            thickness = 1.dp
+        )
+        if (error){
+            Text("An error has occurred whilst trying to load this screen")
+        } else {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ChallengeDetailTitle(
+                    title = challenge.title,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(8.dp)
+                )
+                ChallengeDetailDescription(
+                    text = challenge.description,
+                    modifier = Modifier
+                        .fillMaxWidth(0.75f)
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Card(
+                    colors = CardColors(
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth(.85f)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    DetailLeaderBoard(
+                        goal = challenge.goal,
+                        currentUser = currentUser,
+                        participants = challenge.participants,
+                        progress = challenge.progress,
+                        modifier = Modifier.padding(top = 16.dp)
+//                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
     }
+}
+
+@Composable
+fun ChallengeDetailTitle(
+    title: String,
+    modifier: Modifier = Modifier
+){
+    Text(
+        text = title,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun ChallengeDetailDescription(
+    text: String,
+    modifier: Modifier = Modifier
+){
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+    )
 }
 
 @Preview
@@ -368,7 +653,6 @@ fun SmallChallengeCardPreview(){
         modifier = Modifier.fillMaxWidth()
     )
 }
-
 
 
 @Preview
@@ -409,6 +693,23 @@ fun LeaderboardDisplayPreview(){
     }
 }
 
+@Preview
+@Composable
+fun ChallengeDetailLeaderboardRowPreview(){
+    DataliftTheme {
+        Surface {
+            LeaderboardDetailRow(
+                rank = 1,
+                name = "Test",
+                target = 135,
+                currentProgress = 120,
+                isCurrentUser = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
 @DevicePreviews
 @Composable
 fun ChallengeFeedScreenPreview(){
@@ -418,6 +719,25 @@ fun ChallengeFeedScreenPreview(){
 
             ChallengesScreen(
                 uiState = ChallengesUiState.Success(challengesList),
+            )
+        }
+    }
+}
+
+@DevicePreviews
+@Composable
+fun ChallengeDetailScreenPreivew(){
+    DataliftTheme(
+        darkTheme = false,
+        disableDynamicThemeing = true
+    ) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            val challenge = testChallenge()
+            ChallengeDetailScreen(
+                challenge = challenge,
+                currentUser = "999",
+                navigateUp = {},
+                error = false
             )
         }
     }

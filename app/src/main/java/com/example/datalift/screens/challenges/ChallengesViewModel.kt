@@ -41,7 +41,7 @@ class ChallengesViewModel @Inject constructor(
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }
-
+    
     private fun getCurrentUserId(){
         viewModelScope.launch {
             val currentUserId = userRepo.getCurrentUserId()
@@ -87,6 +87,9 @@ class ChallengesViewModel @Inject constructor(
             }
         }
     }
+
+    fun RetrieveChallenge(id: String) : Mchallenge =
+        challengeRepository.getChallenge(id).value
 
 
 }
