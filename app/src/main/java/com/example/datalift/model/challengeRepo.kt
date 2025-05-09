@@ -167,7 +167,7 @@ class challengeRepo @Inject constructor(
 
     //Add user to challenge
     override fun addUserToChallenge(uid: String, challengeId: String, callback: (Boolean) -> Unit) {
-        var challenge: Mchallenge = Mchallenge()
+        var challenge = Mchallenge()
         getChallenge(challengeId){
             challenge = it!! //non-null assertion find better response
         }

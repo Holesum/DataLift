@@ -1,5 +1,6 @@
 package com.example.datalift.screens.challenges
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.datalift.data.repository.ChallengeRepository
@@ -27,6 +28,9 @@ class ChallengesViewModel @Inject constructor(
 
     val uid: MutableStateFlow<String?> = MutableStateFlow("")
     val uidState: StateFlow<String?> = uid.asStateFlow()
+
+    private val _currentChallenge: MutableStateFlow<Mchallenge?> = MutableStateFlow(null)
+    val currentChallenge: StateFlow<Mchallenge?> = _currentChallenge.asStateFlow()
 
     init {
         loadChallenges()
@@ -97,8 +101,15 @@ class ChallengesViewModel @Inject constructor(
 //        }
     }
 
-    fun RetrieveChallenge(id: String) : Mchallenge =
-        challengeRepository.getChallenge(id).value
+    fun loadChallenge(id: String){
+        challengeRepository.getChallenge(id){ challenge ->
+            _currentChallenge.value = challenge
+            Log.d("ChallengesViewModel","Challenge Assigned")
+        }
+    }
+
+    fun RetrieveChallenge(id: String) : StateFlow<Mchallenge> =
+        challengeRepository.getChallenge(id)
 
 
 }

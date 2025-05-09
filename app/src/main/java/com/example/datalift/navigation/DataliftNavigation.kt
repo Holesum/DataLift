@@ -4,6 +4,7 @@ package com.example.datalift.navigation
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -489,8 +490,10 @@ fun NavGraphBuilder.challengesRoute(
 
             val challengeDetail: ChallengeDetail = backStackEntry.toRoute()
             val challengesViewModel: ChallengesViewModel = hiltViewModel(parentEntry)
-            val challenge = challengesViewModel.RetrieveChallenge(challengeDetail.id)
-            val error: Boolean = (challenge.creatorUid == "error")
+            challengesViewModel.loadChallenge(challengeDetail.id)
+            val challenge by challengesViewModel.currentChallenge.collectAsStateWithLifecycle()
+//            val challenge by challengesViewModel.RetrieveChallenge(challengeDetail.id).collectAsStateWithLifecycle()
+            val error: Boolean = (challenge == null)
 
             ChallengeDetailScreen(
                 challenge = challenge,
