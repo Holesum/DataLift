@@ -49,6 +49,7 @@ import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
 import com.example.datalift.model.smallTestChallenge
 import com.example.datalift.model.testChallenge
+import com.example.datalift.navigation.getCurrentUserId
 import com.example.datalift.screens.profile.LoadingIcon
 import com.example.datalift.ui.DevicePreviews
 import com.example.datalift.ui.components.DataliftIcons
@@ -498,7 +499,7 @@ internal fun ChallengesScreen(
                 is ChallengesUiState.Success -> items(uiState.challenges) { challenge ->
                     ChallengeCard(
                         navigateToChallenge = navigateToChallenge,
-                        currentUser = "999",
+                        currentUser = getCurrentUserId(),
                         challenge = challenge,
                         modifier = Modifier.padding(8.dp)
                     )
