@@ -460,10 +460,10 @@ fun ChallengesScreen(
     navigateToChallenge: (String) -> Unit = { _ -> },
     navigateToChallengeCreation: () -> Unit,
 ){
-    val uiState by challengesViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = challengesViewModel.uiState.collectAsStateWithLifecycle()
 
     ChallengesScreen(
-        uiState = uiState,
+        uiState = uiState.value,
         navigateToChallenge = navigateToChallenge,
         navigateToChallengeCreation = navigateToChallengeCreation
     )

@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -32,12 +34,21 @@ class ChallengesViewModel @Inject constructor(
         loadChallenges()
         getCurrentUserId()
     }
+//    val uiState: StateFlow<ChallengesUiState> = combine(
+//        challengeRepository.getChallengesForCurrentUser(),
+//        ChallengesUiState::Success,
+//    ).
 
     private fun loadChallenges(){
         viewModelScope.launch {
             _uiState.value = ChallengesUiState.Loading
-            val challenges = challengeRepository.getChallengesForCurrentUser()
-            _uiState.value = ChallengesUiState.Success(challenges = challenges)
+            challengeRepository.getChallengesForCurrentUser().collect{ challenges ->
+                _uiState.value = ChallengesUiState.Success(challenges = challenges)
+
+            }
+//            _uiState.value = ChallengesUiState.Success(
+//                challenges = challengeRepository.getChallengesForCurrentUser().value
+//            )
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }

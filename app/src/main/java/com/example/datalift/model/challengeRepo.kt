@@ -81,12 +81,13 @@ class challengeRepo @Inject constructor(
             }
     }
 
-    override fun getChallengesForCurrentUser(): /*StateFlow<*/List<Mchallenge>/*>*/ {
+    override fun getChallengesForCurrentUser(): StateFlow<List<Mchallenge>> {
         val uid = getCurrentUserId()
-        //val challenges = MutableStateFlow<List<Mchallenge>>(emptyList())
-        var challenges: List<Mchallenge> = emptyList()
+        val challenges = MutableStateFlow<List<Mchallenge>>(emptyList())
+//        var challenges: List<Mchallenge> = emptyList()
         getChallengesForUser(uid) { list ->
-            challenges/*.value*/ = list
+            challenges.value = list
+            Log.d("ChallengeRepo","List size = ${list.size}")
         }
         return challenges
     }
@@ -173,80 +174,82 @@ class challengeRepo @Inject constructor(
         val goal = challenge.goal
         val challengeDocRef = db.collection("Challenges").document(challengeId)
 
-        // Step 1: Add user to the participants array
-        challengeDocRef.update("participants", FieldValue.arrayUnion(uid))
-            .addOnFailureListener { e ->
-                Log.e("ChallengeRepo", "Failed to add user to participants: ${e.message}")
-                callback(false)
-                return@addOnFailureListener
-            }
+        userRepo.getUser(uid){user ->
+            // Step 1: Add user to the participants array
+            challengeDocRef.update("participants", FieldValue.arrayUnion(user))
+                .addOnFailureListener { e ->
+                    Log.e("ChallengeRepo", "Failed to add user to participants: ${e.message}")
+                    callback(false)
+                    return@addOnFailureListener
+                }
 
-        // Step 2: Add an entry for the user's progress
-        val progressField = "progress.$uid"
+            // Step 2: Add an entry for the user's progress
+            val progressField = "progress.$uid"
 
 
-        // Step 3: Get users current val aka starting val
-        var startingValue = 0
-        when (goal.type){
-            GoalType.INCREASE_ORM_BY_VALUE -> {
-                analysisRepo.getAnalyzedExercises(uid){ exercises ->
-                    val analysis = exercises.find {
-                        it.exerciseName.equals(goal.exerciseName, ignoreCase = true)
-                    }
-                    if(analysis != null){
-                        startingValue = analysis.progression.maxByOrNull { it.progressionMultiplier }
-                            ?.progressionMultiplier?.times(analysis.initialAvgORM)?.toInt() ?: 0
+            // Step 3: Get users current val aka starting val
+            var startingValue = 0
+            when (goal.type){
+                GoalType.INCREASE_ORM_BY_VALUE -> {
+                    analysisRepo.getAnalyzedExercises(uid){ exercises ->
+                        val analysis = exercises.find {
+                            it.exerciseName.equals(goal.exerciseName, ignoreCase = true)
+                        }
+                        if(analysis != null){
+                            startingValue = analysis.progression.maxByOrNull { it.progressionMultiplier }
+                                ?.progressionMultiplier?.times(analysis.initialAvgORM)?.toInt() ?: 0
+                        }
                     }
                 }
-            }
-            GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
-                startingValue = 0
-            }
-            GoalType.COMPLETE_X_REPS_OF_EXERCISE -> {
-                analysisRepo.getAnalyzedExercises(uid) { exercises ->
-                    val analysis = exercises.find {
-                        it.exerciseName.equals(goal.exerciseName, ignoreCase = true)
-                    }
-                    if (analysis != null) {
-                        startingValue = analysis.repCount.toInt()
+                GoalType.INCREASE_ORM_BY_PERCENTAGE -> {
+                    startingValue = 0
+                }
+                GoalType.COMPLETE_X_REPS_OF_EXERCISE -> {
+                    analysisRepo.getAnalyzedExercises(uid) { exercises ->
+                        val analysis = exercises.find {
+                            it.exerciseName.equals(goal.exerciseName, ignoreCase = true)
+                        }
+                        if (analysis != null) {
+                            startingValue = analysis.repCount.toInt()
+                        }
                     }
                 }
-            }
-            GoalType.COMPLETE_X_WORKOUTS -> {
-                startingValue = 0
+                GoalType.COMPLETE_X_WORKOUTS -> {
+                    startingValue = 0
+
+                }
+                GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> {
+                    startingValue = 0
+                }
+                else ->  {
+                    startingValue = 0
+                }
 
             }
-            GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> {
-                startingValue = 0
-            }
-            else ->  {
-                startingValue = 0
-            }
 
+
+            val newProgress = ChallengeProgress(startingValue, startingValue, false)
+
+            challengeDocRef.update(progressField, newProgress)
+                .addOnFailureListener { e ->
+                    Log.e("ChallengeRepo", "Failed to add user to progress map: ${e.message}")
+                    callback(false)
+                    return@addOnFailureListener
+                }
+
+            // Step 3: Add challenge reference to the user's Challenges subcollection
+            val userChallengeRef = db.collection("Users").document(uid)
+                .collection("Challenges").document(challengeId)
+
+            userChallengeRef.set(mapOf("challengeRef" to challengeDocRef))
+                .addOnSuccessListener {
+                    callback(true)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("ChallengeRepo", "Failed to set user challenge ref: ${e.message}")
+                    callback(false)
+                }
         }
-
-
-        val newProgress = ChallengeProgress(startingValue, startingValue, false)
-
-        challengeDocRef.update(progressField, newProgress)
-            .addOnFailureListener { e ->
-                Log.e("ChallengeRepo", "Failed to add user to progress map: ${e.message}")
-                callback(false)
-                return@addOnFailureListener
-            }
-
-        // Step 3: Add challenge reference to the user's Challenges subcollection
-        val userChallengeRef = db.collection("Users").document(uid)
-            .collection("Challenges").document(challengeId)
-
-        userChallengeRef.set(mapOf("challengeRef" to challengeDocRef))
-            .addOnSuccessListener {
-                callback(true)
-            }
-            .addOnFailureListener { e ->
-                Log.e("ChallengeRepo", "Failed to set user challenge ref: ${e.message}")
-                callback(false)
-            }
     }
 
     //Remove user from challenge
