@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.HorizontalDivider
@@ -506,7 +507,7 @@ internal fun ChallengesScreen(
                 }
             }
         }
-        IconButton(
+        Button (
             onClick = navigateToChallengeCreation,
             modifier = Modifier
                 .padding(12.dp)
