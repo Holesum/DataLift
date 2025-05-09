@@ -69,9 +69,10 @@ class ProfileViewModel @Inject constructor(
         return userRepo.getCachedUnitType()
     }
 
-    private fun getWorkouts() {
+    private fun getWorkouts(callback: (List<Mworkout>) -> Unit = {}) {
         workoutRepo.getWorkouts(profile.profileId) { workoutList ->
             _workouts.value = workoutList
+            callback(workoutList)
         }
     }
 
@@ -87,6 +88,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun analyzeWorkouts() {
         getWorkouts()
+        Log.d("abcdef", "Workouts found: ${_workouts.value}")
         getExerciseAnalysis()
         analysisRepo.analyzeWorkouts(
             uid = profile.profileId,
@@ -121,12 +123,14 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = ProfileUiState.Loading
             userRepo.getUser(id){ user ->
                 if(user!=null){
-                    if(id == getCurrentUserId()){
-                        getWorkouts()
-                        getExerciseAnalysis()
-                        goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
-                            goalRepo.getGoalsForUser(id) { loadedGoals ->
-                                _uiState.value = ProfileUiState.Success(user,loadedGoals)
+                    if(id == getCurrentUserId()) {
+                        getWorkouts() {
+                            Log.d("abcdef", "Workouts found: ${_workouts.value}")
+                            getExerciseAnalysis()
+                            goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
+                                goalRepo.getGoalsForUser(id) { loadedGoals ->
+                                    _uiState.value = ProfileUiState.Success(user, loadedGoals)
+                                }
                             }
                         }
                     } else {
@@ -158,12 +162,13 @@ class ProfileViewModel @Inject constructor(
 
     private fun updateGoals(id: String){
         viewModelScope.launch {
-            getWorkouts()
+            getWorkouts {}
+            Log.d("abcdef", "Workouts found: ${_workouts.value}")
             getExerciseAnalysis()
             goalRepo.evaluateGoals(id, _exerciseAnalysis.value, _workouts.value) {
                 goalRepo.getGoalsForUser(id) { loadedGoals ->
                     _uiState.update { currentState ->
-                        if(currentState is ProfileUiState.Success){
+                        if (currentState is ProfileUiState.Success) {
                             currentState.copy(
                                 goals = loadedGoals
                             )
@@ -171,6 +176,7 @@ class ProfileViewModel @Inject constructor(
                     }
                 }
             }
+
         }
     }
 

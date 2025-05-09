@@ -5,7 +5,6 @@ import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +22,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +43,7 @@ import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.GoalType
 import com.example.datalift.model.Mexercise
 import com.example.datalift.model.Mgoal
+import com.example.datalift.ui.components.SemiStatelessRadioOptionFieldToModal
 import com.example.datalift.ui.components.StatelessDataliftNumberTextField
 import com.example.datalift.utils.toDisplayWeight
 
@@ -111,22 +109,53 @@ fun GoalSection(
 }
 
 @Composable
-fun GoalCard(goal: Mgoal,
-             isImperial: Boolean) {
+fun GoalCard(
+    goal: Mgoal,
+    isImperial: Boolean
+) {
     Log.d("test", "GoalCard called $goal")
-    val title = when (goal.type) {
-        GoalType.INCREASE_ORM_BY_PERCENTAGE -> "Increase ${goal.exerciseName} one rep maximum by ${goal.targetPercentage?.toInt()}%"
-        GoalType.INCREASE_ORM_BY_VALUE ->
-            if(isImperial){
-                "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} lbs"
-            }else{
-                "Increase ${goal.exerciseName} one rep maximum to ${goal.targetValue.toDisplayWeight(isImperial)} kgs"
-            }
 
-        GoalType.COMPLETE_X_WORKOUTS -> "Complete ${goal.trueTargetValue} workouts"
-        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART -> "Do ${goal.trueTargetValue} of ${goal.bodyPart} workouts"
-        GoalType.COMPLETE_X_REPS_OF_EXERCISE -> "Do ${goal.trueTargetValue} reps of ${goal.exerciseName}"
+    val title = when (goal.type) {
+        GoalType.INCREASE_ORM_BY_PERCENTAGE ->
+            "Increase ${goal.exerciseName} one rep max by ${goal.targetPercentage?.toInt()}%"
+
+        GoalType.INCREASE_ORM_BY_VALUE -> {
+            val unit = if (isImperial) "lbs" else "kgs"
+            val target = goal.targetValue.toDisplayWeight(isImperial)
+            "Increase ${goal.exerciseName} one rep max to $target $unit"
+        }
+
+        GoalType.COMPLETE_X_WORKOUTS ->
+            "Complete ${goal.trueTargetValue} workouts"
+
+        GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART ->
+            "Do ${goal.trueTargetValue} ${goal.bodyPart} workouts"
+
+        GoalType.COMPLETE_X_REPS_OF_EXERCISE ->
+            "Do ${goal.trueTargetValue} reps of ${goal.exerciseName}"
+
         else -> "Unknown Goal"
+    }
+    Log.d("Goaltest", "goal: $goal")
+    val progressText = when {
+        goal.isComplete -> "✅ Completed!"
+        goal.type == GoalType.INCREASE_ORM_BY_VALUE -> {
+            val current = goal.currentValue.toDisplayWeight(isImperial)
+            val target = goal.targetValue.toDisplayWeight(isImperial)
+            "$current / $target"
+        }
+        goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE ->
+            "${goal.currentValue - 100}% / ${goal.targetPercentage?.toInt()}%"
+
+        goal.type == GoalType.COMPLETE_X_WORKOUTS ->
+            "${goal.currentValue} / ${goal.trueTargetValue}"
+
+        goal.type == GoalType.COMPLETE_X_REPS_OF_EXERCISE ->
+            "${goal.targetValue - goal.currentValue - goal.trueTargetValue} / ${goal.trueTargetValue}"
+
+
+        else ->
+             "${goal.currentValue} / ${goal.trueTargetValue}"
     }
 
     Card(
@@ -137,16 +166,10 @@ fun GoalCard(goal: Mgoal,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_VALUE) {
-                Text("${goal.currentValue.toDisplayWeight(isImperial)} / ${goal.targetValue.toDisplayWeight(isImperial)}")
-                } else if (!goal.isComplete && goal.type == GoalType.INCREASE_ORM_BY_PERCENTAGE) {
-                Text("${goal.currentValue}% / ${goal.targetValue}%")
-            } else if (!goal.isComplete) {
-                Text("${goal.targetValue - goal.currentValue - goal.trueTargetValue} / ${goal.trueTargetValue}")
-            }
-            else {
-                Text("✅ Completed!", color = Color.Green)
-            }
+            Text(
+                text = progressText,
+                color = if (goal.isComplete) Color.Green else MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -172,7 +195,22 @@ fun GoalCreationDialog(
         title = { Text("Create New Goal") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                DropdownMenuGoalType(selectedType) { selectedType = it }
+                SemiStatelessRadioOptionFieldToModal(
+                    field = "Goal Type",
+                    selectedOption = selectedType.toDisplayString(),
+                    changeSelectedOption = { selectedString ->
+                        selectedType = GoalType.entries
+                            .firstOrNull { it.toDisplayString() == selectedString }
+                            ?: GoalType.UNKNOWN
+                    },
+                    options = GoalType.entries
+                        .filter { it != GoalType.UNKNOWN }
+                        .map { it.toDisplayString() },
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(0.75f)
+                )
+
 
                 when (selectedType) {
                     GoalType.INCREASE_ORM_BY_VALUE -> {
@@ -316,42 +354,58 @@ fun GoalCreationDialog(
     )
 }
 
-@Composable
-fun DropdownMenuGoalType(
-    selectedType: GoalType,
-    onTypeSelected: (GoalType) -> Unit
-) {
-    var expanded by remember { mutableStateOf(true) }
+fun GoalType.toDisplayString(): String =
+    name.lowercase()
+        .replace("_", " ")
+        .replaceFirstChar { it.uppercase() }
 
-    Box {
-        OutlinedTextField(
-            value = selectedType.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Goal Type") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
-        )
+// Optional reverse function if needed
+fun String.toGoalType(): GoalType =
+    GoalType.entries.first { it.name.equals(this.replace(" ", "_"), ignoreCase = true) }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            GoalType.entries
-                .filter { it != GoalType.UNKNOWN }
-                .forEach { type ->
-                    DropdownMenuItem(
-                        text = { Text(type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }) },
-                        onClick = {
-                            onTypeSelected(type)
-                            expanded = false
-                        }
-                    )
-                }
-        }
-    }
-}
+//@Composable
+//fun DropdownMenuGoalType(
+//    selectedType: GoalType,
+//    onTypeSelected: (GoalType) -> Unit
+//) {
+//    var expanded by remember { mutableStateOf(false) }
+//
+////    Box {
+////        SemiStatelessRadioOptionFieldToModal(
+////            field = "Goal Type",
+////            selectedOption = exerciseName,
+////            changeSelectedOption = updateExercise,
+////            options = exerciseNames,
+////            modifier = modifier.padding(4.dp).fillMaxWidth(0.75f)
+////        )
+////        OutlinedTextField(
+////            value = selectedType.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+////            onValueChange = {},
+////            readOnly = true,
+////            label = { Text("Goal Type") },
+////            modifier = Modifier
+////                .fillMaxWidth()
+////                .clickable { expanded = true }
+////        )
+////
+////        DropdownMenu(
+////            expanded = expanded,
+////            onDismissRequest = { expanded = false }
+////        ) {
+////            GoalType.entries
+////                .filter { it != GoalType.UNKNOWN }
+////                .forEach { type ->
+////                    DropdownMenuItem(
+////                        text = { Text(type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }) },
+////                        onClick = {
+////                            onTypeSelected(type)
+////                            expanded = false
+////                        }
+////                    )
+////                }
+////        }
+//    }
+//}
 
 @Composable
 fun SearchExerciseDialog(

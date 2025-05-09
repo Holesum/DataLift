@@ -253,12 +253,15 @@ class WorkoutViewModel @Inject constructor(
                 workoutRepo.createNewWorkout(oRM(workout), uid){ workout ->
                     if(addPost) {
                         userRepo.getUser(uid) { user ->
+                            Log.d("Firebase", "User found: posting")
                             val post = Mpost("", Timestamp.now(), workout, user, title, body)
                             postRepo.addPost(uid, post)
+                            _loading.value = false
                         }
                     }
+                    _loading.value = false
                 }
-                _loading.value = false
+
 
             } catch (e: Exception) {
                 Log.d("Firebase", "Error creating workout: ${e.message}")

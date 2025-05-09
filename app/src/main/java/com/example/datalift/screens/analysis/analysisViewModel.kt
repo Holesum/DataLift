@@ -139,6 +139,9 @@ class analysisViewModel @Inject constructor(
     }
 
     fun updateDisplays(dialogDisplayed: Boolean, recommendationDisplayed: Boolean? = null){
+        if(recommendationDisplayed == true){
+            fetchExternalData()
+        }
         _searchExerciseUiState.update { currentState ->
             currentState.copy(
                 dialogDisplayed = dialogDisplayed,
@@ -253,6 +256,7 @@ class analysisViewModel @Inject constructor(
     fun analyzeWorkouts() {
         userRepo.getUnitType(uid){}
         getWorkouts()
+        Log.d("Goal", "workouts ${_workouts.value}")
         analysisRepo.analyzeWorkouts(
             uid = uid,
             onComplete = {
