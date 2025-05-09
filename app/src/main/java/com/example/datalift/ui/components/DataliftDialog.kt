@@ -11,10 +11,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +30,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.datalift.designsystem.theme.DataliftTheme
+import com.example.datalift.screens.challenges.getStartOfNextDay
+import com.example.datalift.screens.challenges.getStartOfTommorwTimetamp
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Composable
 fun StatelessDataliftBoxDialog(
@@ -228,4 +238,81 @@ fun StatelessDataliftCDCardDialog(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateRangePickerModal(
+    onDateRangeSelected: (Long?, Long?) -> Unit,
+    onDismiss: () -> Unit,
+){
+    val dateRangePickerState = rememberDateRangePickerState(
+        selectableDates = FutureSelectableDate
+    )
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = isValidRange(
+                    dateRangePickerState.selectedStartDateMillis,
+                    dateRangePickerState.selectedEndDateMillis,
+                ),
+                onClick = {
+                    onDateRangeSelected(
+                        dateRangePickerState.selectedStartDateMillis,
+                        dateRangePickerState.selectedEndDateMillis
+                    )
+                    onDismiss()
+                }
+            ) { 
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DateRangePicker(
+            state = dateRangePickerState,
+            title = {
+                Text(
+                    text = "Select date range"
+                )
+            },
+            showModeToggle = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(16.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private object FutureSelectableDate: SelectableDates{
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return utcTimeMillis >= getStartOfTommorwTimetamp()
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        return year >= currentYear()
+    }
+}
+
+private fun currentYear(): Int {
+    val zoneID = ZoneId.systemDefault()
+
+    return LocalDate.now(zoneID)
+        .year
+}
+
+private fun isValidRange(startDate: Long?, endDate: Long?): Boolean {
+    if(startDate == null || endDate == null) return false
+
+    val tomorrow = getStartOfTommorwTimetamp()
+    val dayAfterTomorrow = getStartOfNextDay(tomorrow)
+    return startDate >= tomorrow && endDate >= dayAfterTomorrow
 }
