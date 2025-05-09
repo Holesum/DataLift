@@ -176,7 +176,13 @@ fun GoalCreationDialog(
 
                 when (selectedType) {
                     GoalType.INCREASE_ORM_BY_VALUE -> {
-                        if(search){SearchExerciseDialog({search = false}, {exercise -> exerciseName = exercise.name; search = false}, exercises, getQuery )}
+                        if(search){
+                            SearchExerciseDialog(
+                                {search = false},
+                                {exercise -> exerciseName = exercise.name; search = false},
+                                exercises,
+                                getQuery )
+                        }
                         Text("Exercise Name: $exerciseName")
                         Button(onClick = {search = true}){
                             Text("Change Exercise")
