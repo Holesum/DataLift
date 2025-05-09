@@ -11,7 +11,6 @@ import com.example.datalift.model.ExerciseItem
 import com.example.datalift.model.Mchallenge
 import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
-import com.example.datalift.model.challengeRepo
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.getCurrentUserId
 import com.google.firebase.Timestamp
