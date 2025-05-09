@@ -170,10 +170,8 @@ private fun ChallengeCreationScreen(
             )
             Button(
                 onClick = {
-                    if (createChallenge()){
-                        navigateToChallengeFeed()
-                    }
-
+                    createChallenge()
+                    navigateToChallengeFeed()
                 },
                 enabled = canCreateChallenge
             ) {
