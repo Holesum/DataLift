@@ -466,7 +466,8 @@ fun NavGraphBuilder.challengesRoute(
     getBackStackEntry: (ChallengesBaseRoute) -> NavBackStackEntry,
     navigateToChallengeFeed: (navOptions: NavOptions) -> Unit,
     navigateToChallenge: (String) -> Unit,
-    navigateToChallengeCreation: () -> Unit
+    navigateToChallengeCreation: () -> Unit,
+    navigationToProfile: (String) -> Unit
 ) {
     navigation<ChallengesBaseRoute>(startDestination = ChallengesFeed){
        composable<ChallengesFeed> { backStackEntry ->
@@ -514,7 +515,8 @@ fun NavGraphBuilder.challengesRoute(
                             }
                         }
                     )
-                }
+                },
+                navigateToProfile = navigationToProfile
             )
         }
     }
