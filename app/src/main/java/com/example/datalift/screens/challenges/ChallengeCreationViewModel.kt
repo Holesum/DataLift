@@ -14,7 +14,6 @@ import com.example.datalift.model.Mgoal
 import com.example.datalift.model.Muser
 import com.example.datalift.model.userRepo
 import com.example.datalift.navigation.getCurrentUserId
-import com.example.datalift.screens.friends.FriendsUiState
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
