@@ -9,6 +9,7 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -18,7 +19,10 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import com.example.datalift.screens.analysis.AnalysisRoute
+import com.example.datalift.screens.challenges.ChallengeCreationScreen
+import com.example.datalift.screens.challenges.ChallengeDetailScreen
 import com.example.datalift.screens.challenges.ChallengesScreen
+import com.example.datalift.screens.challenges.ChallengesViewModel
 import com.example.datalift.screens.feed.FeedScreen
 import com.example.datalift.screens.feed.FeedViewModel
 import com.example.datalift.screens.feed.PostScreen
@@ -60,8 +64,9 @@ import kotlinx.serialization.Serializable
 @Serializable object ProfileBaseRoute
 @Serializable object ChallengesBaseRoute
 @Serializable object ChallengesFeed
+@Serializable object ChallengesCreation
 
-@Serializable data class ChallengeRoute(val id: String)
+@Serializable data class ChallengeDetail(val id: String)
 @Serializable data class WorkoutDetail(val id: String)
 @Serializable data class WorkoutDetailEdit(val id: String)
 @Serializable data class SettingDetail(
@@ -451,23 +456,63 @@ fun NavGraphBuilder.profileRoute(
 fun NavController.navigateToChallengesFeed(navOptions: NavOptions) =
     navigate(route = ChallengesFeed, navOptions)
 
-fun NavGraphBuilder.challengesRoute(
+fun NavController.navigateToChallenge(id: String) = navigate(ChallengeDetail(id))
 
+fun NavController.navigateToChallengeCreation() = navigate(ChallengesCreation)
+
+fun NavGraphBuilder.challengesRoute(
+    navUp: () -> Unit,
+    getBackStackEntry: (ChallengesBaseRoute) -> NavBackStackEntry,
+    navigateToChallengeFeed: (navOptions: NavOptions) -> Unit,
+    navigateToChallenge: (String) -> Unit,
+    navigateToChallengeCreation: () -> Unit
 ) {
     navigation<ChallengesBaseRoute>(startDestination = ChallengesFeed){
-       composable<ChallengesFeed> {
-           ChallengesScreen()
+       composable<ChallengesFeed> { backStackEntry ->
+           val parentEntry = remember(backStackEntry) {
+               getBackStackEntry(ChallengesBaseRoute )
+           }
+
+           val challengesViewModel: ChallengesViewModel = hiltViewModel(parentEntry)
+
+           ChallengesScreen(
+               challengesViewModel = challengesViewModel,
+               navigateToChallenge = navigateToChallenge,
+               navigateToChallengeCreation = navigateToChallengeCreation
+           )
        }
+
+        composable<ChallengeDetail> {  backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                getBackStackEntry(ChallengesBaseRoute )
+            }
+
+            val challengeDetail: ChallengeDetail = backStackEntry.toRoute()
+            val challengesViewModel: ChallengesViewModel = hiltViewModel(parentEntry)
+            val challenge = challengesViewModel.RetrieveChallenge(challengeDetail.id)
+            val error: Boolean = (challenge.creatorUid == "error")
+
+            ChallengeDetailScreen(
+                challenge = challenge,
+                navigateUp = navUp,
+                currentUser = getCurrentUserId(),
+                error = error
+            )
+        }
+
+        composable<ChallengesCreation> { backstackEntry ->
+            ChallengeCreationScreen(
+                navUp = navUp,
+                navigateToChallengeFeed = {
+                    navigateToChallengeFeed(
+                        navOptions {
+                            popUpTo<ChallengesFeed>{
+                                inclusive = true
+                            }
+                        }
+                    )
+                }
+            )
+        }
     }
 }
-
-//object DataliftDestinations {
-//    const val LOGIN = "signin"
-//    const val SIGNUP = "signin/signup"
-//    const val SIGNUP_NAME = "signin/signup/name"
-//    const val SIGNUP_PI = "signin/signup/more_information"
-//    const val SIGNUP_CREDENTIALS = "signin/signup/credentials"
-//    const val HOME = "home"
-//    const val WORKOUTS = "workout"
-//
-//}

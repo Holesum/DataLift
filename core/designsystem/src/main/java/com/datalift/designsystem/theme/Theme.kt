@@ -26,8 +26,10 @@ val DarkDefaultColorScheme = darkColorScheme(
 @VisibleForTesting
 val LightDefaultColorScheme = lightColorScheme(
     primary = Purple40,
-    secondary = Orange40,
+    secondary = PurpleGrey40,
     tertiary = Blue40,
+    surfaceVariant = PurpleGrey90,
+    onSurfaceVariant = PurpleGrey60,
 )
 
 @VisibleForTesting

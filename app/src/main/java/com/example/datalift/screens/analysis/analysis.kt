@@ -141,7 +141,8 @@ internal fun AnalysisScreen(
             reloadUI = false
             // Extract the exercise names for user selection
             exerciseNames = uiState.exerciseAnalysis.map { it.exerciseName }.distinct()
-            Log.d("test", exerciseNames.toString())
+            Log.d("Chart", exerciseNames.toString())
+            //updateExercise(exerciseNames.first())
 
             // Find the progression data for the selected exercise
             val analysis = uiState.exerciseAnalysis.find { it.exerciseName.equals(exerciseName, ignoreCase = true) }
@@ -223,6 +224,7 @@ internal fun AnalysisScreen(
         }
     }
 
+
     // LazyColumn for displaying the UI
     LazyColumn(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
         when (uiState) {
@@ -244,15 +246,23 @@ internal fun AnalysisScreen(
                 )
             }
 
+
+
                 item {
                     // Exercise Progression Chart
                     if(formattedDates.isNotEmpty() && exerciseName != "") {
                         Log.d("test", "formattedDates ${formattedDates.toString()}")
+                        Log.d("Chart", "weightValues: $weightValues")
+                        val min : Double = if(isImperial) {
+                            weightValues.minOrNull()!! - 10
+                        } else {
+                            weightValues.minOrNull()!! - 5
+                        }
                         ComposeBasicLineChart(
                             modelProducer = workoutProgressionModelProducer,
                             formattedDates =  formattedDates,
                             modifier = modifier.fillMaxWidth(),
-                            min = weightValues.minOrNull()!! - 10,
+                            min = min,
                             title = exerciseName
                         )
                     } else {
@@ -262,11 +272,16 @@ internal fun AnalysisScreen(
                 //User Weight Chart, null check allows for non null assertion
                 item {
                     if(formattedWeightDates.isNotEmpty()) {
+                        val min : Double = if(isImperial) {
+                            userWeightValues.minOrNull()!! - 10
+                        } else {
+                            userWeightValues.minOrNull()!! - 5
+                        }
                         ComposeBasicLineChart(
                             modelProducer = weightModelProducer,
                             formattedDates = formattedWeightDates,
                             modifier = modifier.fillMaxWidth(),
-                            min = userWeightValues.minOrNull()!! - 10,
+                            min = min,
                             title = "User Weights"
                         )
                     }
@@ -294,7 +309,6 @@ internal fun AnalysisScreen(
         }
 
         if(exerciseUiState.recommendationDisplayed){
-            fetchExternalData()
             item {
                 Text(
                     text = "The exercise you are getting recommendations for is: $exercise",
@@ -339,6 +353,7 @@ private fun ComposeBasicLineChart(modelProducer: CartesianChartModelProducer,for
             formattedDates[index]
         }
     }
+    Log.d("Chart", "min: $min")
 
     val labelComponent = rememberTextComponent(
         margins = Insets(4F),

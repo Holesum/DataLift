@@ -64,9 +64,9 @@ fun DataliftTextField(
 @Composable
 fun DataliftNumberTextField(
     field: String,
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
-    suffix: String = "",
-    modifier: Modifier = Modifier
+    suffix: String = ""
 ) {
     var text by remember { mutableStateOf("") }
 
@@ -84,10 +84,10 @@ fun DataliftNumberTextField(
 @Composable
 fun DataliftFormTextField(
     field: String,
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     suffix: String = "",
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    modifier: Modifier = Modifier
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     var text by remember { mutableStateOf("") }
 
@@ -107,12 +107,12 @@ fun StatelessDataliftNumberTextField(
     field: String,
     text: String,
     changeText: (String) -> Unit,
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     suffix: String = "",
     isError: Boolean = false,
     supportingText: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    trailingIcon: @Composable() (() -> Unit)? = null
 ) {
     OutlinedTextField(
         value = text,
@@ -133,14 +133,15 @@ fun StatelessDataliftFormTextField(
     field: String,
     text: String,
     changeText: (String) -> Unit,
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    readOnly: Boolean = false,
     suffix: String = "",
     isError: Boolean = false,
     supportingText: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    modifier: Modifier = Modifier
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 
     OutlinedTextField(
@@ -149,6 +150,7 @@ fun StatelessDataliftFormTextField(
         label = { Text(text = field) },
         singleLine = singleLine,
         isError = isError,
+        readOnly = readOnly,
         supportingText = supportingText,
         suffix = { if(suffix != ""){ Text(suffix) } },
         trailingIcon = trailingIcon,
@@ -193,12 +195,12 @@ fun DataliftFormPrivateTextField(
 fun StatelessDataliftFormPrivateTextField(
     field: String,
     text: String,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
     imeAction: ImeAction = ImeAction.Unspecified,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     supportingText: @Composable() (() -> Unit)? = null,
-    changeText: (String) -> Unit,
-    modifier: Modifier = Modifier
+    changeText: (String) -> Unit
 ) {
     var textVisible by remember { mutableStateOf(false) }
 
@@ -386,8 +388,8 @@ fun MenuFieldToModal(
 @Composable
 fun RadioOptionFieldToModal(
     field: String,
-    options: List<String> = emptyList(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    options: List<String> = emptyList()
 ){
     val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
     val (savedOption, confirmSavedOption) = remember { mutableStateOf("") }
@@ -494,10 +496,10 @@ fun SemiStatelessRadioOptionFieldToModal(
     field: String,
     selectedOption: String,
     changeSelectedOption: (String) -> Unit,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
-    options: List<String> = emptyList(),
-    modifier: Modifier = Modifier
+    options: List<String> = emptyList()
 ){
 //    val (selectedOption, changeSelectedOption) = remember { mutableStateOf("") }
 

@@ -16,6 +16,7 @@ data class Mchallenge(
 )
 
 data class ChallengeProgress(
+    var initialValue: Int = 0,
     var currentValue: Int = 0,
     var isComplete: Boolean = false,
     val completionTimestamp: Timestamp = Timestamp.now()

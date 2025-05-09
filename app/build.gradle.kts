@@ -102,6 +102,8 @@ dependencies {
     //Volley
     implementation("com.android.volley:volley:1.2.1")
 
+
+
     //Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -114,4 +116,10 @@ dependencies {
     testImplementation(libs.hilt.android.testing)
     testImplementation(libs.roborazzi)
 
+    //Mockk
+    testImplementation(libs.mockk)
+
+    //coroutinesTesting
+    testImplementation(libs.kotlinx.coroutines.test)
 }
+

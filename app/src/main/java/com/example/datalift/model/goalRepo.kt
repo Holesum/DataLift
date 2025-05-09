@@ -36,9 +36,13 @@ class GoalRepo @Inject constructor(
                         ignoreCase = true
                     )
                 }
-                val progression = analysis!!.progression.sortedByDescending { it.progressionMultiplier }
-                val multiplier = progression.first().progressionMultiplier
-                goal.targetValue = (analysis.initialAvgORM * multiplier + goal.targetValue).toInt()
+                if(analysis != null) {
+                    val progression =
+                        analysis.progression.sortedByDescending { it.progressionMultiplier }
+                    val multiplier = progression.first().progressionMultiplier
+                    goal.targetValue =
+                        (analysis.initialAvgORM * multiplier + goal.targetValue).toInt()
+                }
             }
             if (goal.type == GoalType.COMPLETE_X_REPS_OF_EXERCISE) {
                 val analysis = exerciseList.value.find {
@@ -47,8 +51,14 @@ class GoalRepo @Inject constructor(
                         ignoreCase = true
                     )
                 }
-                goal.trueTargetValue = goal.targetValue
-                goal.targetValue += analysis!!.repCount.toInt()
+                if(analysis != null) {
+                    goal.trueTargetValue = goal.targetValue
+                    goal.targetValue += analysis.repCount.toInt()
+                }
+                else{
+                    goal.trueTargetValue = goal.targetValue
+                }
+
             }
             if (goal.type == GoalType.COMPLETE_X_WORKOUTS_OF_BODY_PART) {
                 val analysisList = workoutList.value.filter {
