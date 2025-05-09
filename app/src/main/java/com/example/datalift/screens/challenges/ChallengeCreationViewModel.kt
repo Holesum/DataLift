@@ -128,8 +128,8 @@ class ChallengeCreationViewModel @Inject constructor(
         )
 
         var wasSuccessful = false
-        challengeRepo.createChallenge(getCurrentUserId(), challenge){ challenge ->
-            if (challenge != null){
+        challengeRepo.createChallenge(getCurrentUserId(), challenge){ createdChallenge ->
+            if (createdChallenge != null){
                 wasSuccessful = true
             } else {
                 wasSuccessful = false
