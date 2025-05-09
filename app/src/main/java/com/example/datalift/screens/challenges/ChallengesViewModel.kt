@@ -30,6 +30,10 @@ class ChallengesViewModel @Inject constructor(
         }
 //        challengeRepository.getChallengesForCurrentUser()
     }
+
+    fun RetrieveChallenge(id: String) : Mchallenge =
+        challengeRepository.getChallenge(id).value
+
 }
 
 sealed interface ChallengesUiState{
